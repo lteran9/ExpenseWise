@@ -12,6 +12,7 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 - [Docker](https://www.docker.com/support/)
 
 ## High Level Design 
+### Infrastructure
 ```mermaid
 flowchart LR;
    id2(Mobile) --> id3(API);
@@ -21,4 +22,13 @@ flowchart LR;
    end
 ```
 
+### Entity Relationship Diagram
+```mermaid
+erDiagram
+   User ||--|{ MemberOf : is
+   MemberOf }|--|| Group : ""
+   Split }o--|| Group : ""
+   User }|--|{ Split : ""
+   Split }|..|| Expense : ""
+```
 
