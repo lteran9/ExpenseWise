@@ -11,16 +11,22 @@ namespace Tests.Regression
       [Fact]
       public async Task CreateUserMoq()
       {
+         var mockUser = new User() { Id = 1000, Name = "Test User", Email = "test@email.com", Phone = "6023334578" };
          var mockRepository = new Mock<ISqlDatabase<User>>();
-         mockRepository.Setup(x => x.Create(It.IsAny<User>())).Returns(Task.FromResult(new User()));
+         mockRepository.Setup(x => x.Create(It.IsAny<User>())).Returns(Task.FromResult<User?>(mockUser));
          var createUser =
             new CreateUserRequest()
             {
-               Email = "test@email.com",
-               Phone = "6023334578"
+               Name = mockUser.Name,
+               Email = mockUser.Email,
+               Phone = mockUser.Phone
             };
          var handler = new CreateUser(mockRepository.Object);
          var response = await handler.Handle(createUser, new CancellationToken());
+
+         Assert.True(response.Succeeded);
+         Assert.True(response.Result != null);
+         Assert.True(response.Result.Id > 0);
       }
    }
 }
