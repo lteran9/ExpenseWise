@@ -19,7 +19,7 @@ namespace Application.UseCases
          _validator = new CreateGroupRequestValidator();
       }
 
-      public override async Task<ResponseWrapper<CreateGroupResponse>> Handler(CreateGroupRequest request, CancellationToken cancellationToken)
+      public override async Task<ResponseWrapper<CreateGroupResponse>> Handle(CreateGroupRequest request, CancellationToken cancellationToken)
       {
          var validationResult = await _validator.ValidateAsync(request);
          if (validationResult.IsValid)

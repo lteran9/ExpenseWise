@@ -19,7 +19,7 @@ namespace Application.UseCases
          _validator = new CreateUserRequestValidator();
       }
 
-      public override async Task<ResponseWrapper<CreateUserResponse>> Handler(CreateUserRequest request, CancellationToken cancellationToken)
+      public override async Task<ResponseWrapper<CreateUserResponse>> Handle(CreateUserRequest request, CancellationToken cancellationToken)
       {
          var validationResult = await _validator.ValidateAsync(request);
          if (validationResult.IsValid)

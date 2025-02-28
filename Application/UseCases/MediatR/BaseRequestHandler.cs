@@ -8,19 +8,8 @@ namespace Application.UseCases.MediatR
       : IRequestHandler<TRequest, ResponseWrapper<TResponse>>
       where TRequest : IRequest<ResponseWrapper<TResponse>>
    {
-      public abstract Task<ResponseWrapper<TResponse>> Handler(TRequest request, CancellationToken cancellationToken);
-
-      public async Task<ResponseWrapper<TResponse>> Handle(TRequest request, CancellationToken cancellationToken)
-      {
-         try
-         {
-            return await Handler(request, cancellationToken);
-         }
-         catch (Exception ex)
-         {
-            return Failed(default, ex: ex);
-         }
-      }
+      // IRequestHandler 
+      public abstract Task<ResponseWrapper<TResponse>> Handle(TRequest request, CancellationToken cancellationToken);
 
       protected ResponseWrapper<TResponse> Failed(TResponse? obj, Exception? ex = null)
       {
@@ -28,7 +17,7 @@ namespace Application.UseCases.MediatR
             new ResponseWrapper<TResponse>()
             {
                Succeeded = false,
-               Result = obj,
+               Result = obj ?? default,
                Error = ex?.Message ?? ""
             };
       }
@@ -49,7 +38,7 @@ namespace Application.UseCases.MediatR
             new ResponseWrapper<TResponse>()
             {
                Succeeded = false,
-               ValidationMessages = messages ?? new List<string>()
+               ValidationMessages = messages
             };
       }
 

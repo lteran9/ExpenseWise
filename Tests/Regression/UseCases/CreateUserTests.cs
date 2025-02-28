@@ -21,8 +21,8 @@ namespace Tests.Regression
                Email = mockUser.Email,
                Phone = mockUser.Phone
             };
-         var handler = new CreateUser(mockRepository.Object);
-         var response = await handler.Handle(createUser, new CancellationToken());
+         var useCase = new CreateUser(mockRepository.Object);
+         var response = await useCase.Handle(createUser, new CancellationToken());
 
          Assert.True(response.Succeeded);
          Assert.True(response.Result != null);

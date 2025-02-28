@@ -20,8 +20,8 @@ namespace Tests.Regression
                OwnerId = mockGroup.OwnerId,
                Name = mockGroup.Name
             };
-         var handler = new CreateGroup(mockRepository.Object);
-         var response = await handler.Handle(createGroup, new CancellationToken());
+         var useCase = new CreateGroup(mockRepository.Object);
+         var response = await useCase.Handle(createGroup, new CancellationToken());
 
          Assert.True(response.Succeeded);
          Assert.True(response.Result != null);
