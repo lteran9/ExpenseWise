@@ -2,6 +2,17 @@
 
 A tool for tracking expenses and balances on a group level for varied occasions. ExpenseWise makes it easy to calculate totals by keeping an informal ledger that can be updated on an as needed basis. 
 
+## Pre-requisites
+- Docker
+- MySql Workbench
+- Insomnia
+
+## Install
+
+### Clone repo into your machine
+
+### Run the Docker compose file
+
 ## Dependencies
 
 - [MediatR](https://github.com/jbogard/MediatR/)
