@@ -1,10 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseWise.Infrastructure.Sql
 {
-   [Table("member_of")]
+   [Table("member_of"), Index(nameof(UserId), nameof(GroupId), IsUnique = true)]
    public class MemberOf
    {
       [Key]
