@@ -11,9 +11,9 @@ namespace ExpenseWise.Infrastructure.Sql
       [Key]
       public int Id { get; set; }
       [Column("user_id")]
-      public int UserId { get; set; }
+      public int? UserId { get; set; }
       [Column("group_id")]
-      public int GroupId { get; set; }
+      public int? GroupId { get; set; }
 
       [Column("created_at")]
       public DateTime CreatedAt { get; set; }

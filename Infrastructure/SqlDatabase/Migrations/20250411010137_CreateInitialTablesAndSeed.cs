@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace SqlDatabase.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateTablesAndSeed : Migration
+    public partial class CreateInitialTablesAndSeed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -41,7 +41,7 @@ namespace SqlDatabase.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    owner_id = table.Column<int>(type: "int", nullable: false),
+                    owner_id = table.Column<int>(type: "int", nullable: true),
                     name = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false),
                     unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -54,8 +54,7 @@ namespace SqlDatabase.Migrations
                         name: "FK_groups_users_owner_id",
                         column: x => x.owner_id,
                         principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -65,8 +64,8 @@ namespace SqlDatabase.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    user_id = table.Column<int>(type: "int", nullable: false),
-                    group_id = table.Column<int>(type: "int", nullable: false),
+                    user_id = table.Column<int>(type: "int", nullable: true),
+                    group_id = table.Column<int>(type: "int", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -77,14 +76,12 @@ namespace SqlDatabase.Migrations
                         name: "FK_member_of_groups_group_id",
                         column: x => x.group_id,
                         principalTable: "groups",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
                         name: "FK_member_of_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 

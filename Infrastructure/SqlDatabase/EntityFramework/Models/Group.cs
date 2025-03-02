@@ -10,7 +10,7 @@ namespace ExpenseWise.Infrastructure.Sql
       [Key, Column("id")]
       public int Id { get; set; }
       [Column("owner_id")]
-      public int OwnerId { get; set; }
+      public int? OwnerId { get; set; }
 
       [Column("name"), MaxLength(64)]
       public string Name { get; set; }

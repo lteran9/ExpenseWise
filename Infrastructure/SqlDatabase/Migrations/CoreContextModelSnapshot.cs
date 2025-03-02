@@ -36,7 +36,7 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("varchar(64)")
                         .HasColumnName("name");
 
-                    b.Property<int>("OwnerId")
+                    b.Property<int?>("OwnerId")
                         .HasColumnType("int")
                         .HasColumnName("owner_id");
 
@@ -65,7 +65,7 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int")
                         .HasColumnName("group_id");
 
@@ -73,7 +73,7 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int")
                         .HasColumnName("user_id");
 
@@ -141,9 +141,7 @@ namespace SqlDatabase.Migrations
                 {
                     b.HasOne("ExpenseWise.Infrastructure.Sql.User", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
                 });
@@ -152,15 +150,11 @@ namespace SqlDatabase.Migrations
                 {
                     b.HasOne("ExpenseWise.Infrastructure.Sql.Group", "Group")
                         .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("ExpenseWise.Infrastructure.Sql.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Group");
 
