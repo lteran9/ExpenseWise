@@ -7,6 +7,8 @@ namespace ExpenseWise.SqlDatabase
    public class CoreContext : DbContext
    {
       public DbSet<User> Users { get; set; }
+      public DbSet<Group> Groups { get; set; }
+      public DbSet<MemberOf> MemberOf { get; set; }
 
       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
       {

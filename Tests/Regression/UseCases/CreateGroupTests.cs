@@ -11,13 +11,13 @@ namespace Tests.Regression
       [Fact]
       public async Task CreateGroupMoq()
       {
-         var mockGroup = new Group() { Id = 1000, OwnerId = 1000, Name = "Initial Test Group" };
+         var mockGroup = new Group() { Id = 1000, Owner = new User() { Id = 1000 }, Name = "Initial Test Group" };
          var mockRepository = new Mock<ISqlDatabase<Group>>();
          mockRepository.Setup(x => x.Create(It.IsAny<Group>())).Returns(Task.FromResult<Group?>(mockGroup));
          var createGroup =
             new CreateGroupRequest()
             {
-               OwnerId = mockGroup.OwnerId,
+               OwnerId = mockGroup.Owner.Id,
                Name = mockGroup.Name
             };
          var useCase = new CreateGroup(mockRepository.Object);
