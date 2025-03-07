@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20250411010137_CreateInitialTablesAndSeed")]
+    [Migration("20250411010827_CreateInitialTablesAndSeed")]
     partial class CreateInitialTablesAndSeed
     {
         /// <inheritdoc />
@@ -28,6 +28,10 @@ namespace SqlDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("active");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
@@ -64,6 +68,10 @@ namespace SqlDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("active");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -96,6 +104,10 @@ namespace SqlDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("active");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")

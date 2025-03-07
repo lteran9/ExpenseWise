@@ -26,6 +26,10 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("active");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -61,6 +65,10 @@ namespace SqlDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("active");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -93,6 +101,10 @@ namespace SqlDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("active");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")

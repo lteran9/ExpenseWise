@@ -15,6 +15,9 @@ namespace ExpenseWise.Infrastructure.Sql
       [Column("group_id")]
       public int? GroupId { get; set; }
 
+      [Column("active")]
+      public bool Active { get; set; }
+
       [Column("created_at")]
       public DateTime CreatedAt { get; set; }
       [Column("updated_at")]
@@ -24,5 +27,11 @@ namespace ExpenseWise.Infrastructure.Sql
       public User? User { get; set; }
       [ForeignKey(nameof(GroupId))]
       public Group? Group { get; set; }
+
+      public MemberOf()
+      {
+         // Default to true
+         Active = true;
+      }
    }
 }

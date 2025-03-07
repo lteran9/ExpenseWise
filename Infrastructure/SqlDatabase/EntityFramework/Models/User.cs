@@ -10,6 +10,9 @@ namespace ExpenseWise.Infrastructure.Sql
       [Key, Column("id")]
       public int Id { get; set; }
 
+      [Column("active")]
+      public bool Active { get; set; }
+
       [Column("fist_name"), MaxLength(32)]
       public string FirstName { get; set; }
       [Column("last_name"), MaxLength(64)]
@@ -33,6 +36,8 @@ namespace ExpenseWise.Infrastructure.Sql
          Email = string.Empty;
          Phone = string.Empty;
          Password = string.Empty;
+         // Default to true
+         Active = true;
       }
    }
 }

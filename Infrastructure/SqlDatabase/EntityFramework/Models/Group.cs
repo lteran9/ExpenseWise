@@ -12,6 +12,9 @@ namespace ExpenseWise.Infrastructure.Sql
       [Column("owner_id")]
       public int? OwnerId { get; set; }
 
+      [Column("active")]
+      public bool Active { get; set; }
+
       [Column("name"), MaxLength(64)]
       public string Name { get; set; }
 
@@ -29,6 +32,8 @@ namespace ExpenseWise.Infrastructure.Sql
       public Group()
       {
          Name = string.Empty;
+         // Default to true
+         Active = true;
       }
    }
 }

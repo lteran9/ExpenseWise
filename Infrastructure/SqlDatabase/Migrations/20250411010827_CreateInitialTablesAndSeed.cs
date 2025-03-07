@@ -21,6 +21,7 @@ namespace SqlDatabase.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    active = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     fist_name = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false),
                     last_name = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false),
                     email = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false),
@@ -42,6 +43,7 @@ namespace SqlDatabase.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     owner_id = table.Column<int>(type: "int", nullable: true),
+                    active = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     name = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false),
                     unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -66,6 +68,7 @@ namespace SqlDatabase.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     user_id = table.Column<int>(type: "int", nullable: true),
                     group_id = table.Column<int>(type: "int", nullable: true),
+                    active = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
