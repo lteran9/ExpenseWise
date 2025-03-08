@@ -1,6 +1,7 @@
 using System;
 using Application.UseCases;
 using Application.UseCases.Ports;
+using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
@@ -8,11 +9,11 @@ namespace Tests.Regression
 {
    public class CreateGroupTests
    {
-      [Fact]
-      public async Task CreateGroupMoq()
+      [Theory]
+      [AutoMoq]
+      public async Task CreateGroupMoq([Frozen] Mock<ISqlDatabase<Group>> mockRepository)
       {
          var mockGroup = new Group() { Id = 1000, Owner = new User() { Id = 1000 }, Name = "Initial Test Group" };
-         var mockRepository = new Mock<ISqlDatabase<Group>>();
          mockRepository.Setup(x => x.Create(It.IsAny<Group>())).Returns(Task.FromResult<Group?>(mockGroup));
          var createGroup =
             new CreateGroupRequest()

@@ -1,6 +1,7 @@
 using System;
 using Application.UseCases;
 using Application.UseCases.Ports;
+using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
@@ -8,11 +9,11 @@ namespace Tests.Regression
 {
    public class CreateUserTests
    {
-      [Fact]
-      public async Task CreateUserMoq()
+      [Theory]
+      [AutoMoq]
+      public async Task CreateUserMoq([Frozen] Mock<ISqlDatabase<User>> mockRepository)
       {
          var mockUser = new User() { Id = 1000, Name = "Test User", Email = "test@email.com", Phone = "6023334578" };
-         var mockRepository = new Mock<ISqlDatabase<User>>();
          mockRepository.Setup(x => x.Create(It.IsAny<User>())).Returns(Task.FromResult<User?>(mockUser));
          var createUser =
             new CreateUserRequest()

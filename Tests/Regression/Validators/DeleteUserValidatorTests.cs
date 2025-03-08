@@ -1,6 +1,7 @@
 using System;
 using Application.UseCases;
 using Application.UseCases.Ports;
+using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
@@ -8,10 +9,10 @@ namespace Tests.Regression
 {
    public class DeleteUserValidatorTests
    {
-      [Fact]
-      public async Task Validate_IdNotEmpty()
+      [Theory]
+      [AutoMoq]
+      public async Task Validate_IdNotEmpty([Frozen] Mock<ISqlDatabase<User>> mockRepository)
       {
-         var mockRepository = new Mock<ISqlDatabase<User>>();
          var deleteUser =
             new DeleteUserRequest();
          var handler = new DeleteUser(mockRepository.Object);

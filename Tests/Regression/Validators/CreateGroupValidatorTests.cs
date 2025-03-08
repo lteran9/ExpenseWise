@@ -1,6 +1,7 @@
 using System;
 using Application.UseCases;
 using Application.UseCases.Ports;
+using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
@@ -8,10 +9,10 @@ namespace Tests.Regression
 {
    public class CreateGroupValidatorTests
    {
-      [Fact]
-      public async Task Validate_NameNotEmpty()
+      [Theory]
+      [AutoMoq]
+      public async Task Validate_NameNotEmpty([Frozen] Mock<ISqlDatabase<Group>> mockRepository)
       {
-         var mockRepository = new Mock<ISqlDatabase<Group>>();
          var createGroup =
             new CreateGroupRequest()
             {
@@ -23,10 +24,10 @@ namespace Tests.Regression
          Assert.True(response.ValidationMessages?.Any() == true);
       }
 
-      [Fact]
-      public async Task Validate_OwnerIdPresent()
+      [Theory]
+      [AutoMoq]
+      public async Task Validate_OwnerIdPresent([Frozen] Mock<ISqlDatabase<Group>> mockRepository)
       {
-         var mockRepository = new Mock<ISqlDatabase<Group>>();
          var createGroup =
             new CreateGroupRequest()
             {

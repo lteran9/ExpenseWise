@@ -1,6 +1,7 @@
 using System;
 using Application.UseCases;
 using Application.UseCases.Ports;
+using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
@@ -8,10 +9,10 @@ namespace Tests.Regression
 {
    public class CreateExpenseValidatorTests
    {
-      [Fact]
-      public async Task Validate_DescriptionNotEmpty()
+      [Theory]
+      [AutoMoq]
+      public async Task Validate_DescriptionNotEmpty([Frozen] Mock<ISqlDatabase<Expense>> mockRepository)
       {
-         var mockRepository = new Mock<ISqlDatabase<Expense>>();
          var createExpense =
             new CreateExpenseRequest()
             {
@@ -24,10 +25,10 @@ namespace Tests.Regression
          Assert.True(response.ValidationMessages?.Any() == true);
       }
 
-      [Fact]
-      public async Task Validate_CurrencyNotEmpty()
+      [Theory]
+      [AutoMoq]
+      public async Task Validate_CurrencyNotEmpty([Frozen] Mock<ISqlDatabase<Expense>> mockRepository)
       {
-         var mockRepository = new Mock<ISqlDatabase<Expense>>();
          var createExpense =
             new CreateExpenseRequest()
             {
@@ -40,10 +41,10 @@ namespace Tests.Regression
          Assert.True(response.ValidationMessages?.Any() == true);
       }
 
-      [Fact]
-      public async Task Validate_AmountNotZero()
+      [Theory]
+      [AutoMoq]
+      public async Task Validate_AmountNotZero([Frozen] Mock<ISqlDatabase<Expense>> mockRepository)
       {
-         var mockRepository = new Mock<ISqlDatabase<Expense>>();
          var createExpense =
             new CreateExpenseRequest()
             {
