@@ -27,7 +27,7 @@ namespace Application.UseCases
             var user =
                new Group()
                {
-                  OwnerId = request.OwnerId,
+                  Owner = new User() { Id = request.OwnerId },
                   Name = request.Name,
                };
 

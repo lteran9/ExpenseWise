@@ -16,6 +16,5 @@ namespace Core.Entities
          Description = string.Empty;
          Currency = string.Empty;
       }
-
    }
 }
