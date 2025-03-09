@@ -24,14 +24,14 @@ namespace Application.UseCases
          var validationResult = await _validator.ValidateAsync(request);
          if (validationResult.IsValid)
          {
-            var user =
+            var group =
                new Group()
                {
                   Owner = new User() { Id = request.OwnerId },
                   Name = request.Name,
                };
 
-            var response = await _repository.CreateAsync(user);
+            var response = await _repository.CreateAsync(group);
             if (response != null)
             {
                return Successful(
