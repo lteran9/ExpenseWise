@@ -1,5 +1,4 @@
 using System;
-using System.Net.Cache;
 using Application.UseCases;
 using Application.UseCases.Ports;
 using AutoFixture.Xunit2;
@@ -15,7 +14,7 @@ namespace Tests.Regression
       public async Task CreateExpenseMoq([Frozen] Mock<ISqlDatabase<Expense>> mockRepository)
       {
          var mockExpense = new Expense() { Id = 1, Description = "This is a test description.", Currency = "USD", Amount = 100.00M };
-         mockRepository.Setup(x => x.Create(It.IsAny<Expense>())).Returns(Task.FromResult<Expense?>(mockExpense));
+         mockRepository.Setup(x => x.CreateAsync(It.IsAny<Expense>())).Returns(Task.FromResult<Expense?>(mockExpense));
          var createExpense =
             new CreateExpenseRequest()
             {

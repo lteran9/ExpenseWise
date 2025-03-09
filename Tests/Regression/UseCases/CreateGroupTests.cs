@@ -14,7 +14,7 @@ namespace Tests.Regression
       public async Task CreateGroupMoq([Frozen] Mock<ISqlDatabase<Group>> mockRepository)
       {
          var mockGroup = new Group() { Id = 1000, Owner = new User() { Id = 1000 }, Name = "Initial Test Group" };
-         mockRepository.Setup(x => x.Create(It.IsAny<Group>())).Returns(Task.FromResult<Group?>(mockGroup));
+         mockRepository.Setup(x => x.CreateAsync(It.IsAny<Group>())).Returns(Task.FromResult<Group?>(mockGroup));
          var createGroup =
             new CreateGroupRequest()
             {

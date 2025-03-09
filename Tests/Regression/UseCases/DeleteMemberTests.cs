@@ -14,7 +14,7 @@ namespace Tests.Regression
       public async Task DeleteMemberMoq([Frozen] Mock<ISqlDatabase<MemberOf>> mockRepository)
       {
          var mockUser = new MemberOf() { Id = 1000 };
-         mockRepository.Setup(x => x.Delete(It.IsAny<MemberOf>())).Returns(Task.FromResult<MemberOf?>(mockUser));
+         mockRepository.Setup(x => x.DeleteAsync(It.IsAny<MemberOf>())).Returns(Task.FromResult<MemberOf?>(mockUser));
          var deleteMember =
             new DeleteMemberRequest()
             {

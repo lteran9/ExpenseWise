@@ -32,7 +32,7 @@ namespace Application.UseCases
                   Phone = request.Phone
                };
 
-            var response = await _repository.Create(user);
+            var response = await _repository.CreateAsync(user);
             if (response != null)
             {
                return Successful(

@@ -31,7 +31,7 @@ namespace Application.UseCases
                   Name = request.Name,
                };
 
-            var response = await _repository.Create(user);
+            var response = await _repository.CreateAsync(user);
             if (response != null)
             {
                return Successful(

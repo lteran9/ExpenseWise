@@ -32,7 +32,7 @@ namespace Application.UseCases
                   Amount = request.Amount
                };
 
-            var response = await _repository.Create(expense);
+            var response = await _repository.CreateAsync(expense);
             if (response != null)
             {
                return Successful(

@@ -5,9 +5,9 @@ namespace Application.UseCases.Ports
 {
    public interface ISqlDatabase<T> where T : class
    {
-      Task<T?> Get(T entity);
-      Task<T?> Create(T entity);
-      Task<T?> Delete(T entity);
-      Task<T?> Update(T entity);
+      Task<T?> GetAsync(T entity);
+      Task<T?> CreateAsync(T entity);
+      Task<T?> DeleteAsync(T entity);
+      Task<T?> UpdateAsync(T entity);
    }
 }

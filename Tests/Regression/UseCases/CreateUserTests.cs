@@ -14,7 +14,7 @@ namespace Tests.Regression
       public async Task CreateUserMoq([Frozen] Mock<ISqlDatabase<User>> mockRepository)
       {
          var mockUser = new User() { Id = 1000, Name = "Test User", Email = "test@email.com", Phone = "6023334578" };
-         mockRepository.Setup(x => x.Create(It.IsAny<User>())).Returns(Task.FromResult<User?>(mockUser));
+         mockRepository.Setup(x => x.CreateAsync(It.IsAny<User>())).Returns(Task.FromResult<User?>(mockUser));
          var createUser =
             new CreateUserRequest()
             {

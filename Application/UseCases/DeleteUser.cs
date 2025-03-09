@@ -25,7 +25,7 @@ namespace Application.UseCases
          if (validationResult.IsValid)
          {
             // Let repository implementation handle Find operation
-            var response = await _repository.Delete(new User() { Id = request.Id });
+            var response = await _repository.DeleteAsync(new User() { Id = request.Id });
             if (response != null)
             {
                return Successful(
