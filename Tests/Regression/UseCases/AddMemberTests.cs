@@ -22,6 +22,18 @@ namespace Tests.Regression
                Group = mockGroup
             };
          mockRepository.Setup(x => x.CreateAsync(It.IsAny<MemberOf>())).Returns(Task.FromResult<MemberOf?>(mockMembership));
+         var addMemberRequest =
+            new AddMemberRequest()
+            {
+               User = mockUser,
+               Group = mockGroup
+            };
+         var useCase = new AddMember(mockRepository.Object);
+         var response = await useCase.Handle(addMemberRequest, new CancellationToken());
+
+         Assert.True(response.Succeeded);
+         Assert.True(response.Result != null);
+         Assert.True(response.Result.Success);
       }
    }
 }
