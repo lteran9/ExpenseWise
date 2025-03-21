@@ -1,6 +1,5 @@
 using System;
-using ExpenseWise.Infrastructure.Sql;
-using ExpenseWise.SqlDatabase;
+using Infrastructure.SqlDatabase;
 using Microsoft.EntityFrameworkCore;
 
 namespace Tests.Infrastructure

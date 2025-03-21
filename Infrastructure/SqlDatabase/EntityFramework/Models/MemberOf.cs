@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExpenseWise.Infrastructure.Sql
+namespace Infrastructure.SqlDatabase
 {
    [Table("member_of"), Index(nameof(UserId), nameof(GroupId), IsUnique = true)]
    public class MemberOf

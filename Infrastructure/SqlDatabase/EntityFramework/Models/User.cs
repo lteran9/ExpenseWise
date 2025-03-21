@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ExpenseWise.Infrastructure.Sql
+namespace Infrastructure.SqlDatabase
 {
    [Table("users")]
    public class User

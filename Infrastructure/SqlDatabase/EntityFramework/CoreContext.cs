@@ -1,8 +1,7 @@
 using System;
-using ExpenseWise.Infrastructure.Sql;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExpenseWise.SqlDatabase
+namespace Infrastructure.SqlDatabase
 {
    public class CoreContext : DbContext
    {
