@@ -1,85 +1,83 @@
 using System;
+using Application.UseCases.Ports;
 using Infrastructure.SqlDatabase;
 
 namespace Tests.Infrastructure
 {
    public class UserTests
    {
+      private readonly ISqlDatabase<UserEntity> _repository = new UserRepository();
       [Fact]
-      public void Create()
+      public async Task Create()
       {
-         using (var context = new CoreContext())
-         {
-            var user =
-               new UserEntity()
-               {
-                  FirstName = "Test",
-                  LastName = "Tester",
-                  Email = "test@example.com",
-                  Phone = "6023334578",
-                  Password = "emptypassword",
-                  CreatedAt = DateTime.Now,
-                  UpdatedAt = DateTime.Now
-               };
+         var user =
+            new UserEntity()
+            {
+               FirstName = "Test",
+               LastName = "Tester",
+               Email = "test@example.com",
+               Phone = "6023334578",
+               Password = "emptypassword",
+               CreatedAt = DateTime.Now,
+               UpdatedAt = DateTime.Now
+            };
 
-            var dbUser = context.Add(user);
-            var result = context.SaveChanges();
+         var dbUser = await _repository.CreateAsync(user);
 
-            Assert.True(dbUser.Entity.Id > 0);
-            Assert.True(result > 0);
-         }
+         Assert.NotNull(dbUser);
+         Assert.True(dbUser.Id > 0);
+         Assert.True(dbUser.Active);
       }
 
       [Fact]
-      public void Update()
+      public async Task Update()
       {
-         using (var context = new CoreContext())
-         {
-            var dbUser = context.Users.Find(1);
 
-            Assert.NotNull(dbUser);
+         var dbUser = await _repository.GetAsync(new UserEntity() { Id = 1 });
 
-            // Change name
-            dbUser.FirstName = "New Test";
-            dbUser.UpdatedAt = DateTime.Now;
-            var result = context.SaveChanges();
+         Assert.NotNull(dbUser);
 
-            Assert.True(result > 0);
-         }
+         // Change name
+         dbUser.FirstName = "Newer Test";
+         dbUser.UpdatedAt = DateTime.Now;
+         var result = await _repository.UpdateAsync(dbUser);
+
+         Assert.NotNull(result);
+         Assert.Equal(dbUser.FirstName, result.FirstName);
+         Assert.Equal(dbUser.UpdatedAt, result.UpdatedAt);
       }
 
       [Fact]
-      public void HardDelete()
+      public async Task HardDelete()
       {
-         using (var context = new CoreContext())
-         {
-            var dbUser = context.Users.Find(1);
+         var dbUser = await _repository.GetAsync(new UserEntity() { Id = 1 });
 
-            Assert.NotNull(dbUser);
+         Assert.NotNull(dbUser);
 
-            context.Remove(dbUser!);
-            var result = context.SaveChanges();
+         var result = await _repository.DeleteAsync(dbUser);
 
-            Assert.True(result > 0);
-         }
+         Assert.NotNull(result);
+
+         var missingUser = await _repository.GetAsync(result);
+
+         Assert.Null(missingUser);
       }
 
       [Fact]
-      public void SoftDelete()
+      public async Task SoftDelete()
       {
-         using (var context = new CoreContext())
-         {
-            var dbUser = context.Users.Find(1);
+         var dbUser = await _repository.GetAsync(new UserEntity() { Id = 1 });
 
-            Assert.NotNull(dbUser);
+         Assert.NotNull(dbUser);
 
-            // Change name
-            dbUser.Active = false;
-            dbUser.UpdatedAt = DateTime.Now;
-            var result = context.SaveChanges();
+         // Set inactive
+         dbUser.Active = false;
+         dbUser.UpdatedAt = DateTime.Now;
+         var result = await _repository.UpdateAsync(dbUser);
 
-            Assert.True(result > 0);
-         }
+         Assert.NotNull(result);
+         Assert.Equal(dbUser.Active, result.Active);
+         Assert.Equal(dbUser.UpdatedAt, result.UpdatedAt);
       }
    }
 }
