@@ -7,6 +7,7 @@ namespace Tests.Infrastructure
    public class UserTests
    {
       private readonly ISqlDatabase<UserEntity> _repository = new UserRepository();
+
       [Fact]
       public async Task Create()
       {

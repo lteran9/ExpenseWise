@@ -9,19 +9,14 @@ namespace Infrastructure.SqlDatabase
       {
          using (var context = new CoreContext())
          {
+            // Default values
+            if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
+            if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
+            if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
+
             var insert = context.Add(entity);
             await context.SaveChangesAsync();
             return insert.Entity;
-         }
-      }
-
-      public async Task<UserEntity?> DeleteAsync(UserEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            var delete = context.Remove(entity);
-            await context.SaveChangesAsync();
-            return delete.Entity;
          }
       }
 
@@ -29,8 +24,15 @@ namespace Infrastructure.SqlDatabase
       {
          using (var context = new CoreContext())
          {
-            return await context.FindAsync<UserEntity>(entity.Id);
+            var dbEntity = await context.FindAsync<UserEntity>(entity.Id);
+            // Only return active users
+            if (dbEntity?.Active == true)
+            {
+               return dbEntity;
+            }
          }
+
+         return null;
       }
 
       public async Task<UserEntity?> UpdateAsync(UserEntity entity)
@@ -40,6 +42,17 @@ namespace Infrastructure.SqlDatabase
             var update = context.Update(entity);
             await context.SaveChangesAsync();
             return update.Entity;
+         }
+      }
+
+      /* Hard deletes involve deleting foreign key relationships as well. */
+      public async Task<UserEntity?> DeleteAsync(UserEntity entity)
+      {
+         using (var context = new CoreContext())
+         {
+            // Soft delete
+            entity.Active = false;
+            return await UpdateAsync(entity);
          }
       }
    }

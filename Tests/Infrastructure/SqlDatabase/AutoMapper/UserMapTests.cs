@@ -77,5 +77,65 @@ namespace Tests.Infrastructure
 
          Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
       }
+
+      [Fact]
+      public void BaseMap_EntityToDatabase_NoLastName()
+      {
+         var uniqueKey = Guid.NewGuid();
+
+         var user =
+            new User()
+            {
+               Id = 1000,
+               Name = "Quetzalcoatl",
+               Email = "sample@test.com",
+               Phone = "+1 602 333 4578",
+               UniqueKey = uniqueKey
+            };
+
+         var dbUser =
+            new UserEntity()
+            {
+               Id = 1000,
+               FirstName = "Quetzalcoatl",
+               LastName = "",
+               Email = "sample@test.com",
+               Phone = "+1 602 333 4578",
+               UniqueKey = uniqueKey
+            };
+
+         Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
+      }
+
+      [Fact]
+      public void BaseMap_EntityToDatabase_EmptyName()
+      {
+         var uniqueKey = Guid.NewGuid();
+
+         // Empty Name
+
+         var user =
+            new User()
+            {
+               Id = 1000,
+               Name = "",
+               Email = "sample@test.com",
+               Phone = "+1 602 333 4578",
+               UniqueKey = uniqueKey
+            };
+
+         var dbUser =
+            new UserEntity()
+            {
+               Id = 1000,
+               FirstName = "",
+               LastName = "",
+               Email = "sample@test.com",
+               Phone = "+1 602 333 4578",
+               UniqueKey = uniqueKey
+            };
+
+         Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
+      }
    }
 }

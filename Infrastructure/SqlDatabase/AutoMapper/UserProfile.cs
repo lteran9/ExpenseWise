@@ -14,8 +14,8 @@ namespace Infrastructure.SqlDatabase
 
          // Entity to Database
          CreateMap<User, UserEntity>()
-            .ForMember(d => d.FirstName, src => src.MapFrom(s => s.Name.Split(' ', StringSplitOptions.None)[0]))
-            .ForMember(d => d.LastName, src => src.MapFrom(s => s.Name.Split(' ', StringSplitOptions.None)[1]));
+            .ForMember(d => d.FirstName, src => src.MapFrom(s => s.Name.IndexOf(' ') > 0 ? s.Name.Split(' ', StringSplitOptions.None)[0] : s.Name))
+            .ForMember(d => d.LastName, src => src.MapFrom(s => s.Name.IndexOf(' ') > 0 ? s.Name.Split(' ', StringSplitOptions.None)[1] : string.Empty));
       }
    }
 }
