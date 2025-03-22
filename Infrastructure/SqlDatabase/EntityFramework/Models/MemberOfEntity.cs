@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.SqlDatabase
 {
    [Table("member_of"), Index(nameof(UserId), nameof(GroupId), IsUnique = true)]
-   public class MemberOf
+   public class MemberOfEntity
    {
       [Key]
       public int Id { get; set; }
@@ -24,11 +24,11 @@ namespace Infrastructure.SqlDatabase
       public DateTime UpdatedAt { get; set; }
 
       [ForeignKey(nameof(UserId))]
-      public User? User { get; set; }
+      public UserEntity? User { get; set; }
       [ForeignKey(nameof(GroupId))]
-      public Group? Group { get; set; }
+      public GroupEntity? Group { get; set; }
 
-      public MemberOf()
+      public MemberOfEntity()
       {
          // Default to true
          Active = true;

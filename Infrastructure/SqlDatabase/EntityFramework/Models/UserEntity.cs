@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Infrastructure.SqlDatabase
 {
    [Table("users")]
-   public class User
+   public class UserEntity
    {
       [Key, Column("id")]
       public int Id { get; set; }
@@ -29,7 +29,7 @@ namespace Infrastructure.SqlDatabase
       [Column("updated_at")]
       public DateTime UpdatedAt { get; set; }
 
-      public User()
+      public UserEntity()
       {
          FirstName = string.Empty;
          LastName = string.Empty;

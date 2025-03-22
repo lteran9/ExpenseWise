@@ -11,7 +11,7 @@ namespace Tests.Infrastructure
          using (var context = new CoreContext())
          {
             var group =
-               new Group()
+               new GroupEntity()
                {
                   Name = "SampleGroup",
                   OwnerId = 1,

@@ -5,9 +5,9 @@ namespace Infrastructure.SqlDatabase
 {
    public class CoreContext : DbContext
    {
-      public DbSet<User> Users { get; set; }
-      public DbSet<Group> Groups { get; set; }
-      public DbSet<MemberOf> MemberOf { get; set; }
+      public DbSet<UserEntity> Users { get; set; }
+      public DbSet<GroupEntity> Groups { get; set; }
+      public DbSet<MemberOfEntity> MemberOf { get; set; }
 
       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
       {

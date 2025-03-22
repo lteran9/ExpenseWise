@@ -12,7 +12,7 @@ namespace Tests.Infrastructure
          using (var context = new CoreContext())
          {
             var membership
-               = new MemberOf()
+               = new MemberOfEntity()
                {
                   UserId = 1,
                   GroupId = 1,
@@ -34,7 +34,7 @@ namespace Tests.Infrastructure
          using (var context = new CoreContext())
          {
             var membership
-               = new MemberOf()
+               = new MemberOfEntity()
                {
                   UserId = 1,
                   GroupId = 1,

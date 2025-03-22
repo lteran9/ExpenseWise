@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Infrastructure.SqlDatabase
 {
    [Table("groups")]
-   public class Group
+   public class GroupEntity
    {
       [Key, Column("id")]
       public int Id { get; set; }
@@ -27,9 +27,9 @@ namespace Infrastructure.SqlDatabase
       public DateTime UpdatedAt { get; set; }
 
       [ForeignKey(nameof(OwnerId))]
-      public User? Owner { get; set; }
+      public UserEntity? Owner { get; set; }
 
-      public Group()
+      public GroupEntity()
       {
          Name = string.Empty;
          // Default to true

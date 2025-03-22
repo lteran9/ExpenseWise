@@ -11,7 +11,7 @@ namespace Tests.Infrastructure
          using (var context = new CoreContext())
          {
             var user =
-               new User()
+               new UserEntity()
                {
                   FirstName = "Test",
                   LastName = "Tester",
