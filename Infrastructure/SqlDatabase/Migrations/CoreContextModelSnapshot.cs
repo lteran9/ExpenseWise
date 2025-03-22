@@ -56,6 +56,9 @@ namespace SqlDatabase.Migrations
 
                     b.HasIndex("OwnerId");
 
+                    b.HasIndex("UniqueKey")
+                        .IsUnique();
+
                     b.ToTable("groups");
                 });
 
@@ -140,11 +143,18 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("varchar(16)")
                         .HasColumnName("phone");
 
+                    b.Property<Guid>("UniqueKey")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("unique_key");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UniqueKey")
+                        .IsUnique();
 
                     b.ToTable("users");
                 });

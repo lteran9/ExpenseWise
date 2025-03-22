@@ -1,10 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-   [Table("groups")]
+   [Table("groups"), Index(nameof(UniqueKey), IsUnique = true)]
    public class GroupEntity
    {
       [Key, Column("id")]

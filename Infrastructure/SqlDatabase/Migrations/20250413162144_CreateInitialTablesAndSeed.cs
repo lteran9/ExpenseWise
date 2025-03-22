@@ -27,6 +27,7 @@ namespace SqlDatabase.Migrations
                     email = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false),
                     phone = table.Column<string>(type: "varchar(16)", maxLength: 16, nullable: false),
                     password = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -94,6 +95,12 @@ namespace SqlDatabase.Migrations
                 column: "owner_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_groups_unique_key",
+                table: "groups",
+                column: "unique_key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_member_of_group_id",
                 table: "member_of",
                 column: "group_id");
@@ -102,6 +109,12 @@ namespace SqlDatabase.Migrations
                 name: "IX_member_of_user_id_group_id",
                 table: "member_of",
                 columns: new[] { "user_id", "group_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_unique_key",
+                table: "users",
+                column: "unique_key",
                 unique: true);
         }
 

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20250412170110_CreateInitialTablesAndSeed")]
+    [Migration("20250413162144_CreateInitialTablesAndSeed")]
     partial class CreateInitialTablesAndSeed
     {
         /// <inheritdoc />
@@ -58,6 +58,9 @@ namespace SqlDatabase.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("UniqueKey")
+                        .IsUnique();
 
                     b.ToTable("groups");
                 });
@@ -143,11 +146,18 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("varchar(16)")
                         .HasColumnName("phone");
 
+                    b.Property<Guid>("UniqueKey")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("unique_key");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UniqueKey")
+                        .IsUnique();
 
                     b.ToTable("users");
                 });

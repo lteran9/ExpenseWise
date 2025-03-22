@@ -1,10 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-   [Table("users")]
+   [Table("users"), Index(nameof(UniqueKey), IsUnique = true)]
    public class UserEntity
    {
       [Key, Column("id")]
@@ -23,6 +24,9 @@ namespace Infrastructure.SqlDatabase
       public string Phone { get; set; }
       [Column("password"), MaxLength(256)]
       public string Password { get; set; }
+
+      [Column("unique_key")]
+      public Guid UniqueKey { get; set; }
 
       [Column("created_at")]
       public DateTime CreatedAt { get; set; }
