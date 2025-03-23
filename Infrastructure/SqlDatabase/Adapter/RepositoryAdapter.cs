@@ -10,10 +10,12 @@ namespace Infrastructure.SqlDatabase
    public class RepositoryAdapter : IRepository
    {
       private readonly UserRepository _userRepository;
+      private readonly GroupRepository _groupRepository;
 
       public RepositoryAdapter()
       {
          _userRepository = new UserRepository();
+         _groupRepository = new GroupRepository();
       }
 
       #region User
@@ -74,9 +76,72 @@ namespace Infrastructure.SqlDatabase
          return null;
       }
 
-      #endregion
-
       private User MapDatabaseToEntity(UserEntity dbEntity) => DatabaseMapper.UserMapper.Map<User>(dbEntity);
       private UserEntity MapEntityToDatabase(User entity) => DatabaseMapper.UserMapper.Map<UserEntity>(entity);
+
+      #endregion
+
+      #region Group
+
+      public async Task<Group?> CreateAsync(Group entity)
+      {
+         if (entity != null)
+         {
+            var dbGroup = await _groupRepository.CreateAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Group?> GetAsync(Group entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _groupRepository.GetAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Group?> UpdateAsync(Group entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _groupRepository.UpdateAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Group?> DeleteAsync(Group entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _groupRepository.DeleteAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      private Group MapDatabaseToEntity(GroupEntity dbEntity) => DatabaseMapper.GroupMapper.Map<Group>(dbEntity);
+      private GroupEntity MapEntityToDatabase(Group entity) => DatabaseMapper.GroupMapper.Map<GroupEntity>(entity);
+
+      #endregion
    }
 }

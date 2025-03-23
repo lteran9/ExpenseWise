@@ -4,7 +4,7 @@ using Core.Entities;
 
 namespace Infrastructure.SqlDatabase
 {
-   public interface IRepository : ISqlDatabase<User>
+   public interface IRepository : ISqlDatabase<User>, ISqlDatabase<Group>
    {
 
    }

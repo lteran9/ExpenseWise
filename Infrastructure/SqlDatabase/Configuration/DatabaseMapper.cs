@@ -16,5 +16,17 @@ namespace Infrastructure.SqlDatabase
                }).CreateMapper();
          }
       }
+
+      public static IMapper GroupMapper
+      {
+         get
+         {
+            return
+               new MapperConfiguration(cfg =>
+               {
+                  cfg.AddProfile(Activator.CreateInstance(typeof(GroupProfile)) as Profile);
+               }).CreateMapper();
+         }
+      }
    }
 }
