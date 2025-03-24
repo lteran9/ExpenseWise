@@ -9,9 +9,11 @@ namespace Infrastructure.SqlDatabase
       public GroupProfile()
       {
          // Database to Entity
-         CreateMap<GroupEntity, Group>();
+         CreateMap<GroupEntity, Group>()
+            .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.UserMapper.Map<User>(s.Owner)));
          // Entity to Database
-         CreateMap<Group, GroupEntity>();
+         CreateMap<Group, GroupEntity>()
+            .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.UserMapper.Map<UserEntity>(s.Owner)));
       }
    }
 }
