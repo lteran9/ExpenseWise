@@ -13,24 +13,19 @@ namespace Tests.Infrastructure
          _repositoryAdapter = new RepositoryAdapter();
       }
 
-      [Fact]
-      public async Task UserAdapter_Create()
-      {
-         var user =
-            new User()
-            {
-               Name = "Luis Teran",
-               Phone = "+16023334578",
-               Email = "test@email.com"
-            };
+      #region User
 
-         var dbUser = await _repositoryAdapter.CreateAsync(user);
+      [Theory]
+      [MemberData(nameof(UserData))]
+      public async Task UserAdapter_Create(User sampleUser)
+      {
+         var dbUser = await _repositoryAdapter.CreateAsync(sampleUser);
 
          Assert.NotNull(dbUser);
          Assert.True(dbUser.Id > 0);
-         Assert.Equal(user.Name, dbUser.Name);
-         Assert.Equal(user.Phone, dbUser.Phone);
-         Assert.Equal(user.Email, dbUser.Email);
+         Assert.Equal(sampleUser.Name, dbUser.Name);
+         Assert.Equal(sampleUser.Phone, dbUser.Phone);
+         Assert.Equal(sampleUser.Email, dbUser.Email);
       }
 
       [Fact]
@@ -88,5 +83,32 @@ namespace Tests.Infrastructure
 
          Assert.Null(noUser);
       }
+
+      public static IEnumerable<object[]> UserData =>
+         new List<object[]>()
+         {
+            new object[] { new User() { Id = 1, Name = "User One", Phone = "+16023334578", Email = "test@email.com", UniqueKey = Guid.NewGuid() } },
+            new object[] { new User() { Id = 2, Name = "User Number Two", Phone = "+16023478562", Email = "random@email.com", UniqueKey = Guid.NewGuid() } },
+            new object[] { new User() { Id = 3, Name = "SampleUser", Phone = "+6025558542", Email = "unique@email.com", UniqueKey = Guid.NewGuid() } }
+         };
+
+      #endregion
+
+      #region Group
+
+      // [Theory]
+      // [MemberData(nameof(GroupData))]
+      // public async Task GroupAdapter_Create(Group sampleGroup)
+      // {
+
+      // }
+
+      public static IEnumerable<object[]> GroupData =>
+         new List<object[]>()
+         {
+            new object[] { new Group() { Id = 1, Name = "Sample Group #1", UniqueKey = Guid.NewGuid() } }
+         };
+
+      #endregion
    }
 }
