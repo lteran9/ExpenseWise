@@ -1,84 +1,120 @@
 using System;
+using Application.UseCases.Ports;
+using AutoFixture.Xunit2;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
+using Moq;
 
-namespace Tests.Infrastructure
+namespace Tests.Infrastructure.Adapters
 {
    public class RepositoryAdapterTests
    {
-      private readonly IRepository _repositoryAdapter;
+      private readonly Mock<ISqlDatabase<UserEntity>> _mockUserRepo;
+      private readonly Mock<ISqlDatabase<GroupEntity>> _mockGroupRepo;
 
       public RepositoryAdapterTests()
       {
-         _repositoryAdapter = new RepositoryAdapter();
+         _mockUserRepo = new Mock<ISqlDatabase<UserEntity>>();
+         _mockGroupRepo = new Mock<ISqlDatabase<GroupEntity>>();
       }
 
       #region User
 
       [Theory]
       [MemberData(nameof(UserData))]
-      public async Task UserAdapter_Create(User testUser)
+      public async Task UserAdapter_Create(User user)
       {
-         var dbUser = await _repositoryAdapter.CreateAsync(testUser);
+         // Arrange
+         var repositoryAdapter =
+            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
 
-         Assert.NotNull(dbUser);
-         Assert.True(dbUser.Id > 0);
-         Assert.Equal(testUser.Name, dbUser.Name);
-         Assert.Equal(testUser.Phone, dbUser.Phone);
-         Assert.Equal(testUser.Email, dbUser.Email);
+         // Act
+         var dbUser = await repositoryAdapter.CreateAsync(user);
+
+         // Assert
+         _mockUserRepo.Verify(repo => repo.CreateAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               user.Name.Contains(u.FirstName) &&
+               user.Name.Contains(u.LastName) &&
+               u.Email == user.Email &&
+               u.Phone == user.Phone &&
+               u.UniqueKey == user.UniqueKey
+            ))
+         );
       }
 
       [Theory]
       [MemberData(nameof(UserData))]
-      public async Task UserAdapter_Get(User testUser)
+      public async Task UserAdapter_Retrieve(User user)
       {
-         var existingUser = await _repositoryAdapter.GetAsync(testUser);
+         // Arrange
+         var repositoryAdapter =
+            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
 
-         Assert.NotNull(existingUser);
-         Assert.Equal(testUser.Id, existingUser.Id);
-         Assert.Equal(testUser.Name, existingUser.Name);
-         Assert.Equal(testUser.Phone, existingUser.Phone);
-         Assert.Equal(testUser.Email, existingUser.Email);
+         // Act
+         var dbUser = await repositoryAdapter.GetAsync(user);
+
+         // Assert
+         _mockUserRepo.Verify(repo => repo.GetAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               user.Name.Contains(u.FirstName) &&
+               user.Name.Contains(u.LastName) &&
+               u.Email == user.Email &&
+               u.Phone == user.Phone &&
+               u.UniqueKey == user.UniqueKey
+            ))
+         );
       }
 
       [Theory]
       [MemberData(nameof(UserData))]
-      public async Task UserAdapter_Update(User testUser)
+      public async Task UserAdapter_Update(User user)
       {
-         var existingUser = await _repositoryAdapter.GetAsync(testUser);
+         // Arrange
+         var repositoryAdapter =
+            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
+         _mockUserRepo.Setup(x => x.GetAsync(It.IsAny<UserEntity>())).ReturnsAsync(DatabaseMapper.UserMapper.Map<UserEntity>(user));
 
-         Assert.NotNull(existingUser);
+         // Act
+         var dbUser = await repositoryAdapter.UpdateAsync(user);
 
-         existingUser.Name = "New Name";
-         existingUser.Email = "newtest@email.com";
-         existingUser.Phone = "+526332014589";
-         existingUser.UniqueKey = Guid.NewGuid();
-
-         var updatedUser = await _repositoryAdapter.UpdateAsync(existingUser);
-
-         Assert.NotNull(updatedUser);
-         Assert.Equal(existingUser.Name, updatedUser.Name);
-         Assert.Equal(existingUser.Email, updatedUser.Email);
-         Assert.Equal(existingUser.Phone, updatedUser.Phone);
-         Assert.Equal(existingUser.UniqueKey, updatedUser.UniqueKey);
+         // Assert
+         _mockUserRepo.Verify(repo => repo.UpdateAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               user.Name.Contains(u.FirstName) &&
+               user.Name.Contains(u.LastName) &&
+               u.Email == user.Email &&
+               u.Phone == user.Phone &&
+               u.UniqueKey == user.UniqueKey
+            ))
+         );
       }
 
       [Theory]
       [MemberData(nameof(UserData))]
-      public async Task UserAdapter_Delete(User testUser)
+      public async Task UserAdapter_Delete(User user)
       {
-         var existingUser = await _repositoryAdapter.GetAsync(testUser);
+         // Arrange
+         var repositoryAdapter =
+            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
 
-         Assert.NotNull(existingUser);
+         // Act
+         var dbUser = await repositoryAdapter.DeleteAsync(user);
 
-         var softDeleteUser = await _repositoryAdapter.DeleteAsync(existingUser);
-
-         Assert.NotNull(softDeleteUser);
-         Assert.Equal(existingUser.Id, softDeleteUser.Id);
-
-         var noUser = await _repositoryAdapter.GetAsync(existingUser);
-
-         Assert.Null(noUser);
+         // Assert
+         _mockUserRepo.Verify(repo => repo.DeleteAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               user.Name.Contains(u.FirstName) &&
+               user.Name.Contains(u.LastName) &&
+               u.Email == user.Email &&
+               u.Phone == user.Phone &&
+               u.UniqueKey == user.UniqueKey
+            ))
+         );
       }
 
       public static IEnumerable<object[]> UserData =>

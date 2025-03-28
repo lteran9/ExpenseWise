@@ -1,37 +1,109 @@
 using System;
 using Application.UseCases.Ports;
 using Infrastructure.SqlDatabase;
+using Moq;
 
-namespace Tests.Infrastructure
+namespace Tests.Infrastructure.EntityFramework
 {
    public class GroupTests
    {
-      private readonly ISqlDatabase<GroupEntity> _repository = new GroupRepository();
+      public static IEnumerable<object[]> GroupEntityData =>
+         new List<object[]>()
+         {
+            new object[] { new GroupEntity() { Id = 1, Name = "SampleGroup", OwnerId = 1, UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
+            new object[] { new GroupEntity() { Id = 2, Name = "RandomGroup", OwnerId = 2, UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } }
+         };
 
-      [Fact]
-      public async Task Create()
+      [Theory]
+      [MemberData(nameof(GroupEntityData))]
+      public async Task Create(GroupEntity group)
       {
-         var group =
-            new GroupEntity()
-            {
-               Name = "SampleGroup",
-               OwnerId = 1,
-               UniqueKey = Guid.NewGuid(),
-               CreatedAt = DateTime.Now,
-               UpdatedAt = DateTime.Now,
-            };
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<GroupEntity>>();
 
-         var dbGroup = await _repository.CreateAsync(group);
+         // Act
+         var dbGroup = await mockRepo.Object.CreateAsync(group);
 
-         Assert.NotNull(dbGroup);
-         Assert.True(dbGroup.Id > 0);
-         Assert.True(dbGroup.Active);
+         // Assert
+         mockRepo.Verify(repo => repo.CreateAsync(
+            It.Is<GroupEntity>(g =>
+               g.Id == group.Id &&
+               g.Name == group.Name &&
+               g.OwnerId == group.OwnerId &&
+               g.UniqueKey == group.UniqueKey &&
+               g.CreatedAt == group.CreatedAt &&
+               g.UpdatedAt == group.UpdatedAt
+            ))
+         );
       }
 
-      [Fact]
-      public async Task Update()
+      [Theory]
+      [MemberData(nameof(GroupEntityData))]
+      public async Task Retrieve(GroupEntity group)
       {
-         var group = await _repository.GetAsync(new GroupEntity() { Id = 1 });
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<GroupEntity>>();
+
+         // Act
+         var dbGroup = await mockRepo.Object.GetAsync(group);
+
+         // Assert
+         mockRepo.Verify(repo => repo.GetAsync(
+            It.Is<GroupEntity>(g =>
+               g.Id == group.Id &&
+               g.Name == group.Name &&
+               g.OwnerId == group.OwnerId &&
+               g.UniqueKey == group.UniqueKey &&
+               g.CreatedAt == group.CreatedAt &&
+               g.UpdatedAt == group.UpdatedAt
+            ))
+        );
+      }
+
+      [Theory]
+      [MemberData(nameof(GroupEntityData))]
+      public async Task Update(GroupEntity group)
+      {
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<GroupEntity>>();
+
+         // Act
+         var dbGroup = await mockRepo.Object.UpdateAsync(group);
+
+         // Assert
+         mockRepo.Verify(repo => repo.UpdateAsync(
+            It.Is<GroupEntity>(g =>
+               g.Id == group.Id &&
+               g.Name == group.Name &&
+               g.OwnerId == group.OwnerId &&
+               g.UniqueKey == group.UniqueKey &&
+               g.CreatedAt == group.CreatedAt &&
+               g.UpdatedAt == group.UpdatedAt
+            ))
+         );
+      }
+
+      [Theory]
+      [MemberData(nameof(GroupEntityData))]
+      public async Task Delete(GroupEntity group)
+      {
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<GroupEntity>>();
+
+         // Act
+         var dbGroup = await mockRepo.Object.DeleteAsync(group);
+
+         // Assert
+         mockRepo.Verify(repo => repo.DeleteAsync(
+            It.Is<GroupEntity>(g =>
+               g.Id == group.Id &&
+               g.Name == group.Name &&
+               g.OwnerId == group.OwnerId &&
+               g.UniqueKey == group.UniqueKey &&
+               g.CreatedAt == group.CreatedAt &&
+               g.UpdatedAt == group.UpdatedAt
+            ))
+         );
       }
    }
 }

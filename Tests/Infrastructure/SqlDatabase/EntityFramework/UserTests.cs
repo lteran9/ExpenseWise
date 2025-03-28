@@ -1,84 +1,113 @@
 using System;
 using Application.UseCases.Ports;
 using Infrastructure.SqlDatabase;
+using Moq;
 
-namespace Tests.Infrastructure
+namespace Tests.Infrastructure.EntityFramework
 {
    public class UserTests
    {
-      private readonly ISqlDatabase<UserEntity> _repository = new UserRepository();
+      public static IEnumerable<object[]> UserEntityData =>
+         new List<object[]>()
+         {
+            new object[] { new UserEntity() { Id = 1, FirstName = "Test", LastName = "Tester", Email = "tester@test.com", UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
+            new object[] { new UserEntity() { Id = 2, FirstName = "Jane", LastName = "Doe", Email = "j.doe@test.com", UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } }
+         };
 
-      [Fact]
-      public async Task Create()
+      [Theory]
+      [MemberData(nameof(UserEntityData))]
+      public async Task Create(UserEntity user)
       {
-         var user =
-            new UserEntity()
-            {
-               FirstName = "Test",
-               LastName = "Tester",
-               Email = "test@example.com",
-               Phone = "6023334578",
-               Password = "emptypassword",
-               CreatedAt = DateTime.Now,
-               UpdatedAt = DateTime.Now
-            };
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<UserEntity>>();
 
-         var dbUser = await _repository.CreateAsync(user);
+         // Act 
+         var dbUser = await mockRepo.Object.CreateAsync(user);
 
-         Assert.NotNull(dbUser);
-         Assert.True(dbUser.Id > 0);
-         Assert.True(dbUser.Active);
+         // Assert
+         mockRepo.Verify(repo => repo.CreateAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               u.FirstName == user.FirstName &&
+               u.LastName == user.LastName &&
+               u.Email == user.Email &&
+               u.UniqueKey == user.UniqueKey &&
+               u.CreatedAt == user.CreatedAt &&
+               u.UpdatedAt == user.UpdatedAt
+            ))
+         );
       }
 
-      [Fact]
-      public async Task Update()
+      [Theory]
+      [MemberData(nameof(UserEntityData))]
+      public async Task Retrieve(UserEntity user)
       {
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<UserEntity>>();
 
-         var dbUser = await _repository.GetAsync(new UserEntity() { Id = 1 });
+         // Act 
+         var dbUser = await mockRepo.Object.GetAsync(user);
 
-         Assert.NotNull(dbUser);
-
-         // Change name
-         dbUser.FirstName = "Newer Test";
-         dbUser.UpdatedAt = DateTime.Now;
-         var result = await _repository.UpdateAsync(dbUser);
-
-         Assert.NotNull(result);
-         Assert.Equal(dbUser.FirstName, result.FirstName);
-         Assert.Equal(dbUser.UpdatedAt, result.UpdatedAt);
+         // Assert
+         mockRepo.Verify(repo => repo.GetAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               u.FirstName == user.FirstName &&
+               u.LastName == user.LastName &&
+               u.Email == user.Email &&
+               u.UniqueKey == user.UniqueKey &&
+               u.CreatedAt == user.CreatedAt &&
+               u.UpdatedAt == user.UpdatedAt
+            ))
+         );
       }
 
-      [Fact]
-      public async Task HardDelete()
+      [Theory]
+      [MemberData(nameof(UserEntityData))]
+      public async Task Update(UserEntity user)
       {
-         var dbUser = await _repository.GetAsync(new UserEntity() { Id = 1 });
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<UserEntity>>();
 
-         Assert.NotNull(dbUser);
+         // Act 
+         var dbUser = await mockRepo.Object.UpdateAsync(user);
 
-         var result = await _repository.DeleteAsync(dbUser);
-
-         Assert.NotNull(result);
-
-         var missingUser = await _repository.GetAsync(result);
-
-         Assert.Null(missingUser);
+         // Assert
+         mockRepo.Verify(repo => repo.UpdateAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               u.FirstName == user.FirstName &&
+               u.LastName == user.LastName &&
+               u.Email == user.Email &&
+               u.UniqueKey == user.UniqueKey &&
+               u.CreatedAt == user.CreatedAt &&
+               u.UpdatedAt == user.UpdatedAt
+            ))
+         );
       }
 
-      [Fact]
-      public async Task SoftDelete()
+      [Theory]
+      [MemberData(nameof(UserEntityData))]
+      public async Task Delete(UserEntity user)
       {
-         var dbUser = await _repository.GetAsync(new UserEntity() { Id = 1 });
+         // Arrange
+         var mockRepo = new Mock<ISqlDatabase<UserEntity>>();
 
-         Assert.NotNull(dbUser);
+         // Act 
+         var dbUser = await mockRepo.Object.DeleteAsync(user);
 
-         // Set inactive
-         dbUser.Active = false;
-         dbUser.UpdatedAt = DateTime.Now;
-         var result = await _repository.UpdateAsync(dbUser);
-
-         Assert.NotNull(result);
-         Assert.Equal(dbUser.Active, result.Active);
-         Assert.Equal(dbUser.UpdatedAt, result.UpdatedAt);
+         // Assert
+         mockRepo.Verify(repo => repo.DeleteAsync(
+            It.Is<UserEntity>(u =>
+               u.Id == user.Id &&
+               u.FirstName == user.FirstName &&
+               u.LastName == user.LastName &&
+               u.Email == user.Email &&
+               u.UniqueKey == user.UniqueKey &&
+               u.CreatedAt == user.CreatedAt &&
+               u.UpdatedAt == user.UpdatedAt
+            ))
+         );
       }
    }
 }

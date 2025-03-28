@@ -2,7 +2,7 @@ using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
-namespace Tests.Infrastructure
+namespace Tests.Infrastructure.Mapper
 {
    public class GroupMapTests
    {
