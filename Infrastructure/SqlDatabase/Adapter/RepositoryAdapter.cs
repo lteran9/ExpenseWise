@@ -9,8 +9,8 @@ namespace Infrastructure.SqlDatabase
    /// </summary>
    public class RepositoryAdapter : IRepository
    {
-      private readonly UserRepository _userRepository;
-      private readonly GroupRepository _groupRepository;
+      private readonly ISqlDatabase<UserEntity> _userRepository;
+      private readonly ISqlDatabase<GroupEntity> _groupRepository;
 
       public RepositoryAdapter()
       {
@@ -52,10 +52,23 @@ namespace Infrastructure.SqlDatabase
       {
          if (entity?.Id > 0)
          {
-            var dbUser = await _userRepository.UpdateAsync(MapEntityToDatabase(entity));
-            if (dbUser != null)
+            var mappedEntity = MapEntityToDatabase(entity);
+            var existingRecord = await _userRepository.GetAsync(mappedEntity);
+            if (existingRecord != null)
             {
-               return MapDatabaseToEntity(dbUser);
+               existingRecord.FirstName = mappedEntity.FirstName;
+               existingRecord.LastName = mappedEntity.LastName;
+               existingRecord.Email = mappedEntity.Email;
+               existingRecord.Phone = mappedEntity.Phone;
+               existingRecord.UniqueKey = mappedEntity.UniqueKey;
+               existingRecord.Active = mappedEntity.Active;
+               existingRecord.UpdatedAt = DateTime.Now;
+
+               var updatedRecord = await _userRepository.UpdateAsync(existingRecord);
+               if (updatedRecord != null)
+               {
+                  return MapDatabaseToEntity(updatedRecord);
+               }
             }
          }
 

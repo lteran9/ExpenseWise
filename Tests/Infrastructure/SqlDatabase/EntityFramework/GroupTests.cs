@@ -1,31 +1,37 @@
 using System;
+using Application.UseCases.Ports;
 using Infrastructure.SqlDatabase;
 
 namespace Tests.Infrastructure
 {
    public class GroupTests
    {
+      private readonly ISqlDatabase<GroupEntity> _repository = new GroupRepository();
+
       [Fact]
-      public void Create()
+      public async Task Create()
       {
-         using (var context = new CoreContext())
-         {
-            var group =
-               new GroupEntity()
-               {
-                  Name = "SampleGroup",
-                  OwnerId = 1,
-                  UniqueKey = Guid.NewGuid(),
-                  CreatedAt = DateTime.Now,
-                  UpdatedAt = DateTime.Now,
-               };
+         var group =
+            new GroupEntity()
+            {
+               Name = "SampleGroup",
+               OwnerId = 1,
+               UniqueKey = Guid.NewGuid(),
+               CreatedAt = DateTime.Now,
+               UpdatedAt = DateTime.Now,
+            };
 
-            var dbGroup = context.Add(group);
-            var result = context.SaveChanges();
+         var dbGroup = await _repository.CreateAsync(group);
 
-            Assert.True(dbGroup.Entity.Id > 0);
-            Assert.True(result > 0);
-         }
+         Assert.NotNull(dbGroup);
+         Assert.True(dbGroup.Id > 0);
+         Assert.True(dbGroup.Active);
+      }
+
+      [Fact]
+      public async Task Update()
+      {
+         var group = await _repository.GetAsync(new GroupEntity() { Id = 1 });
       }
    }
 }

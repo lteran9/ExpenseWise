@@ -11,8 +11,8 @@ namespace Tests.Infrastructure
       {
          using (var context = new CoreContext())
          {
-            var membership
-               = new MemberOfEntity()
+            var membership =
+               new MemberOfEntity()
                {
                   UserId = 1,
                   GroupId = 1,
@@ -33,8 +33,8 @@ namespace Tests.Infrastructure
       {
          using (var context = new CoreContext())
          {
-            var membership
-               = new MemberOfEntity()
+            var membership =
+               new MemberOfEntity()
                {
                   UserId = 1,
                   GroupId = 1,

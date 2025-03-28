@@ -22,7 +22,7 @@ namespace Tests.Infrastructure
 
       [Theory]
       [MemberData(nameof(DbUserData))]
-      public void BaseMap_DatabaseToEntity(UserEntity dbOwner)
+      public void AutoMapper_DatabaseToEntity(UserEntity dbOwner)
       {
          var uniqueKey = Guid.NewGuid();
 
@@ -50,7 +50,7 @@ namespace Tests.Infrastructure
 
       [Theory]
       [MemberData(nameof(CoreUserData))]
-      public void BaseMap_EntityToDatabase(User owner)
+      public void AutoMapper_EntityToDatabase(User owner)
       {
          var groupName = "Trip Gas Expense";
          var uniqueKey = Guid.NewGuid();

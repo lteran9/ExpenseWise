@@ -21,7 +21,7 @@ namespace Tests.Infrastructure
       }
 
       [Fact]
-      public void BaseMap_DatabaseToEntity()
+      public void AutoMapper_DatabaseToEntity()
       {
          var uniqueKey = Guid.NewGuid();
 
@@ -50,7 +50,7 @@ namespace Tests.Infrastructure
       }
 
       [Fact]
-      public void BaseMap_EntityToDatabase()
+      public void AutoMapper_EntityToDatabase()
       {
          var uniqueKey = Guid.NewGuid();
 
@@ -79,7 +79,7 @@ namespace Tests.Infrastructure
       }
 
       [Fact]
-      public void BaseMap_EntityToDatabase_NoLastName()
+      public void AutoMapper_EntityToDatabase_NoLastName()
       {
          var uniqueKey = Guid.NewGuid();
 
@@ -108,7 +108,7 @@ namespace Tests.Infrastructure
       }
 
       [Fact]
-      public void BaseMap_EntityToDatabase_EmptyName()
+      public void AutoMapper_EntityToDatabase_EmptyName()
       {
          var uniqueKey = Guid.NewGuid();
 

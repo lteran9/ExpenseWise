@@ -17,39 +17,35 @@ namespace Tests.Infrastructure
 
       [Theory]
       [MemberData(nameof(UserData))]
-      public async Task UserAdapter_Create(User sampleUser)
+      public async Task UserAdapter_Create(User testUser)
       {
-         var dbUser = await _repositoryAdapter.CreateAsync(sampleUser);
+         var dbUser = await _repositoryAdapter.CreateAsync(testUser);
 
          Assert.NotNull(dbUser);
          Assert.True(dbUser.Id > 0);
-         Assert.Equal(sampleUser.Name, dbUser.Name);
-         Assert.Equal(sampleUser.Phone, dbUser.Phone);
-         Assert.Equal(sampleUser.Email, dbUser.Email);
+         Assert.Equal(testUser.Name, dbUser.Name);
+         Assert.Equal(testUser.Phone, dbUser.Phone);
+         Assert.Equal(testUser.Email, dbUser.Email);
       }
 
-      [Fact]
-      public async Task UserAdapter_Get()
+      [Theory]
+      [MemberData(nameof(UserData))]
+      public async Task UserAdapter_Get(User testUser)
       {
-         var user =
-            new User()
-            {
-               Id = 1
-            };
-
-         var existingUser = await _repositoryAdapter.GetAsync(user);
+         var existingUser = await _repositoryAdapter.GetAsync(testUser);
 
          Assert.NotNull(existingUser);
-         Assert.True(existingUser.Id == user.Id);
-         Assert.NotEmpty(existingUser.Name);
-         Assert.NotEmpty(existingUser.Phone);
-         Assert.NotEmpty(existingUser.Email);
+         Assert.Equal(testUser.Id, existingUser.Id);
+         Assert.Equal(testUser.Name, existingUser.Name);
+         Assert.Equal(testUser.Phone, existingUser.Phone);
+         Assert.Equal(testUser.Email, existingUser.Email);
       }
 
-      [Fact]
-      public async Task UserAdapter_Update()
+      [Theory]
+      [MemberData(nameof(UserData))]
+      public async Task UserAdapter_Update(User testUser)
       {
-         var existingUser = await _repositoryAdapter.GetAsync(new User() { Id = 1 });
+         var existingUser = await _repositoryAdapter.GetAsync(testUser);
 
          Assert.NotNull(existingUser);
 
@@ -67,10 +63,11 @@ namespace Tests.Infrastructure
          Assert.Equal(existingUser.UniqueKey, updatedUser.UniqueKey);
       }
 
-      [Fact]
-      public async Task UserAdapter_Delete()
+      [Theory]
+      [MemberData(nameof(UserData))]
+      public async Task UserAdapter_Delete(User testUser)
       {
-         var existingUser = await _repositoryAdapter.GetAsync(new User() { Id = 1 });
+         var existingUser = await _repositoryAdapter.GetAsync(testUser);
 
          Assert.NotNull(existingUser);
 
@@ -79,7 +76,7 @@ namespace Tests.Infrastructure
          Assert.NotNull(softDeleteUser);
          Assert.Equal(existingUser.Id, softDeleteUser.Id);
 
-         var noUser = await _repositoryAdapter.GetAsync(new User() { Id = existingUser.Id });
+         var noUser = await _repositoryAdapter.GetAsync(existingUser);
 
          Assert.Null(noUser);
       }
