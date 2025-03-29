@@ -1,4 +1,14 @@
 services:
+  webapp:
+    build: 
+      context: .
+    image: 'expensewise-1:latest'
+    ports: 
+      - 8080:8080
+    networks: 
+      - network
+    depends_on:
+      - mysql
   mysql:
     image: 'mysql:8.0'
     ports:
@@ -14,13 +24,13 @@ services:
     volumes:
       - 'expensewise-mysql:/var/lib/mysql'
     networks:
-      - expensewise
+      - network
     healthcheck:
       test: [ 'CMD', 'mysqladmin', 'ping', '-p${DB_PASSWORD}' ]
       retries: 3
       timeout: 5s
 networks:
-  expensewise:
+  network:
     driver: bridge
 volumes:
   expensewise-mysql:

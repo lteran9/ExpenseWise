@@ -12,10 +12,10 @@ namespace Infrastructure.SqlDatabase
       private readonly ISqlDatabase<UserEntity> _userRepository;
       private readonly ISqlDatabase<GroupEntity> _groupRepository;
 
-      public RepositoryAdapter()
+      public RepositoryAdapter(ISqlDatabase<UserEntity> userRepository, ISqlDatabase<GroupEntity> groupRepository)
       {
-         _userRepository = new UserRepository();
-         _groupRepository = new GroupRepository();
+         _userRepository = userRepository;
+         _groupRepository = groupRepository;
       }
 
       #region User

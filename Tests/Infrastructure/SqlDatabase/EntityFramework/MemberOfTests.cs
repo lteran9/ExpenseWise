@@ -20,6 +20,7 @@ namespace Tests.Infrastructure.EntityFramework
       {
          // Arrange
          var mockRepo = new Mock<ISqlDatabase<MemberOfEntity>>();
+         mockRepo.Setup(x => x.CreateAsync(record)).ReturnsAsync(record);
 
          // Act 
          var dbRecord = await mockRepo.Object.CreateAsync(record);
@@ -27,12 +28,12 @@ namespace Tests.Infrastructure.EntityFramework
          // Assert
          mockRepo.Verify(repo => repo.CreateAsync(
             It.Is<MemberOfEntity>(m =>
-               m.Id == record.Id &&
-               m.GroupId == record.GroupId &&
-               m.UserId == record.UserId &&
-               m.Active == record.Active &&
-               m.CreatedAt == record.CreatedAt &&
-               m.UpdatedAt == record.UpdatedAt
+               m.Id == dbRecord!.Id &&
+               m.GroupId == dbRecord!.GroupId &&
+               m.UserId == dbRecord!.UserId &&
+               m.Active == dbRecord!.Active &&
+               m.CreatedAt == dbRecord!.CreatedAt &&
+               m.UpdatedAt == dbRecord!.UpdatedAt
             ))
          );
       }

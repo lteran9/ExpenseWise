@@ -4,6 +4,7 @@ using AutoFixture.Xunit2;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 using Moq;
+using Tests.Regression;
 
 namespace Tests.Infrastructure.Adapters
 {
@@ -21,25 +22,36 @@ namespace Tests.Infrastructure.Adapters
       #region User
 
       [Theory]
-      [MemberData(nameof(UserData))]
-      public async Task UserAdapter_Create(User user)
+      [AutoMoq]
+      public async Task UserAdapter_Create([Frozen] Mock<ISqlDatabase<UserEntity>> mockUserRepo)
       {
          // Arrange
+         var user =
+            new User()
+            {
+               Id = 1,
+               Name = "User One",
+               Phone = "+16023334578",
+               Email = "test@email.com",
+               UniqueKey = Guid.NewGuid()
+            };
+         var userEntity = DatabaseMapper.UserMapper.Map<UserEntity>(user);
+         mockUserRepo.Setup(x => x.CreateAsync(It.IsAny<UserEntity>())).ReturnsAsync(userEntity);
          var repositoryAdapter =
-            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
+            new RepositoryAdapter(mockUserRepo.Object, _mockGroupRepo.Object);
 
          // Act
          var dbUser = await repositoryAdapter.CreateAsync(user);
 
          // Assert
-         _mockUserRepo.Verify(repo => repo.CreateAsync(
+         mockUserRepo.Verify(repo => repo.CreateAsync(
             It.Is<UserEntity>(u =>
-               u.Id == user.Id &&
-               user.Name.Contains(u.FirstName) &&
-               user.Name.Contains(u.LastName) &&
-               u.Email == user.Email &&
-               u.Phone == user.Phone &&
-               u.UniqueKey == user.UniqueKey
+               u.Id == dbUser!.Id &&
+               dbUser!.Name.Contains(u.FirstName) &&
+               dbUser!.Name.Contains(u.LastName) &&
+               u.Email == dbUser!.Email &&
+               u.Phone == dbUser!.Phone &&
+               u.UniqueKey == dbUser!.UniqueKey
             ))
          );
       }

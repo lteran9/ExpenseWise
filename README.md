@@ -1,8 +1,9 @@
 # ExpenseWise
 
-A tool for tracking expenses and balances on a group level for varied occasions. ExpenseWise makes it easy to calculate totals by keeping an informal ledger that can be updated on an as needed basis. 
+A tool for tracking expenses and balances on a group level for varied occasions. ExpenseWise makes it easy to calculate totals by keeping an informal ledger that can be updated on an as needed basis.
 
 ## Pre-requisites
+
 - Docker
 - MySql Workbench
 - Insomnia
@@ -23,8 +24,10 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 - [Dapper](https://github.com/DapperLib/Dapper/)
 - [Docker](https://www.docker.com/support/)
 
-## High Level Design 
+## High Level Design
+
 ### Infrastructure
+
 ```mermaid
 flowchart LR;
    id2(Mobile) --> id3(API);
@@ -35,6 +38,7 @@ flowchart LR;
 ```
 
 ### Entity Relationship Diagram
+
 ```mermaid
 erDiagram
    User ||--|{ MemberOf : is
@@ -43,4 +47,3 @@ erDiagram
    User }|--|{ Split : ""
    Split }|..|| Expense : ""
 ```
-
