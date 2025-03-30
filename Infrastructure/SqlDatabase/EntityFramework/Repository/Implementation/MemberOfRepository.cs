@@ -3,16 +3,15 @@ using Application.UseCases.Ports;
 
 namespace Infrastructure.SqlDatabase
 {
-   internal class GroupRepository : IRepository<GroupEntity>
+   internal class MemberOfRepository : IRepository<MemberOfEntity>
    {
-      public async Task<GroupEntity?> CreateAsync(GroupEntity entity)
+      public async Task<MemberOfEntity?> CreateAsync(MemberOfEntity entity)
       {
          using (var context = new CoreContext())
          {
             // Default values
             if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
             if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
-            if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
 
             var insert = context.Add(entity);
             await context.SaveChangesAsync();
@@ -20,11 +19,11 @@ namespace Infrastructure.SqlDatabase
          }
       }
 
-      public async Task<GroupEntity?> RetrieveAsync(GroupEntity entity)
+      public async Task<MemberOfEntity?> RetrieveAsync(MemberOfEntity entity)
       {
          using (var context = new CoreContext())
          {
-            var dbEntity = await context.FindAsync<GroupEntity>(entity.Id);
+            var dbEntity = await context.FindAsync<MemberOfEntity>(entity.Id);
             // Only return active users
             if (dbEntity?.Active == true)
             {
@@ -35,7 +34,7 @@ namespace Infrastructure.SqlDatabase
          return null;
       }
 
-      public async Task<GroupEntity?> UpdateAsync(GroupEntity entity)
+      public async Task<MemberOfEntity?> UpdateAsync(MemberOfEntity entity)
       {
          using (var context = new CoreContext())
          {
@@ -45,12 +44,21 @@ namespace Infrastructure.SqlDatabase
          }
       }
 
-      /* Hard deletes involve deleting foreign key relationships as well. */
-      public async Task<GroupEntity?> DeleteAsync(GroupEntity entity)
+      public async Task<MemberOfEntity?> DeleteAsync(MemberOfEntity entity)
       {
-         // Soft delete
-         entity.Active = false;
-         return await UpdateAsync(entity);
+         using (var context = new CoreContext())
+         {
+            if (entity.Id > 0)
+            {
+               context.MemberOf.Attach(entity);
+               context.MemberOf.Remove(entity);
+               await context.SaveChangesAsync();
+
+               return entity;
+            }
+         }
+
+         return null;
       }
    }
 }

@@ -3,7 +3,7 @@ using Application.UseCases.Ports;
 
 namespace Infrastructure.SqlDatabase
 {
-   public class UserRepository : ISqlDatabase<UserEntity>
+   internal class UserRepository : IRepository<UserEntity>
    {
       public async Task<UserEntity?> CreateAsync(UserEntity entity)
       {
@@ -20,7 +20,7 @@ namespace Infrastructure.SqlDatabase
          }
       }
 
-      public async Task<UserEntity?> GetAsync(UserEntity entity)
+      public async Task<UserEntity?> RetrieveAsync(UserEntity entity)
       {
          using (var context = new CoreContext())
          {
@@ -46,14 +46,12 @@ namespace Infrastructure.SqlDatabase
       }
 
       /* Hard deletes involve deleting foreign key relationships as well. */
+
       public async Task<UserEntity?> DeleteAsync(UserEntity entity)
       {
-         using (var context = new CoreContext())
-         {
-            // Soft delete
-            entity.Active = false;
-            return await UpdateAsync(entity);
-         }
+         // Soft delete
+         entity.Active = false;
+         return await UpdateAsync(entity);
       }
    }
 }
