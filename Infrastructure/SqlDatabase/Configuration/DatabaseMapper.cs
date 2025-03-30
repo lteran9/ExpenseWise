@@ -28,5 +28,29 @@ namespace Infrastructure.SqlDatabase
                }).CreateMapper();
          }
       }
+
+      public static IMapper MemberOfMapper
+      {
+         get
+         {
+            return
+               new MapperConfiguration(cfg =>
+               {
+                  cfg.AddProfile(Activator.CreateInstance(typeof(MemberOfProfile)) as Profile);
+               }).CreateMapper();
+         }
+      }
+
+      public static IMapper ExpenseMapper
+      {
+         get
+         {
+            return
+               new MapperConfiguration(cfg =>
+               {
+                  cfg.AddProfile(Activator.CreateInstance(typeof(ExpenseProfile)) as Profile);
+               }).CreateMapper();
+         }
+      }
    }
 }
