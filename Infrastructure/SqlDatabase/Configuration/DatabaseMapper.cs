@@ -52,5 +52,17 @@ namespace Infrastructure.SqlDatabase
                }).CreateMapper();
          }
       }
+
+      public static IMapper SplitMapper
+      {
+         get
+         {
+            return
+               new MapperConfiguration(cfg =>
+               {
+                  cfg.AddProfile(Activator.CreateInstance(typeof(SplitProfile)) as Profile);
+               }).CreateMapper();
+         }
+      }
    }
 }

@@ -2,10 +2,22 @@ using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
-namespace Tests.Infrastructure.Mapper
+namespace Tests.Infrastructure.AutoMapper
 {
    public class GroupMapTests
    {
+      public static IEnumerable<object[]> DbUserData =>
+         new List<object[]>()
+         {
+            new object[] { new UserEntity() { Id = 1000, FirstName = "Test", LastName = "Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() } }
+         };
+
+      public static IEnumerable<object[]> CoreUserData =>
+         new List<object[]>()
+         {
+            new object[] { new User() { Id = 1000, Name = "Test Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() } }
+         };
+
       [Fact]
       public void EquivalenceMap()
       {
@@ -76,17 +88,5 @@ namespace Tests.Infrastructure.Mapper
 
          Assert.Equivalent(dbGroup, DatabaseMapper.GroupMapper.Map<GroupEntity>(user));
       }
-
-      public static IEnumerable<object[]> DbUserData =>
-         new List<object[]>()
-         {
-            new object[] { new UserEntity() { Id = 1000, FirstName = "Luis", LastName = "Teran", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() } }
-         };
-
-      public static IEnumerable<object[]> CoreUserData =>
-         new List<object[]>()
-         {
-            new object[] { new User() { Id = 1000, Name = "Luis Teran", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() } }
-         };
    }
 }

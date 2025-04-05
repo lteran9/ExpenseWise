@@ -11,7 +11,7 @@ namespace Tests.Infrastructure.EntityFramework
          new List<object[]>()
          {
             new object[] { new MemberOfEntity() { Id = 1, GroupId = 1, UserId = 1, Active = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
-
+            new object[] { new MemberOfEntity() { Id = 2, GroupId = 1, UserId = 2, Active = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
          };
 
       [Theory]

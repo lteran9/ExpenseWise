@@ -2,7 +2,7 @@ using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
-namespace Tests.Infrastructure.Mapper
+namespace Tests.Infrastructure.AutoMapper
 {
    public class UserMapTests
    {
@@ -29,7 +29,7 @@ namespace Tests.Infrastructure.Mapper
             new User()
             {
                Id = 1000,
-               Name = "Luis Teran",
+               Name = "Test Tester",
                Email = "sample@test.com",
                Phone = "+1 602 333 4578",
                UniqueKey = uniqueKey
@@ -39,8 +39,8 @@ namespace Tests.Infrastructure.Mapper
             new UserEntity()
             {
                Id = 1000,
-               FirstName = "Luis",
-               LastName = "Teran",
+               FirstName = "Test",
+               LastName = "Tester",
                Email = "sample@test.com",
                Phone = "+1 602 333 4578",
                UniqueKey = uniqueKey
@@ -58,7 +58,7 @@ namespace Tests.Infrastructure.Mapper
             new User()
             {
                Id = 1000,
-               Name = "Luis Teran",
+               Name = "Test Tester",
                Email = "sample@test.com",
                Phone = "+1 602 333 4578",
                UniqueKey = uniqueKey
@@ -68,8 +68,8 @@ namespace Tests.Infrastructure.Mapper
             new UserEntity()
             {
                Id = 1000,
-               FirstName = "Luis",
-               LastName = "Teran",
+               FirstName = "Test",
+               LastName = "Tester",
                Email = "sample@test.com",
                Phone = "+1 602 333 4578",
                UniqueKey = uniqueKey
