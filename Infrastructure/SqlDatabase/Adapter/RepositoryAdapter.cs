@@ -7,15 +7,20 @@ namespace Infrastructure.SqlDatabase
    /// <summary>
    /// The adapter handles conversion between the Core Entities classes and the Entity Framework models.
    /// </summary>
-   public class RepositoryAdapter : IRepository
+   public class RepositoryAdapter :
+      IDatabasePort<User>, IDatabasePort<Group>, IDatabasePort<MemberOf>, IDatabasePort<Expense>
    {
-      private readonly ISqlDatabase<UserEntity> _userRepository;
-      private readonly ISqlDatabase<GroupEntity> _groupRepository;
+      private readonly IRepository<UserEntity> _userRepository;
+      private readonly IRepository<GroupEntity> _groupRepository;
+      private readonly IRepository<MemberOfEntity> _memberOfRepository;
+      private readonly IRepository<ExpenseEntity> _expenseRepository;
 
-      public RepositoryAdapter(ISqlDatabase<UserEntity> userRepository, ISqlDatabase<GroupEntity> groupRepository)
+      public RepositoryAdapter()
       {
-         _userRepository = userRepository;
-         _groupRepository = groupRepository;
+         _userRepository = new UserRepository();
+         _groupRepository = new GroupRepository();
+         _memberOfRepository = new MemberOfRepository();
+         _expenseRepository = new ExpenseRepository();
       }
 
       #region User
@@ -34,11 +39,11 @@ namespace Infrastructure.SqlDatabase
          return null;
       }
 
-      public async Task<User?> GetAsync(User entity)
+      public async Task<User?> RetrieveAsync(User entity)
       {
          if (entity?.Id > 0)
          {
-            var dbUser = await _userRepository.GetAsync(MapEntityToDatabase(entity));
+            var dbUser = await _userRepository.RetrieveAsync(MapEntityToDatabase(entity));
             if (dbUser != null)
             {
                return MapDatabaseToEntity(dbUser);
@@ -53,7 +58,7 @@ namespace Infrastructure.SqlDatabase
          if (entity?.Id > 0)
          {
             var mappedEntity = MapEntityToDatabase(entity);
-            var existingRecord = await _userRepository.GetAsync(mappedEntity);
+            var existingRecord = await _userRepository.RetrieveAsync(mappedEntity);
             if (existingRecord != null)
             {
                existingRecord.FirstName = mappedEntity.FirstName;
@@ -110,11 +115,11 @@ namespace Infrastructure.SqlDatabase
          return null;
       }
 
-      public async Task<Group?> GetAsync(Group entity)
+      public async Task<Group?> RetrieveAsync(Group entity)
       {
          if (entity?.Id > 0)
          {
-            var dbGroup = await _groupRepository.GetAsync(MapEntityToDatabase(entity));
+            var dbGroup = await _groupRepository.RetrieveAsync(MapEntityToDatabase(entity));
             if (dbGroup != null)
             {
                return MapDatabaseToEntity(dbGroup);
@@ -154,6 +159,132 @@ namespace Infrastructure.SqlDatabase
 
       private Group MapDatabaseToEntity(GroupEntity dbEntity) => DatabaseMapper.GroupMapper.Map<Group>(dbEntity);
       private GroupEntity MapEntityToDatabase(Group entity) => DatabaseMapper.GroupMapper.Map<GroupEntity>(entity);
+
+      #endregion
+
+      #region MemberOf
+
+      public async Task<MemberOf?> CreateAsync(MemberOf entity)
+      {
+         if (entity != null)
+         {
+            var dbGroup = await _memberOfRepository.CreateAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<MemberOf?> RetrieveAsync(MemberOf entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _memberOfRepository.RetrieveAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<MemberOf?> UpdateAsync(MemberOf entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _memberOfRepository.UpdateAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<MemberOf?> DeleteAsync(MemberOf entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _memberOfRepository.DeleteAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.GroupMapper.Map<MemberOf>(dbEntity);
+      private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.GroupMapper.Map<MemberOfEntity>(entity);
+
+      #endregion
+
+      #region Expense
+
+      public async Task<Expense?> CreateAsync(Expense entity)
+      {
+         if (entity != null)
+         {
+            var dbGroup = await _expenseRepository.CreateAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Expense?> RetrieveAsync(Expense entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _expenseRepository.RetrieveAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Expense?> UpdateAsync(Expense entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _expenseRepository.UpdateAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Expense?> DeleteAsync(Expense entity)
+      {
+         if (entity?.Id > 0)
+         {
+            var dbGroup = await _expenseRepository.DeleteAsync(MapEntityToDatabase(entity));
+            if (dbGroup != null)
+            {
+               return MapDatabaseToEntity(dbGroup);
+            }
+         }
+
+         return null;
+      }
+
+      private Expense MapDatabaseToEntity(ExpenseEntity dbEntity) => DatabaseMapper.ExpenseMapper.Map<Expense>(dbEntity);
+      private ExpenseEntity MapEntityToDatabase(Expense entity) => DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(entity);
 
       #endregion
    }
