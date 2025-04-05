@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
    public class AddMember : BaseRequestHandler<AddMemberRequest, AddMemberResponse>
    {
-      private readonly ISqlDatabase<MemberOf> _repository;
+      private readonly IDatabasePort<MemberOf> _repository;
       private readonly AbstractValidator<AddMemberRequest> _validator;
 
-      public AddMember(ISqlDatabase<MemberOf> repository)
+      public AddMember(IDatabasePort<MemberOf> repository)
       {
          _repository = repository;
          _validator = new AddMemberRequestValidator();

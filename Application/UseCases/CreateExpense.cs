@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
    public class CreateExpense : BaseRequestHandler<CreateExpenseRequest, CreateExpenseResponse>
    {
-      private readonly ISqlDatabase<Expense> _repository;
+      private readonly IDatabasePort<Expense> _repository;
       private readonly AbstractValidator<CreateExpenseRequest> _validator;
 
-      public CreateExpense(ISqlDatabase<Expense> repository)
+      public CreateExpense(IDatabasePort<Expense> repository)
       {
          _repository = repository;
          _validator = new CreateExpenseRequestValidator();

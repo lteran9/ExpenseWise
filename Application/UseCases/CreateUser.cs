@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
    public class CreateUser : BaseRequestHandler<CreateUserRequest, CreateUserResponse>
    {
-      private readonly ISqlDatabase<User> _repository;
+      private readonly IDatabasePort<User> _repository;
       private readonly AbstractValidator<CreateUserRequest> _validator;
 
-      public CreateUser(ISqlDatabase<User> repository)
+      public CreateUser(IDatabasePort<User> repository)
       {
          _repository = repository;
          _validator = new CreateUserRequestValidator();

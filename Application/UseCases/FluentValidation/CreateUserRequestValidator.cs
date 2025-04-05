@@ -16,6 +16,9 @@ namespace Application.UseCases.FluentValidation
          RuleFor(x => x.Phone)
             .NotEmpty()
             .WithMessage("Please provide a phone number for the account.");
+         RuleFor(x => x.Password)
+            .NotEmpty()
+            .WithMessage("Please provide a password for the account.");
       }
    }
 }

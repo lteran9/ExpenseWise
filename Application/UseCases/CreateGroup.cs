@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
    public class CreateGroup : BaseRequestHandler<CreateGroupRequest, CreateGroupResponse>
    {
-      private readonly ISqlDatabase<Group> _repository;
+      private readonly IDatabasePort<Group> _repository;
       private readonly AbstractValidator<CreateGroupRequest> _validator;
 
-      public CreateGroup(ISqlDatabase<Group> repository)
+      public CreateGroup(IDatabasePort<Group> repository)
       {
          _repository = repository;
          _validator = new CreateGroupRequestValidator();

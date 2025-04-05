@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
    public class DeleteUser : BaseRequestHandler<DeleteUserRequest, DeleteUserResponse>
    {
-      private readonly ISqlDatabase<User> _repository;
+      private readonly IDatabasePort<User> _repository;
       private readonly AbstractValidator<DeleteUserRequest> _validator;
 
-      public DeleteUser(ISqlDatabase<User> repository)
+      public DeleteUser(IDatabasePort<User> repository)
       {
          _repository = repository;
          _validator = new DeleteUserRequestValidator();
