@@ -10,20 +10,20 @@ namespace Tests.Infrastructure.Adapters
 {
    public class RepositoryAdapterTests
    {
-      private readonly Mock<ISqlDatabase<UserEntity>> _mockUserRepo;
-      private readonly Mock<ISqlDatabase<GroupEntity>> _mockGroupRepo;
+      private readonly Mock<IDatabasePort<UserEntity>> _mockUserRepo;
+      private readonly Mock<IDatabasePort<GroupEntity>> _mockGroupRepo;
 
       public RepositoryAdapterTests()
       {
-         _mockUserRepo = new Mock<ISqlDatabase<UserEntity>>();
-         _mockGroupRepo = new Mock<ISqlDatabase<GroupEntity>>();
+         _mockUserRepo = new Mock<IDatabasePort<UserEntity>>();
+         _mockGroupRepo = new Mock<IDatabasePort<GroupEntity>>();
       }
 
       #region User
 
       [Theory]
       [AutoMoq]
-      public async Task UserAdapter_Create([Frozen] Mock<ISqlDatabase<UserEntity>> mockUserRepo)
+      public async Task UserAdapter_Create([Frozen] Mock<IDatabasePort<UserEntity>> mockUserRepo)
       {
          // Arrange
          var user =
@@ -37,8 +37,7 @@ namespace Tests.Infrastructure.Adapters
             };
          var userEntity = DatabaseMapper.UserMapper.Map<UserEntity>(user);
          mockUserRepo.Setup(x => x.CreateAsync(It.IsAny<UserEntity>())).ReturnsAsync(userEntity);
-         var repositoryAdapter =
-            new RepositoryAdapter(mockUserRepo.Object, _mockGroupRepo.Object);
+         var repositoryAdapter = new RepositoryAdapter();
 
          // Act
          var dbUser = await repositoryAdapter.CreateAsync(user);
@@ -61,14 +60,13 @@ namespace Tests.Infrastructure.Adapters
       public async Task UserAdapter_Retrieve(User user)
       {
          // Arrange
-         var repositoryAdapter =
-            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
+         var repositoryAdapter = new RepositoryAdapter();
 
          // Act
-         var dbUser = await repositoryAdapter.GetAsync(user);
+         var dbUser = await repositoryAdapter.RetrieveAsync(user);
 
          // Assert
-         _mockUserRepo.Verify(repo => repo.GetAsync(
+         _mockUserRepo.Verify(repo => repo.RetrieveAsync(
             It.Is<UserEntity>(u =>
                u.Id == user.Id &&
                user.Name.Contains(u.FirstName) &&
@@ -85,9 +83,8 @@ namespace Tests.Infrastructure.Adapters
       public async Task UserAdapter_Update(User user)
       {
          // Arrange
-         var repositoryAdapter =
-            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
-         _mockUserRepo.Setup(x => x.GetAsync(It.IsAny<UserEntity>())).ReturnsAsync(DatabaseMapper.UserMapper.Map<UserEntity>(user));
+         var repositoryAdapter = new RepositoryAdapter();
+         _mockUserRepo.Setup(x => x.RetrieveAsync(It.IsAny<UserEntity>())).ReturnsAsync(DatabaseMapper.UserMapper.Map<UserEntity>(user));
 
          // Act
          var dbUser = await repositoryAdapter.UpdateAsync(user);
@@ -110,8 +107,7 @@ namespace Tests.Infrastructure.Adapters
       public async Task UserAdapter_Delete(User user)
       {
          // Arrange
-         var repositoryAdapter =
-            new RepositoryAdapter(_mockUserRepo.Object, _mockGroupRepo.Object);
+         var repositoryAdapter = new RepositoryAdapter();
 
          // Act
          var dbUser = await repositoryAdapter.DeleteAsync(user);

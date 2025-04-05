@@ -19,7 +19,7 @@ namespace Tests.Infrastructure.EntityFramework
       public async Task Create(MemberOfEntity record)
       {
          // Arrange
-         var mockRepo = new Mock<ISqlDatabase<MemberOfEntity>>();
+         var mockRepo = new Mock<IDatabasePort<MemberOfEntity>>();
          mockRepo.Setup(x => x.CreateAsync(record)).ReturnsAsync(record);
 
          // Act 
@@ -43,13 +43,13 @@ namespace Tests.Infrastructure.EntityFramework
       public async Task Retrieve(MemberOfEntity record)
       {
          // Arrange
-         var mockRepo = new Mock<ISqlDatabase<MemberOfEntity>>();
+         var mockRepo = new Mock<IDatabasePort<MemberOfEntity>>();
 
          // Act 
-         var dbRecord = await mockRepo.Object.GetAsync(record);
+         var dbRecord = await mockRepo.Object.RetrieveAsync(record);
 
          // Assert
-         mockRepo.Verify(repo => repo.GetAsync(
+         mockRepo.Verify(repo => repo.RetrieveAsync(
             It.Is<MemberOfEntity>(m =>
                m.Id == record.Id &&
                m.GroupId == record.GroupId &&
@@ -66,7 +66,7 @@ namespace Tests.Infrastructure.EntityFramework
       public async Task Update(MemberOfEntity record)
       {
          // Arrange
-         var mockRepo = new Mock<ISqlDatabase<MemberOfEntity>>();
+         var mockRepo = new Mock<IDatabasePort<MemberOfEntity>>();
 
          // Act 
          var dbRecord = await mockRepo.Object.UpdateAsync(record);
@@ -89,7 +89,7 @@ namespace Tests.Infrastructure.EntityFramework
       public async Task Delete(MemberOfEntity record)
       {
          // Arrange
-         var mockRepo = new Mock<ISqlDatabase<MemberOfEntity>>();
+         var mockRepo = new Mock<IDatabasePort<MemberOfEntity>>();
 
          // Act 
          var dbRecord = await mockRepo.Object.DeleteAsync(record);
