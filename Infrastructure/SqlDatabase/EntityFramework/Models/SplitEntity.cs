@@ -16,6 +16,11 @@ namespace Infrastructure.SqlDatabase
       [Column("expense_id")]
       public int ExpenseId { get; set; }
 
+      [Column("paid")]
+      public bool Paid { get; set; }
+
+      [Column("paid_on")]
+      public DateTime PaidOn { get; set; }
       [Column("created_at")]
       public DateTime CreatedAt { get; set; }
       [Column("updated_at")]
