@@ -6,6 +6,8 @@ namespace Core.Entities
    {
       public int Id { get; set; }
 
+      public bool Settled { get; set; }
+
       public string Description { get; set; }
       public string Currency { get; set; }
 
