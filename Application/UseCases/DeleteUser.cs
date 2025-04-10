@@ -24,20 +24,22 @@ namespace Application.UseCases
          var validationResult = await _validator.ValidateAsync(request);
          if (validationResult.IsValid)
          {
-            // Let repository implementation handle Find operation
-            var response = await _repository.DeleteAsync(new User() { Id = request.Id });
-            if (response != null)
+            var user = await _repository.RetrieveAsync(new User() { Id = request.Id });
+            if (user != null)
             {
-               return Successful(
-                  new DeleteUserResponse()
-                  {
-                     Success = true
-                  });
+               var response = await _repository.DeleteAsync(user);
+               if (response != null)
+               {
+                  return Successful(
+                     new DeleteUserResponse()
+                     {
+                        Success = true
+                     });
+               }
             }
             else
             {
-               // User was not found or could not be deleted 
-               return Failed(default);
+               return Invalid("User id not found.");
             }
          }
 
