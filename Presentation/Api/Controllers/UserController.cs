@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
-using Infrastructure.SqlDatabase;
+using MediatR;
+using Application.UseCases;
 
 namespace ExpenseWise.Controllers
 {
@@ -8,31 +9,50 @@ namespace ExpenseWise.Controllers
    [ApiController]
    public class UserController : ControllerBase
    {
-      private readonly IRepository _repository;
+      private readonly IMediator _mediator;
 
-      public UserController(IRepository repository)
+      public UserController(IMediator mediator)
       {
-         _repository = repository;
+         _mediator = mediator;
       }
 
       [HttpGet("{id}")]
-      public async Task<IActionResult> Get(int id)
+      public async Task<IActionResult> Get([FromRoute] FindUserRequest request)
       {
          try
          {
-            var dbUser = await _repository.GetAsync(new Core.Entities.User() { Id = id });
-
-            if (dbUser != null)
-            {
-               return new JsonResult(dbUser);
-            }
+            return new JsonResult(await _mediator.Send(request));
          }
          catch (Exception ex)
          {
             return new JsonResult(ex.Message);
          }
+      }
 
-         return StatusCode(500);
+      [HttpPost]
+      public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
+      {
+         try
+         {
+            return new JsonResult(await _mediator.Send(request));
+         }
+         catch (Exception ex)
+         {
+            return new JsonResult(ex.Message);
+         }
+      }
+
+      [HttpDelete]
+      public async Task<IActionResult> Delete([FromBody] DeleteUserRequest request)
+      {
+         try
+         {
+            return new JsonResult(await _mediator.Send(request));
+         }
+         catch (Exception ex)
+         {
+            return new JsonResult(ex.Message);
+         }
       }
    }
 }
