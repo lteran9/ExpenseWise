@@ -5,26 +5,31 @@ using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
-namespace Tests.Regression
+namespace Tests.Regression.UseCases
 {
    public class CreateExpenseTests
    {
       [Theory]
       [AutoMoq]
-      public async Task CreateExpenseMoq([Frozen] Mock<ISqlDatabase<Expense>> mockRepository)
+      public async Task CreateExpenseMoq(
+         [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+         CreateExpense useCase)
       {
-         var mockExpense = new Expense() { Id = 1, Description = "This is a test description.", Currency = "USD", Amount = 100.00M };
-         mockRepository.Setup(x => x.CreateAsync(It.IsAny<Expense>())).Returns(Task.FromResult<Expense?>(mockExpense));
+         // Arrange
+         mockRepository.Setup(x => x.CreateAsync(It.IsAny<Expense>())).ReturnsAsync(new Expense() { Id = 1 });
          var createExpense =
             new CreateExpenseRequest()
             {
-               Description = mockExpense.Description,
-               Currency = mockExpense.Currency,
-               Amount = mockExpense.Amount
+               Description = "This is a test description.",
+               Currency = "USD",
+               Amount = 100.00M
             };
 
-         var useCase = new CreateExpense(mockRepository.Object);
+         // Act
          var response = await useCase.Handle(createExpense, new CancellationToken());
+
+         // Assert
+         mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<Expense>()));
 
          Assert.True(response.Succeeded);
          Assert.True(response.Result != null);

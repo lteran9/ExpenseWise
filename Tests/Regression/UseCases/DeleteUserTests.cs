@@ -5,24 +5,28 @@ using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
-namespace Tests.Regression
+namespace Tests.Regression.UseCases
 {
    public class DeleteUserTests
    {
       [Theory]
       [AutoMoq]
-      public async Task DeleteUserMoq([Frozen] Mock<ISqlDatabase<User>> mockRepository)
+      public async Task DeleteUserMoq(
+         [Frozen] Mock<IDatabasePort<User>> mockRepository,
+         DeleteUser useCase)
       {
-         var mockUser = new User() { Id = 1000 };
-         mockRepository.Setup(x => x.DeleteAsync(It.IsAny<User>())).Returns(Task.FromResult<User?>(mockUser));
+         // Arrange
+         mockRepository.Setup(x => x.DeleteAsync(It.IsAny<User>())).ReturnsAsync(new User() { Id = 1000 });
          var deleteUser =
             new DeleteUserRequest()
             {
-               Id = mockUser.Id
+               Id = 1000
             };
-         var useCase = new DeleteUser(mockRepository.Object);
+
+         // Act
          var response = await useCase.Handle(deleteUser, new CancellationToken());
 
+         // Assert
          Assert.True(response.Succeeded);
          Assert.True(response.Result != null);
          Assert.True(response.Result.Success);

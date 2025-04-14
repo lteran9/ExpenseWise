@@ -5,25 +5,25 @@ using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
-namespace Tests.Regression
+namespace Tests.Regression.UseCases
 {
    public class CreateUserTests
    {
       [Theory]
       [AutoMoq]
       public async Task CreateUserMoq(
-         [Frozen] Mock<ISqlDatabase<User>> mockRepository,
+         [Frozen] Mock<IDatabasePort<User>> mockRepository,
          CreateUser useCase)
       {
          // Arrange
-         var mockUser = new User() { Id = 1000, Name = "Test User", Email = "test@email.com", Phone = "6023334578" };
-         mockRepository.Setup(x => x.CreateAsync(It.IsAny<User>())).ReturnsAsync(mockUser);
+         mockRepository.Setup(x => x.CreateAsync(It.IsAny<User>())).ReturnsAsync(new User() { Id = 1000 });
          var createUser =
             new CreateUserRequest()
             {
-               Name = mockUser.Name,
-               Email = mockUser.Email,
-               Phone = mockUser.Phone
+               Name = "Test Tester",
+               Email = "test@example.com",
+               Phone = "+16023334578",
+               Password = "HZAm69idrGeLMDU4dAez"
             };
 
          // Act

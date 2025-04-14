@@ -5,24 +5,23 @@ using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
-namespace Tests.Regression
+namespace Tests.Regression.UseCases
 {
    public class CreateGroupTests
    {
       [Theory]
       [AutoMoq]
       public async Task CreateGroupMoq(
-         [Frozen] Mock<ISqlDatabase<Group>> mockRepository,
+         [Frozen] Mock<IDatabasePort<Group>> mockRepository,
          CreateGroup useCase)
       {
          // Arrange
-         var mockGroup = new Group() { Id = 1000, Owner = new User() { Id = 1000 }, Name = "Initial Test Group" };
-         mockRepository.Setup(x => x.CreateAsync(It.IsAny<Group>())).ReturnsAsync(mockGroup);
+         mockRepository.Setup(x => x.CreateAsync(It.IsAny<Group>())).ReturnsAsync(new Group() { Id = 1 });
          var createGroup =
             new CreateGroupRequest()
             {
-               OwnerId = mockGroup.Owner.Id,
-               Name = mockGroup.Name
+               OwnerId = 1000,
+               Name = "Initial Test Group"
             };
 
          // Act

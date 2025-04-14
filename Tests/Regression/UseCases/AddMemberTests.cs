@@ -5,31 +5,29 @@ using AutoFixture.Xunit2;
 using Core.Entities;
 using Moq;
 
-namespace Tests.Regression
+namespace Tests.Regression.UseCases
 {
    public class AddMemberTests
    {
       [Theory]
       [AutoMoq]
-      public async Task AddMemberMoq([Frozen] Mock<ISqlDatabase<MemberOf>> mockRepository)
+      public async Task AddMemberMoq(
+         [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
+         AddMember useCase)
       {
-         var mockUser = new User() { Id = 1000 };
-         var mockGroup = new Group() { Id = 1000 };
-         var mockMembership =
-            new MemberOf()
-            {
-               User = mockUser,
-               Group = mockGroup
-            };
-         mockRepository.Setup(x => x.CreateAsync(It.IsAny<MemberOf>())).Returns(Task.FromResult<MemberOf?>(mockMembership));
+         // Arrange
          var addMemberRequest =
             new AddMemberRequest()
             {
-               User = mockUser,
-               Group = mockGroup
+               User = new User() { Id = 1000 },
+               Group = new Group() { Id = 1000 }
             };
-         var useCase = new AddMember(mockRepository.Object);
+
+         // Act
          var response = await useCase.Handle(addMemberRequest, new CancellationToken());
+
+         // Assert
+         mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<MemberOf>()));
 
          Assert.True(response.Succeeded);
          Assert.True(response.Result != null);
