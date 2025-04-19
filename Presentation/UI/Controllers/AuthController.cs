@@ -20,6 +20,7 @@ namespace UI.Controllers
       }
 
       [HttpPost]
+      [ValidateAntiForgeryToken]
       public IActionResult Register(AuthViewModel model)
       {
          ModelState.AddModelError(string.Empty, "Unable to create user. Please try again.");
@@ -36,6 +37,7 @@ namespace UI.Controllers
       }
 
       [HttpPost]
+      [ValidateAntiForgeryToken]
       public IActionResult SignIn(AuthViewModel model)
       {
 
@@ -49,6 +51,7 @@ namespace UI.Controllers
       }
 
       [HttpPost]
+      [ValidateAntiForgeryToken]
       public IActionResult ForgotPassword(AuthViewModel model)
       {
          ModelState.AddModelError(string.Empty, "Please add a valid email address.");
