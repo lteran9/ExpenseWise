@@ -12,7 +12,15 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 
 ### Clone repo into your machine
 
+### Build API image
+
+`docker build -t expensewise-1 .`
+
+### Build UI image
+
 ### Run the Docker compose file
+
+`docker compose up`
 
 ## Dependencies
 
@@ -30,10 +38,11 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 
 ```mermaid
 flowchart LR;
-   id2(Mobile) --> id3(API);
-   id1(Desktop) --> id3(API);
+   id2(Mobile) --> id3(UI);
+   id1(Desktop) --> id3(UI);
    subgraph Azure
-   id3(API) --> A@{ shape: cyl, label: "MySQL" };
+   id3(UI) --> id4(API)
+   id4(API) --> A@{ shape: cyl, label: "MySQL" };
    end
 ```
 
