@@ -51,6 +51,7 @@ flowchart LR;
 ```mermaid
 erDiagram
    User ||--|{ MemberOf : is
+   Password ||--|{ User : ""
    MemberOf }|--|| Group : ""
    Split }o--|| Group : ""
    User }|--|{ Split : ""
