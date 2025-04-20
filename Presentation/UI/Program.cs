@@ -1,9 +1,15 @@
+using ExpenseWise.DependencyConfiguration;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services
    .AddControllersWithViews()
    .AddRazorRuntimeCompilation();
+
+builder.Services
+   .ConfigureDependencies()
+   .RegisterUseCases();
 
 var app = builder.Build();
 

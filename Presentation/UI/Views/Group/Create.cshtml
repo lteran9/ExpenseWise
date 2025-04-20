@@ -1,0 +1,30 @@
+@model GroupViewModel
+@{
+   ViewData["Title"] = "Create";
+}
+
+<h1 class="display-4 text-center">Create Group</h1>
+<div class="card">
+   <div class="card-body">
+      <form asp-action="Create" method="post">
+         @Html.AntiForgeryToken()
+         @Html.ValidationSummary()
+
+         <div class="mb-3">
+            <label asp-for="Name" class="form-label">Name</label>
+            <input asp-for="Name" class="form-control" required />
+         </div>
+         <div class="mb-3">
+            <label asp-for="StartDate" class="form-label">Start Date</label>
+            <input asp-for="StartDate" type="date" class="form-control" required />
+         </div>
+         <div class="mb-3">
+            <label asp-for="EndDate" class="form-label">Start Date</label>
+            <input asp-for="EndDate" type="date" class="form-control" required />
+         </div>
+         <div class="d-grid d-md-block text-md-end">
+            <button type="submit" class="btn btn-primary">Create</button>
+         </div>
+      </form>
+   </div>
+</div>

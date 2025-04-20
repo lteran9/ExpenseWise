@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using UI.Models;
 
@@ -13,6 +14,14 @@ namespace UI.Controllers
 
       [HttpGet]
       public IActionResult Index()
+      {
+         var groups = new List<GroupViewModel>();
+
+         return View(groups);
+      }
+
+      [HttpGet]
+      public IActionResult Create()
       {
          return View();
       }

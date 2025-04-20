@@ -1,0 +1,31 @@
+@model IEnumerable<GroupViewModel>
+@{
+   ViewData["Title"] = "Groups";
+}
+
+<h1 class="display-4 text-center">@ViewData["Title"]</h1>
+@if (Model?.Any() == true)
+{
+   <div class="card">
+      <div class="card-body">
+         @foreach (var group in Model)
+         {
+            <div class="vstack py-2">
+               <h2 class="display-5">@group.Name</h2>
+               <button type="button" class="btn btn-secondary">Manage</button>
+               <span>Members: 4</span>
+            </div>
+         }
+      </div>
+   </div>
+}
+else
+{
+   <div class="alert alert-info">
+      No groups to display.
+   </div>
+}
+
+<div class="d-grid">
+   <a asp-action="Create" class="btn btn-primary">+ Create Group</a>
+</div>
