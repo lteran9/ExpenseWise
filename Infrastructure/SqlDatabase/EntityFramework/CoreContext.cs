@@ -10,6 +10,7 @@ namespace Infrastructure.SqlDatabase
       public DbSet<MemberOfEntity> MemberOf { get; set; }
       public DbSet<ExpenseEntity> Expenses { get; set; }
       public DbSet<SplitEntity> Splits { get; set; }
+      public DbSet<PasswordEntity> Passwords { get; set; }
 
       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
       {

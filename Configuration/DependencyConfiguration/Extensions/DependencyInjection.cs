@@ -38,6 +38,10 @@ namespace ExpenseWise.DependencyConfiguration
          {
             return x.GetService<RepositoryAdapter>()!;
          });
+         serviceCollection.AddScoped<IDatabasePort<Password>>(x =>
+         {
+            return x.GetService<RepositoryAdapter>()!;
+         });
 
          return serviceCollection;
       }

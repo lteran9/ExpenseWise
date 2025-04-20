@@ -1,4 +1,6 @@
 using System;
+using System.Security.Cryptography;
+using System.Text;
 using Application.UseCases.FluentValidation;
 using Application.UseCases.MediatR;
 using Application.UseCases.Ports;
@@ -10,12 +12,14 @@ namespace Application.UseCases
 {
    public class CreateUser : BaseRequestHandler<CreateUserRequest, CreateUserResponse>
    {
-      private readonly IDatabasePort<User> _repository;
+      private readonly IDatabasePort<User> _userRepository;
+      private readonly IDatabasePort<Password> _passwordRepository;
       private readonly AbstractValidator<CreateUserRequest> _validator;
 
-      public CreateUser(IDatabasePort<User> repository)
+      public CreateUser(IDatabasePort<User> userRepository, IDatabasePort<Password> passwordRepository)
       {
-         _repository = repository;
+         _userRepository = userRepository;
+         _passwordRepository = passwordRepository;
          _validator = new CreateUserRequestValidator();
       }
 
@@ -24,6 +28,10 @@ namespace Application.UseCases
          var validationResult = await _validator.ValidateAsync(request);
          if (validationResult.IsValid)
          {
+            // Step 1: Create Password Ciper and Hash
+            var encrypted = HashPassword(request.Password, out byte[] cipher);
+
+            // Step 2: Create User and Password entities
             var user =
                new User()
                {
@@ -32,15 +40,32 @@ namespace Application.UseCases
                   Phone = request.Phone
                };
 
-            var response = await _repository.CreateAsync(user);
-            if (response != null)
+            var userResponse = await _userRepository.CreateAsync(user);
+            if (userResponse != null)
             {
-               return Successful(
-                  new CreateUserResponse()
+               var password =
+                  new Password()
                   {
-                     Id = response.Id,
-                     UniqueKey = response.UniqueKey
-                  });
+                     UserId = user.Id,
+                     Cipher = Convert.ToHexString(cipher),
+                     Encrypted = encrypted
+                  };
+
+               var passwordResponse = await _passwordRepository.CreateAsync(password);
+               if (passwordResponse != null)
+               {
+                  return Successful(
+                     new CreateUserResponse()
+                     {
+                        Id = userResponse.Id,
+                        UniqueKey = userResponse.UniqueKey
+                     });
+               }
+               else
+               {
+                  // Delete user since we were unable to create password 
+                  await _userRepository.DeleteAsync(user);
+               }
             }
             else
             {
@@ -50,6 +75,24 @@ namespace Application.UseCases
 
          return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
       }
+
+      private string HashPassword(string password, out byte[] cipher)
+      {
+         int keySize = 128;
+         int iterations = 350000;
+         var hashAlgorithm = HashAlgorithmName.SHA512;
+         cipher = RandomNumberGenerator.GetBytes(keySize);
+
+         var hash = Rfc2898DeriveBytes.Pbkdf2(
+            Encoding.UTF8.GetBytes(password),
+            cipher,
+            iterations,
+            hashAlgorithm,
+            keySize
+         );
+
+         return Convert.ToHexString(hash);
+      }
    }
 
    public class CreateUserRequest : IRequest<ResponseWrapper<CreateUserResponse>>
@@ -58,6 +101,7 @@ namespace Application.UseCases
       public string Email { get; set; }
       public string Phone { get; set; }
       public string Password { get; set; }
+      public string ConfirmPassword { get; set; }
 
       public CreateUserRequest()
       {
@@ -65,6 +109,7 @@ namespace Application.UseCases
          Email = string.Empty;
          Phone = string.Empty;
          Password = string.Empty;
+         ConfirmPassword = string.Empty;
       }
    }
 

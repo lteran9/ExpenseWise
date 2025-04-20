@@ -8,12 +8,13 @@ namespace Infrastructure.SqlDatabase
    /// The adapter handles conversion between the Core Entities classes and the Entity Framework models.
    /// </summary>
    public class RepositoryAdapter :
-      IDatabasePort<User>, IDatabasePort<Group>, IDatabasePort<MemberOf>, IDatabasePort<Expense>
+      IDatabasePort<User>, IDatabasePort<Group>, IDatabasePort<MemberOf>, IDatabasePort<Expense>, IDatabasePort<Password>
    {
       private readonly IRepository<UserEntity> _userRepository;
       private readonly IRepository<GroupEntity> _groupRepository;
       private readonly IRepository<MemberOfEntity> _memberOfRepository;
       private readonly IRepository<ExpenseEntity> _expenseRepository;
+      private readonly IRepository<PasswordEntity> _passwordRepository;
 
       public RepositoryAdapter()
       {
@@ -21,6 +22,7 @@ namespace Infrastructure.SqlDatabase
          _groupRepository = new GroupRepository();
          _memberOfRepository = new MemberOfRepository();
          _expenseRepository = new ExpenseRepository();
+         _passwordRepository = new PasswordRepository();
       }
 
       #region User
@@ -285,6 +287,64 @@ namespace Infrastructure.SqlDatabase
 
       private Expense MapDatabaseToEntity(ExpenseEntity dbEntity) => DatabaseMapper.ExpenseMapper.Map<Expense>(dbEntity);
       private ExpenseEntity MapEntityToDatabase(Expense entity) => DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(entity);
+
+      #endregion
+
+      #region Password
+
+      public async Task<Password?> CreateAsync(Password entity)
+      {
+         if (entity != null)
+         {
+            var dbPassword = await _passwordRepository.CreateAsync(MapEntityToDatabase(entity));
+            if (dbPassword != null)
+            {
+               return MapDatabaseToEntity(dbPassword);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Password?> RetrieveAsync(Password entity)
+      {
+         if (entity?.UserId > 0)
+         {
+            var dbPassword = await _passwordRepository.RetrieveAsync(MapEntityToDatabase(entity));
+            if (dbPassword != null)
+            {
+               return MapDatabaseToEntity(dbPassword);
+            }
+         }
+
+         return null;
+      }
+
+      public async Task<Password?> UpdateAsync(Password entity)
+      {
+         var dbPassword = await _passwordRepository.UpdateAsync(MapEntityToDatabase(entity));
+         if (dbPassword != null)
+         {
+            return MapDatabaseToEntity(dbPassword);
+         }
+
+         return null;
+      }
+
+      public async Task<Password?> DeleteAsync(Password entity)
+      {
+         var dbPassword = await _passwordRepository.DeleteAsync(MapEntityToDatabase(entity));
+         if (dbPassword != null)
+         {
+            return MapDatabaseToEntity(dbPassword);
+         }
+
+         return null;
+      }
+
+      private Password MapDatabaseToEntity(PasswordEntity dbEntity) => DatabaseMapper.PasswordMapper.Map<Password>(dbEntity);
+      private PasswordEntity MapEntityToDatabase(Password entity) => DatabaseMapper.PasswordMapper.Map<PasswordEntity>(entity);
+
 
       #endregion
    }

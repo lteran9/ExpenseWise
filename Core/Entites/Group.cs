@@ -20,6 +20,7 @@ namespace Core.Entities
          Name = string.Empty;
          Owner = new User();
          Members = new List<User>();
+         Active = true;
       }
    }
 }

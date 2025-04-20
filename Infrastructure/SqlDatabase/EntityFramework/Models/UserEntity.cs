@@ -22,8 +22,6 @@ namespace Infrastructure.SqlDatabase
       public string Email { get; set; }
       [Column("phone"), MaxLength(16)]
       public string Phone { get; set; }
-      [Column("password"), MaxLength(256)]
-      public string Password { get; set; }
 
       [Column("unique_key")]
       public Guid UniqueKey { get; set; }
@@ -33,13 +31,14 @@ namespace Infrastructure.SqlDatabase
       [Column("updated_at")]
       public DateTime UpdatedAt { get; set; }
 
+      public PasswordEntity? Password { get; set; }
+
       public UserEntity()
       {
          FirstName = string.Empty;
          LastName = string.Empty;
          Email = string.Empty;
          Phone = string.Empty;
-         Password = string.Empty;
          // Default to true
          Active = true;
       }

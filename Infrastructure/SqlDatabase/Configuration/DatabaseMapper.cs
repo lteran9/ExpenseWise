@@ -64,5 +64,17 @@ namespace Infrastructure.SqlDatabase
                }).CreateMapper();
          }
       }
+
+      public static IMapper PasswordMapper
+      {
+         get
+         {
+            return
+               new MapperConfiguration(cfg =>
+               {
+                  cfg.AddProfile(Activator.CreateInstance(typeof(PasswordProfile)) as Profile);
+               }).CreateMapper();
+         }
+      }
    }
 }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20250720150610_CreateInitialTablesAndSeed")]
+    [Migration("20250730141437_CreateInitialTablesAndSeed")]
     partial class CreateInitialTablesAndSeed
     {
         /// <inheritdoc />
@@ -143,6 +143,40 @@ namespace SqlDatabase.Migrations
                     b.ToTable("member_of");
                 });
 
+            modelBuilder.Entity("Infrastructure.SqlDatabase.PasswordEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Cipher")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("cipher");
+
+                    b.Property<string>("Encrypted")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)")
+                        .HasColumnName("encrypted");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("passwords");
+                });
+
             modelBuilder.Entity("Infrastructure.SqlDatabase.SplitEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -161,6 +195,14 @@ namespace SqlDatabase.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int")
                         .HasColumnName("group_id");
+
+                    b.Property<bool>("Paid")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("paid");
+
+                    b.Property<DateTime>("PaidOn")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("paid_on");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -214,12 +256,6 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("varchar(64)")
                         .HasColumnName("last_name");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("password");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -266,6 +302,17 @@ namespace SqlDatabase.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Infrastructure.SqlDatabase.PasswordEntity", b =>
+                {
+                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "User")
+                        .WithOne("Password")
+                        .HasForeignKey("Infrastructure.SqlDatabase.PasswordEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Infrastructure.SqlDatabase.SplitEntity", b =>
                 {
                     b.HasOne("Infrastructure.SqlDatabase.ExpenseEntity", "Expense")
@@ -291,6 +338,11 @@ namespace SqlDatabase.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Infrastructure.SqlDatabase.UserEntity", b =>
+                {
+                    b.Navigation("Password");
                 });
 #pragma warning restore 612, 618
         }

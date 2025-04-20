@@ -46,7 +46,6 @@ namespace SqlDatabase.Migrations
                     last_name = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false),
                     email = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false),
                     phone = table.Column<string>(type: "varchar(16)", maxLength: 16, nullable: false),
-                    password = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -78,6 +77,29 @@ namespace SqlDatabase.Migrations
                         column: x => x.owner_id,
                         principalTable: "users",
                         principalColumn: "id");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "passwords",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    user_id = table.Column<int>(type: "int", nullable: false),
+                    cipher = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    encrypted = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_passwords", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_passwords_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -118,6 +140,8 @@ namespace SqlDatabase.Migrations
                     user_id = table.Column<int>(type: "int", nullable: false),
                     group_id = table.Column<int>(type: "int", nullable: false),
                     expense_id = table.Column<int>(type: "int", nullable: false),
+                    paid = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    paid_on = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -168,6 +192,12 @@ namespace SqlDatabase.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_passwords_user_id",
+                table: "passwords",
+                column: "user_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_splits_expense_id",
                 table: "splits",
                 column: "expense_id");
@@ -194,6 +224,9 @@ namespace SqlDatabase.Migrations
         {
             migrationBuilder.DropTable(
                 name: "member_of");
+
+            migrationBuilder.DropTable(
+                name: "passwords");
 
             migrationBuilder.DropTable(
                 name: "splits");
