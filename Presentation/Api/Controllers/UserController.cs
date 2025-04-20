@@ -16,8 +16,8 @@ namespace ExpenseWise.Controllers
          _mediator = mediator;
       }
 
-      [HttpGet("{id}")]
-      public async Task<IActionResult> Get([FromRoute] FindUserRequest request)
+      [HttpPost]
+      public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
       {
          try
          {
@@ -29,8 +29,8 @@ namespace ExpenseWise.Controllers
          }
       }
 
-      [HttpPost]
-      public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
+      [HttpGet("{id}")]
+      public async Task<IActionResult> Retrieve([FromRoute] FindUserRequest request)
       {
          try
          {
