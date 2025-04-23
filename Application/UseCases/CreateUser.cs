@@ -46,7 +46,7 @@ namespace Application.UseCases
                var password =
                   new Password()
                   {
-                     UserId = user.Id,
+                     UserId = userResponse.Id,
                      Cipher = Convert.ToHexString(cipher),
                      Encrypted = encrypted
                   };
