@@ -28,12 +28,8 @@ namespace Infrastructure.SqlDatabase
          {
             if (entity.Id > 0)
             {
-               var dbEntity = await context.FindAsync<ExpenseEntity>(entity.Id);
+               return await context.FindAsync<ExpenseEntity>(entity.Id);
 
-               if (dbEntity != null)
-               {
-                  return dbEntity;
-               }
             }
             else if (entity.UniqueKey != Guid.Empty)
             {

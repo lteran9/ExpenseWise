@@ -25,7 +25,7 @@ namespace Infrastructure.SqlDatabase
          using (var context = new CoreContext())
          {
             var dbEntity = await context.FindAsync<GroupEntity>(entity.Id);
-            // Only return active users
+            // Only return active records for now
             if (dbEntity?.Active == true)
             {
                return dbEntity;
@@ -50,6 +50,7 @@ namespace Infrastructure.SqlDatabase
       {
          // Soft delete
          entity.Active = false;
+
          return await UpdateAsync(entity);
       }
    }

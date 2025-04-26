@@ -1,5 +1,6 @@
 using System;
 using Application.UseCases.Ports;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
@@ -24,11 +25,23 @@ namespace Infrastructure.SqlDatabase
       {
          using (var context = new CoreContext())
          {
-            var dbEntity = await context.FindAsync<UserEntity>(entity.Id);
-            // Only return active users
-            if (dbEntity?.Active == true)
+            if (entity.Id > 0)
             {
-               return dbEntity;
+               var dbEntity = await context.FindAsync<UserEntity>(entity.Id);
+               // Only return active users
+               if (dbEntity?.Active == true)
+               {
+                  return dbEntity;
+               }
+            }
+            else if (!string.IsNullOrEmpty(entity.Email))
+            {
+               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Email == entity.Email);
+               // Only return active users
+               if (dbEntity?.Active == true)
+               {
+                  return dbEntity;
+               }
             }
          }
 

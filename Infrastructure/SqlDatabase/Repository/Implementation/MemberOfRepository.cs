@@ -23,11 +23,9 @@ namespace Infrastructure.SqlDatabase
       {
          using (var context = new CoreContext())
          {
-            var dbEntity = await context.FindAsync<MemberOfEntity>(entity.Id);
-            // Only return active users
-            if (dbEntity?.Active == true)
+            if (entity.Id > 0)
             {
-               return dbEntity;
+               return await context.FindAsync<MemberOfEntity>(entity.Id);
             }
          }
 

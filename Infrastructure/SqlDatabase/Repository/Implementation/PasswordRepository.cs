@@ -1,6 +1,7 @@
 using System;
 using System.Net.Mime;
 using Application.UseCases.Ports;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
@@ -25,12 +26,11 @@ namespace Infrastructure.SqlDatabase
          {
             if (entity.Id > 0)
             {
-               var dbEntity = await context.FindAsync<PasswordEntity>(entity.Id);
-
-               if (dbEntity != null)
-               {
-                  return dbEntity;
-               }
+               return await context.FindAsync<PasswordEntity>(entity.Id);
+            }
+            else if (entity.UserId > 0)
+            {
+               return await context.Passwords.FirstOrDefaultAsync(x => x.UserId == entity.UserId);
             }
          }
 
