@@ -1,6 +1,4 @@
 using System;
-using System.Security.Cryptography;
-using System.Text;
 using Application.UseCases.FluentValidation;
 using Application.UseCases.MediatR;
 using Application.UseCases.Ports;
@@ -29,7 +27,7 @@ namespace Application.UseCases
          if (validationResult.IsValid)
          {
             // Step 1: Create Password Ciper and Hash
-            var encrypted = HashPassword(request.Password, out byte[] cipher);
+            var encrypted = Password.Hash(request.Password, out byte[] cipher);
 
             // Step 2: Create User and Password entities
             var user =
@@ -74,24 +72,6 @@ namespace Application.UseCases
          }
 
          return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
-      }
-
-      private string HashPassword(string password, out byte[] cipher)
-      {
-         int keySize = 128;
-         int iterations = 350000;
-         var hashAlgorithm = HashAlgorithmName.SHA512;
-         cipher = RandomNumberGenerator.GetBytes(keySize);
-
-         var hash = Rfc2898DeriveBytes.Pbkdf2(
-            Encoding.UTF8.GetBytes(password),
-            cipher,
-            iterations,
-            hashAlgorithm,
-            keySize
-         );
-
-         return Convert.ToHexString(hash);
       }
    }
 
