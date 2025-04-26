@@ -7,7 +7,7 @@ using UI.Models;
 
 namespace UI.Controllers
 {
-   public class AuthController : Controller
+   public class AuthController : BaseController
    {
       private readonly IMediator _mediator;
       private readonly ILogger<AuthController> _logger;
@@ -49,10 +49,7 @@ namespace UI.Controllers
             {
                if (response?.ValidationMessages?.Any() == true)
                {
-                  foreach (var message in response.ValidationMessages)
-                  {
-                     ModelState.AddModelError(string.Empty, message);
-                  }
+                  AddValidationErrorsToModelState(response);
 
                   return View(model);
                }
@@ -76,8 +73,38 @@ namespace UI.Controllers
 
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public IActionResult SignIn(AuthViewModel model)
+      public async Task<IActionResult> SignIn(AuthViewModel model)
       {
+         try
+         {
+            var authenticateUserRequest =
+               new AuthenticateUserRequest()
+               {
+                  Email = model.Email!,
+                  Password = model.Password!
+               };
+
+            var response = await _mediator.Send(authenticateUserRequest);
+            if (response.Succeeded)
+            {
+               return RedirectToAction("Index", "Group");
+            }
+            else
+            {
+               if (response?.ValidationMessages?.Any() == true)
+               {
+                  AddValidationErrorsToModelState(response);
+
+                  return View(model);
+               }
+            }
+         }
+         catch (Exception ex)
+         {
+            _logger.LogError(ex.Message);
+         }
+
+         ModelState.AddModelError(string.Empty, "Unable to authenticate user. Please check your username and password.");
 
          return View(model);
       }

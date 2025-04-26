@@ -5,7 +5,7 @@ using UI.Models;
 
 namespace UI.Controllers
 {
-   public class GroupController : Controller
+   public class GroupController : BaseController
    {
       public GroupController()
       {

@@ -8,6 +8,7 @@
    <div class="card-body">
       <form asp-action="SignIn" method="post">
          @Html.AntiForgeryToken()
+         @Html.ValidationSummary()
 
          <div class="mb-3">
             <label asp-for="Email">Email</label>
