@@ -43,13 +43,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<User?> RetrieveAsync(User entity)
       {
-         if (entity?.Id > 0)
+         var dbUser = await _userRepository.RetrieveAsync(MapEntityToDatabase(entity));
+         if (dbUser != null)
          {
-            var dbUser = await _userRepository.RetrieveAsync(MapEntityToDatabase(entity));
-            if (dbUser != null)
-            {
-               return MapDatabaseToEntity(dbUser);
-            }
+            return MapDatabaseToEntity(dbUser);
          }
 
          return null;
@@ -57,25 +54,22 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<User?> UpdateAsync(User entity)
       {
-         if (entity?.Id > 0)
+         var mappedEntity = MapEntityToDatabase(entity);
+         var existingRecord = await _userRepository.RetrieveAsync(mappedEntity);
+         if (existingRecord != null)
          {
-            var mappedEntity = MapEntityToDatabase(entity);
-            var existingRecord = await _userRepository.RetrieveAsync(mappedEntity);
-            if (existingRecord != null)
-            {
-               existingRecord.FirstName = mappedEntity.FirstName;
-               existingRecord.LastName = mappedEntity.LastName;
-               existingRecord.Email = mappedEntity.Email;
-               existingRecord.Phone = mappedEntity.Phone;
-               existingRecord.UniqueKey = mappedEntity.UniqueKey;
-               existingRecord.Active = mappedEntity.Active;
-               existingRecord.UpdatedAt = DateTime.Now;
+            existingRecord.FirstName = mappedEntity.FirstName;
+            existingRecord.LastName = mappedEntity.LastName;
+            existingRecord.Email = mappedEntity.Email;
+            existingRecord.Phone = mappedEntity.Phone;
+            existingRecord.UniqueKey = mappedEntity.UniqueKey;
+            existingRecord.Active = mappedEntity.Active;
+            existingRecord.UpdatedAt = DateTime.Now;
 
-               var updatedRecord = await _userRepository.UpdateAsync(existingRecord);
-               if (updatedRecord != null)
-               {
-                  return MapDatabaseToEntity(updatedRecord);
-               }
+            var updatedRecord = await _userRepository.UpdateAsync(existingRecord);
+            if (updatedRecord != null)
+            {
+               return MapDatabaseToEntity(updatedRecord);
             }
          }
 
@@ -84,13 +78,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<User?> DeleteAsync(User entity)
       {
-         if (entity?.Id > 0)
+         var dbUser = await _userRepository.DeleteAsync(MapEntityToDatabase(entity));
+         if (dbUser != null)
          {
-            var dbUser = await _userRepository.DeleteAsync(MapEntityToDatabase(entity));
-            if (dbUser != null)
-            {
-               return MapDatabaseToEntity(dbUser);
-            }
+            return MapDatabaseToEntity(dbUser);
          }
 
          return null;
@@ -119,13 +110,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<Group?> RetrieveAsync(Group entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _groupRepository.RetrieveAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _groupRepository.RetrieveAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -133,13 +121,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<Group?> UpdateAsync(Group entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _groupRepository.UpdateAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _groupRepository.UpdateAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -147,13 +132,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<Group?> DeleteAsync(Group entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _groupRepository.DeleteAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _groupRepository.DeleteAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -182,13 +164,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<MemberOf?> RetrieveAsync(MemberOf entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _memberOfRepository.RetrieveAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _memberOfRepository.RetrieveAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -196,13 +175,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<MemberOf?> UpdateAsync(MemberOf entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _memberOfRepository.UpdateAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _memberOfRepository.UpdateAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -210,13 +186,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<MemberOf?> DeleteAsync(MemberOf entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _memberOfRepository.DeleteAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _memberOfRepository.DeleteAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -245,13 +218,10 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<Expense?> RetrieveAsync(Expense entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _expenseRepository.RetrieveAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _expenseRepository.RetrieveAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -259,27 +229,23 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<Expense?> UpdateAsync(Expense entity)
       {
-         if (entity?.Id > 0)
+
+         var dbGroup = await _expenseRepository.UpdateAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _expenseRepository.UpdateAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
+
 
          return null;
       }
 
       public async Task<Expense?> DeleteAsync(Expense entity)
       {
-         if (entity?.Id > 0)
+         var dbGroup = await _expenseRepository.DeleteAsync(MapEntityToDatabase(entity));
+         if (dbGroup != null)
          {
-            var dbGroup = await _expenseRepository.DeleteAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
-            {
-               return MapDatabaseToEntity(dbGroup);
-            }
+            return MapDatabaseToEntity(dbGroup);
          }
 
          return null;
@@ -308,7 +274,7 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<Password?> RetrieveAsync(Password entity)
       {
-         if (entity?.UserId > 0)
+         if (entity?.UserId > 0 || entity?.UserId > 0)
          {
             var dbPassword = await _passwordRepository.RetrieveAsync(MapEntityToDatabase(entity));
             if (dbPassword != null)
