@@ -25,7 +25,7 @@ namespace Core.Entities
 
          var hash = Rfc2898DeriveBytes.Pbkdf2(
             Encoding.UTF8.GetBytes(password),
-            Convert.FromBase64String(cipher),
+            Convert.FromHexString(cipher),
             iterations,
             hashAlgorithm,
             keySize
