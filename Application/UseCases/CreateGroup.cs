@@ -29,6 +29,8 @@ namespace Application.UseCases
                {
                   Owner = new User() { Id = request.OwnerId },
                   Name = request.Name,
+                  StartDate = request.StartDate,
+                  EndDate = request.EndDate
                };
 
             var response = await _repository.CreateAsync(group);
@@ -54,7 +56,11 @@ namespace Application.UseCases
    public class CreateGroupRequest : IRequest<ResponseWrapper<CreateGroupResponse>>
    {
       public int OwnerId { get; set; }
+
       public string Name { get; set; }
+
+      public DateTime? StartDate { get; set; }
+      public DateTime? EndDate { get; set; }
 
       public CreateGroupRequest()
       {

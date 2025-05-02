@@ -12,6 +12,9 @@ namespace Core.Entities
 
       public Guid UniqueKey { get; set; }
 
+      public DateTime? StartDate { get; set; }
+      public DateTime? EndDate { get; set; }
+
       public User Owner { get; set; }
       public List<User> Members { get; set; }
 

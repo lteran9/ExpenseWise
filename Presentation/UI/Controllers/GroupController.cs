@@ -1,5 +1,6 @@
 using System;
-using System.Text.RegularExpressions;
+using Application.UseCases;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UI.Models;
 
@@ -7,9 +8,13 @@ namespace UI.Controllers
 {
    public class GroupController : BaseController
    {
-      public GroupController()
+      private readonly IMediator _mediator;
+      private readonly ILogger<GroupController> _logger;
+
+      public GroupController(IMediator mediator, ILogger<GroupController> logger)
       {
-         // Dependency Injection
+         _mediator = mediator;
+         _logger = logger;
       }
 
       [HttpGet]
@@ -30,6 +35,23 @@ namespace UI.Controllers
       [ValidateAntiForgeryToken]
       public IActionResult Create(GroupViewModel model)
       {
+         try
+         {
+            var createGroupRequest =
+               new CreateGroupRequest()
+               {
+                  Name = model.Name,
+                  StartDate = model.StartDate,
+                  EndDate = model.EndDate
+               };
+         }
+         catch (Exception ex)
+         {
+            _logger.LogError(ex.Message);
+         }
+
+         ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
+
          return View();
       }
    }

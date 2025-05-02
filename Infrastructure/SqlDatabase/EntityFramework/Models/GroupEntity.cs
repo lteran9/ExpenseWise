@@ -22,6 +22,10 @@ namespace Infrastructure.SqlDatabase
       [Column("unique_key")]
       public Guid UniqueKey { get; set; }
 
+      [Column("start_date")]
+      public DateTime? StartDate { get; set; }
+      [Column("end_date")]
+      public DateTime? EndDate { get; set; }
       [Column("created_at")]
       public DateTime CreatedAt { get; set; }
       [Column("updated_at")]
