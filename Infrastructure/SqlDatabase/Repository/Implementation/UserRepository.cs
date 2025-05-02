@@ -34,6 +34,15 @@ namespace Infrastructure.SqlDatabase
                   return dbEntity;
                }
             }
+            else if (entity.UniqueKey != Guid.Empty)
+            {
+               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.UniqueKey == entity.UniqueKey);
+               // Only return active users
+               if (dbEntity?.Active == true)
+               {
+                  return dbEntity;
+               }
+            }
             else if (!string.IsNullOrEmpty(entity.Email))
             {
                var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Email == entity.Email);

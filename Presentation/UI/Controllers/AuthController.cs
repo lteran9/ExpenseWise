@@ -86,6 +86,8 @@ namespace UI.Controllers
             var response = await _mediator.Send(authenticateUserRequest);
             if (response.Succeeded)
             {
+               HttpContext.Session.SetString("User", response.Result!.Id.ToString());
+
                return RedirectToAction("Index", "Group");
             }
             else

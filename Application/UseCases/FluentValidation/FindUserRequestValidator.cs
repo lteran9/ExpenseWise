@@ -8,7 +8,7 @@ namespace Application.UseCases.FluentValidation
       public FindUserRequestValidator()
       {
          RuleFor(x => x.Id)
-            .GreaterThan(0)
+            .NotEqual(Guid.Empty)
             .WithMessage("Please provide a user id to query with.");
       }
    }

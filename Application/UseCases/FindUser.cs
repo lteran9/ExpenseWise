@@ -27,7 +27,7 @@ namespace Application.UseCases
             var user =
                new User()
                {
-                  Id = request.Id
+                  UniqueKey = request.Id
                };
 
             var response = await _repository.RetrieveAsync(user);
@@ -36,11 +36,9 @@ namespace Application.UseCases
                return Successful(
                   new FindUserResponse()
                   {
-                     Id = response.Id,
                      Name = response.Name,
                      Phone = response.Phone,
                      Email = response.Email,
-                     UniqueKey = response.UniqueKey
                   });
             }
             else
@@ -55,17 +53,14 @@ namespace Application.UseCases
 
    public class FindUserRequest : IRequest<ResponseWrapper<FindUserResponse>>
    {
-      public int Id { get; set; }
+      public Guid Id { get; set; }
    }
 
    public class FindUserResponse
    {
-      public int Id { get; set; }
       public string Name { get; set; }
       public string Email { get; set; }
       public string Phone { get; set; }
-
-      public Guid UniqueKey { get; set; }
 
       public FindUserResponse()
       {

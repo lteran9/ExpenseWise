@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Models;
 
@@ -14,12 +15,14 @@ namespace UI.Controllers
       }
 
       [HttpGet]
+      [AllowAnonymous]
       public IActionResult Index()
       {
          return View();
       }
 
       [HttpGet]
+      [AllowAnonymous]
       public IActionResult Privacy()
       {
          return View();
