@@ -28,7 +28,12 @@ namespace UI.Controllers
       [HttpGet]
       public IActionResult Create()
       {
-         return View();
+         var viewModel =
+            new GroupViewModel()
+            {
+               //OwnerId = Guid.Parse(HttpContext.Session.GetString("User")!)
+            };
+         return View(viewModel);
       }
 
       [HttpPost]

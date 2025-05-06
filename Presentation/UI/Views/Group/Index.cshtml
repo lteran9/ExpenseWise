@@ -1,9 +1,10 @@
 @model IEnumerable<GroupViewModel>
 @{
-   ViewData["Title"] = "Groups";
+   ViewData["Title"] = "Expense Groups";
 }
 
 <h1 class="display-4 text-center">@ViewData["Title"]</h1>
+<hr />
 @if (Model?.Any() == true)
 {
    <div class="card">
