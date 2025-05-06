@@ -123,6 +123,7 @@ namespace UI.Controllers
       public IActionResult ForgotPassword(AuthViewModel model)
       {
          ModelState.AddModelError(string.Empty, "Please add a valid email address.");
+
          return View();
       }
    }

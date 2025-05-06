@@ -9,7 +9,8 @@ builder.Services
 
 builder.Services
    .ConfigureDependencies()
-   .RegisterUseCases();
+   .RegisterUseCases()
+   .ConfigureSession(45);
 
 var app = builder.Build();
 
@@ -27,6 +28,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

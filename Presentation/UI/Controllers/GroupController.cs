@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Application.UseCases;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,14 +32,14 @@ namespace UI.Controllers
          var viewModel =
             new GroupViewModel()
             {
-               //OwnerId = Guid.Parse(HttpContext.Session.GetString("User")!)
+               OwnerId = Guid.Parse(HttpContext.Session.GetString("User")!)
             };
          return View(viewModel);
       }
 
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public IActionResult Create(GroupViewModel model)
+      public async Task<IActionResult> Create(GroupViewModel model)
       {
          try
          {
@@ -49,6 +50,12 @@ namespace UI.Controllers
                   StartDate = model.StartDate,
                   EndDate = model.EndDate
                };
+
+            var response = await _mediator.Send(createGroupRequest);
+            if (response?.Succeeded == true)
+            {
+               return RedirectToAction("Index");
+            }
          }
          catch (Exception ex)
          {

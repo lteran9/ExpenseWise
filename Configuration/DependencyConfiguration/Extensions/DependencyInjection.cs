@@ -1,8 +1,8 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using Application.UseCases.Ports;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ExpenseWise.DependencyConfiguration
 {
@@ -41,6 +41,16 @@ namespace ExpenseWise.DependencyConfiguration
          serviceCollection.AddScoped<IDatabasePort<Password>>(x =>
          {
             return x.GetService<RepositoryAdapter>()!;
+         });
+
+         return serviceCollection;
+      }
+
+      public static IServiceCollection ConfigureSession(this IServiceCollection serviceCollection, long expiration = 20)
+      {
+         serviceCollection.AddSession(options =>
+         {
+            options.IdleTimeout = TimeSpan.FromMinutes(expiration);
          });
 
          return serviceCollection;
