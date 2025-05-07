@@ -13,7 +13,7 @@ namespace Infrastructure.SqlDatabase
             if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
             if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
             if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
-
+            entity.Owner = null;
             var insert = context.Add(entity);
             await context.SaveChangesAsync();
             return insert.Entity;

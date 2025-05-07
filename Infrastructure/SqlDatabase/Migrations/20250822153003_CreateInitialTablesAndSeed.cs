@@ -66,6 +66,8 @@ namespace SqlDatabase.Migrations
                     active = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     name = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false),
                     unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
+                    start_date = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    end_date = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -211,6 +213,12 @@ namespace SqlDatabase.Migrations
                 name: "IX_splits_user_id",
                 table: "splits",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_email",
+                table: "users",
+                column: "email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_users_unique_key",
