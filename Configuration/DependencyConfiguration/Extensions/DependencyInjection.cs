@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Application.UseCases.Ports;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
+using Application.UseCases;
 
 namespace ExpenseWise.DependencyConfiguration
 {
@@ -21,6 +22,9 @@ namespace ExpenseWise.DependencyConfiguration
       public static IServiceCollection ConfigureDependencies(this IServiceCollection serviceCollection)
       {
          serviceCollection.AddSingleton<RepositoryAdapter>();
+         serviceCollection.AddSingleton<QueryAdapter>();
+
+         #region Database Ports
 
          serviceCollection.AddScoped<IDatabasePort<User>>(x =>
          {
@@ -42,6 +46,17 @@ namespace ExpenseWise.DependencyConfiguration
          {
             return x.GetService<RepositoryAdapter>()!;
          });
+
+         #endregion
+
+         #region Query Ports
+
+         serviceCollection.AddScoped<IQueryPort<Group>>(x =>
+         {
+            return x.GetService<QueryAdapter>()!;
+         });
+
+         #endregion
 
          return serviceCollection;
       }

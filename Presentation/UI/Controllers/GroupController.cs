@@ -1,8 +1,8 @@
 using System;
-using System.Threading.Tasks;
 using Application.UseCases;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using UI.Configuration;
 using UI.Models;
 
 namespace UI.Controllers
@@ -19,11 +19,32 @@ namespace UI.Controllers
       }
 
       [HttpGet]
-      public IActionResult Index()
+      public async Task<IActionResult> Index()
       {
-         var groups = new List<GroupViewModel>();
+         try
+         {
+            var request =
+               new ListGroupsRequest()
+               {
+                  UserId = new Guid(HttpContext.Session.GetString("User")!)
+               };
 
-         return View(groups);
+            var response = await _mediator.Send(request);
+            if (response.Succeeded)
+            {
+               var groups = response.Result?.Groups;
+               if (groups?.Any() == true)
+               {
+                  return View(groups.Select(ModelMapper.GroupMapper.Map<GroupViewModel>));
+               }
+            }
+         }
+         catch (Exception ex)
+         {
+            _logger.LogError(ex.Message);
+         }
+
+         return View();
       }
 
       [HttpGet]
@@ -43,12 +64,20 @@ namespace UI.Controllers
       {
          try
          {
+            var user =
+               new FindUserRequest()
+               {
+                  UniqueKey = model.OwnerId
+               };
+            var userResponse = await _mediator.Send(user);
+
             var createGroupRequest =
                new CreateGroupRequest()
                {
                   Name = model.Name,
                   StartDate = model.StartDate,
-                  EndDate = model.EndDate
+                  EndDate = model.EndDate,
+                  OwnerId = userResponse.Result!.Id
                };
 
             var response = await _mediator.Send(createGroupRequest);

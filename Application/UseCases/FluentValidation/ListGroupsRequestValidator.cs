@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace Application.UseCases.FluentValidation
 {
-   internal class FindUserRequestValidator : AbstractValidator<FindUserRequest>
+   internal class ListGroupsRequestValidator : AbstractValidator<ListGroupsRequest>
    {
-      public FindUserRequestValidator()
+      public ListGroupsRequestValidator()
       {
-         RuleFor(x => x.UniqueKey)
+         RuleFor(x => x.UserId)
             .NotEqual(Guid.Empty)
             .WithMessage("Please provide a user id to query with.");
       }
