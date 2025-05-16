@@ -13,11 +13,11 @@ namespace Tests.Regression.UseCases
       [AutoMoq]
       public async Task AddMemberMoq(
          [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
-         AddMember useCase)
+         AddMemberToGroup useCase)
       {
          // Arrange
          var addMemberRequest =
-            new AddMemberRequest()
+            new AddMemberToGroupRequest()
             {
                User = new User() { Id = 1000 },
                Group = new Group() { Id = 1000 }

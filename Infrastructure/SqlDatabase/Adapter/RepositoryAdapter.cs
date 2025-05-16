@@ -195,8 +195,8 @@ namespace Infrastructure.SqlDatabase
          return null;
       }
 
-      private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.GroupMapper.Map<MemberOf>(dbEntity);
-      private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.GroupMapper.Map<MemberOfEntity>(entity);
+      private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.MemberOfMapper.Map<MemberOf>(dbEntity);
+      private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.MemberOfMapper.Map<MemberOfEntity>(entity);
 
       #endregion
 

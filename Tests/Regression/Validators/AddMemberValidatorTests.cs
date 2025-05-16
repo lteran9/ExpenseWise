@@ -15,11 +15,11 @@ namespace Tests.Regression.Validators
       [AutoMoq]
       public async Task Validate_UserNotNull(
          [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
-         AddMember useCase)
+         AddMemberToGroup useCase)
       {
          // Arrange
          var addMember =
-            new AddMemberRequest()
+            new AddMemberToGroupRequest()
             {
                Group = new Group() { Id = 1000 }
             };
@@ -36,11 +36,11 @@ namespace Tests.Regression.Validators
       [AutoMoq]
       public async Task Validate_UserIsValid(
          [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
-         AddMember useCase)
+         AddMemberToGroup useCase)
       {
          // Arrange
          var addMember =
-            new AddMemberRequest()
+            new AddMemberToGroupRequest()
             {
                User = new User(),
                Group = new Group() { Id = 1000 }
@@ -58,11 +58,11 @@ namespace Tests.Regression.Validators
       [AutoMoq]
       public async Task Validate_GroupNotNull(
          [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
-         AddMember useCase)
+         AddMemberToGroup useCase)
       {
          // Arrange
          var addMember =
-            new AddMemberRequest()
+            new AddMemberToGroupRequest()
             {
                User = new User() { Id = 1000 }
             };
@@ -79,11 +79,11 @@ namespace Tests.Regression.Validators
       [AutoMoq]
       public async Task Validate_GroupIsValid(
          [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
-         AddMember useCase)
+         AddMemberToGroup useCase)
       {
          // Arrange
          var addMember =
-            new AddMemberRequest()
+            new AddMemberToGroupRequest()
             {
                User = new User() { Id = 1000 },
                Group = new Group()
