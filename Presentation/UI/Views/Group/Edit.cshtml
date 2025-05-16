@@ -1,6 +1,45 @@
 @model GroupViewModel
 @{
-   ViewData["Title"] = "Edit Expense Group";
+   ViewData["Title"] = "Edit Group";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1 class="display-4 text-center">@ViewData["Title"]</h1>
+<div class="card">
+   <div class="card-body">
+      @if (Model != null)
+      {
+         <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary()
+
+            <div class="mb-3">
+               <label asp-for="Name" class="form-label">Name</label>
+               <input asp-for="Name" class="form-control" type="text" required />
+            </div>
+            <div class="mb-3">
+               <label asp-for="StartDate" class="form-label">Start Date</label>
+               <input asp-for="StartDate" type="date" class="form-control" required />
+            </div>
+            <div class="mb-3">
+               <label asp-for="EndDate" class="form-label">End Date</label>
+               <input asp-for="EndDate" type="date" class="form-control" required />
+            </div>
+            <div class="d-grid d-md-block text-md-end mb-3">
+               <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+            <div class="d-grid d-md-block text-md-end">
+               <a href="@Url.Action("Index", "Group")" class="btn btn-secondary">Back</a>
+            </div>
+
+            <input asp-for="OwnerId" type="hidden" />
+            <input asp-for="UniqueKey" type="hidden" />
+         </form>
+      }
+      else
+      {
+         <div class="alert alert-warning mb-0">
+            <p class="text-center text-md-start mb-0">Unable to find expense group.</p>
+         </div>
+      }
+   </div>
+</div>

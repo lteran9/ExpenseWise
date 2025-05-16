@@ -1,6 +1,6 @@
 @model GroupViewModel
 @{
-   ViewData["Title"] = "Create";
+   ViewData["Title"] = "Create Group";
 }
 
 <h1 class="display-4 text-center">Create Expense Group</h1>
@@ -13,13 +13,6 @@
          <div class="mb-3">
             <label asp-for="Name" class="form-label">Name</label>
             <input asp-for="Name" class="form-control" type="text" required />
-         </div>
-         <div class="mb-0">
-            <label asp-for="FundTarget" class="form-label">Fund Target</label>
-         </div>
-         <div class="input-group mb-3">
-            <span class="input-group-text">$</span>
-            <input asp-for="FundTarget" class="form-control" type="text" required />
          </div>
          <div class="mb-3">
             <label asp-for="StartDate" class="form-label">Start Date</label>

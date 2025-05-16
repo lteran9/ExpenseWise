@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Application.UseCases;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -93,6 +94,39 @@ namespace UI.Controllers
 
          ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
 
+         return View();
+      }
+
+      [HttpGet]
+      public async Task<IActionResult> Edit(Guid key)
+      {
+         var request =
+            new RetrieveGroupRequest()
+            {
+               UniqueKey = key
+            };
+
+         var response = await _mediator.Send(request);
+         if (response.Succeeded)
+         {
+            var groupEntity = response.Result?.Group;
+            if (groupEntity != null)
+            {
+               return View(ModelMapper.GroupMapper.Map<GroupViewModel>(groupEntity));
+            }
+            else
+            {
+               _logger.LogInformation("Group entity in successful response was null.");
+            }
+         }
+
+
+         return View();
+      }
+
+      [HttpGet]
+      public IActionResult Invite()
+      {
          return View();
       }
    }

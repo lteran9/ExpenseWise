@@ -11,10 +11,12 @@
    {
       <div class="card mb-4">
          <div class="card-body">
-            <div class="vstack py-2">
+            <div class="vstack gap-3">
                <h2 class="display-5">@group.Name</h2>
-               <button type="button" class="btn btn-secondary">Manage</button>
+               <a asp-action="Edit" asp-route-key="@group.UniqueKey" class="btn btn-secondary">Edit</a>
+               <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-secondary">Invite</a>
                <span>Members: 4</span>
+               <span>Spent: $0</span>
             </div>
          </div>
       </div>
