@@ -13,10 +13,16 @@
          <div class="card-body">
             <div class="vstack gap-3">
                <h2 class="display-5">@group.Name</h2>
-               <a asp-action="Edit" asp-route-key="@group.UniqueKey" class="btn btn-secondary">Edit</a>
-               <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-secondary">Invite</a>
+               <div class="hstack gap-3">
+                  <a asp-action="Edit" asp-route-key="@group.UniqueKey" class="btn btn-secondary flex-fill">Edit</a>
+                  <div class="vr"></div>
+                  <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-secondary flex-fill">Invite</a>
+                  <div class="vr"></div>
+                  <a href="#" class="btn btn-secondary flex-fill">Expense</a>
+               </div>
                <span>Members: 4</span>
                <span>Spent: $0</span>
+               <span>Outstanding Balance: $0</span>
             </div>
          </div>
       </div>
