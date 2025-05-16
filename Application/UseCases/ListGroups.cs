@@ -43,6 +43,10 @@ namespace Application.UseCases
                   return Invalid("User does not own any groups.");
                }
             }
+            else
+            {
+               return Invalid("Could not find a user associated with the requested id.");
+            }
          }
 
          return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());

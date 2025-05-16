@@ -8,18 +8,18 @@ using MediatR;
 
 namespace Application.UseCases
 {
-   public class AddMember : BaseRequestHandler<AddMemberRequest, AddMemberResponse>
+   public class AddMemberToGroup : BaseRequestHandler<AddMemberToGroupRequest, AddMemberToGroupResponse>
    {
       private readonly IDatabasePort<MemberOf> _repository;
-      private readonly AbstractValidator<AddMemberRequest> _validator;
+      private readonly AbstractValidator<AddMemberToGroupRequest> _validator;
 
-      public AddMember(IDatabasePort<MemberOf> repository)
+      public AddMemberToGroup(IDatabasePort<MemberOf> repository)
       {
          _repository = repository;
          _validator = new AddMemberRequestValidator();
       }
 
-      public override async Task<ResponseWrapper<AddMemberResponse>> Handle(AddMemberRequest request, CancellationToken cancellationToken)
+      public override async Task<ResponseWrapper<AddMemberToGroupResponse>> Handle(AddMemberToGroupRequest request, CancellationToken cancellationToken)
       {
          var validationResult = await _validator.ValidateAsync(request);
          if (validationResult.IsValid)
@@ -35,7 +35,7 @@ namespace Application.UseCases
             if (response != null)
             {
                return Successful(
-                  new AddMemberResponse()
+                  new AddMemberToGroupResponse()
                   {
                      Success = true
                   });
@@ -50,13 +50,13 @@ namespace Application.UseCases
       }
    }
 
-   public class AddMemberRequest : IRequest<ResponseWrapper<AddMemberResponse>>
+   public class AddMemberToGroupRequest : IRequest<ResponseWrapper<AddMemberToGroupResponse>>
    {
       public User? User { get; set; }
       public Group? Group { get; set; }
    }
 
-   public class AddMemberResponse
+   public class AddMemberToGroupResponse
    {
       public bool Success { get; set; }
    }

@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Application.UseCases.FluentValidation
 {
-   internal class AddMemberRequestValidator : AbstractValidator<AddMemberRequest>
+   internal class AddMemberRequestValidator : AbstractValidator<AddMemberToGroupRequest>
    {
       public AddMemberRequestValidator()
       {
