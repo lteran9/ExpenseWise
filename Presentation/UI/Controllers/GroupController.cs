@@ -120,13 +120,57 @@ namespace UI.Controllers
             }
          }
 
-
          return View();
       }
 
       [HttpGet]
-      public IActionResult Invite()
+      public async Task<IActionResult> Invite(Guid key)
       {
+         var request =
+            new RetrieveGroupRequest()
+            {
+               UniqueKey = key
+            };
+
+         var response = await _mediator.Send(request);
+         if (response.Succeeded)
+         {
+            var groupEntity = response.Result?.Group;
+            if (groupEntity != null)
+            {
+               var viewModel =
+                  new GroupInviteViewModel()
+                  {
+                     Group = ModelMapper.GroupMapper.Map<GroupViewModel>(groupEntity)
+                  };
+
+               return View(viewModel);
+            }
+         }
+
+         return View();
+      }
+
+      [HttpPost]
+      [ValidateAntiForgeryToken]
+      public async Task<IActionResult> Invite(GroupInviteViewModel model)
+      {
+         try
+         {
+            var addMemberRequest =
+               new AddMemberToGroupRequest()
+               {
+                  User = new Core.Entities.User() { UniqueKey = Guid.Empty },
+                  Group = new Core.Entities.Group() { UniqueKey = Guid.Empty }
+               };
+         }
+         catch (Exception ex)
+         {
+            _logger.LogError(ex.Message);
+         }
+
+         ModelState.AddModelError(string.Empty, "Unable to invite member to group at this time, please try again later.");
+
          return View();
       }
    }
