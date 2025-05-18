@@ -24,11 +24,17 @@ namespace Application.UseCases
          var validationResult = await _validator.ValidateAsync(request);
          if (validationResult.IsValid)
          {
+            // Get user
+            var user = new User();
+
+            // Get group
+            var group = new Group();
+
             var membership =
                new MemberOf()
                {
-                  User = request.User!,
-                  Group = request.Group!
+                  User = user,
+                  Group = group
                };
 
             var response = await _repository.CreateAsync(membership);
@@ -52,8 +58,16 @@ namespace Application.UseCases
 
    public class AddMemberToGroupRequest : IRequest<ResponseWrapper<AddMemberToGroupResponse>>
    {
-      public User? User { get; set; }
-      public Group? Group { get; set; }
+      public string Name { get; set; }
+      public string Phone { get; set; }
+
+      public Guid GroupUniqueKey { get; set; }
+
+      public AddMemberToGroupRequest()
+      {
+         Name = string.Empty;
+         Phone = string.Empty;
+      }
    }
 
    public class AddMemberToGroupResponse

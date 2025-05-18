@@ -7,13 +7,13 @@ using Moq;
 
 namespace Tests.Regression.Validators
 {
-   public class AddMemberValidatorTests
+   public class AddMemberToGroupValidatorTests
    {
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
 #pragma warning disable IDE0060 // Remove unused parameter
       [Theory]
       [AutoMoq]
-      public async Task Validate_UserNotNull(
+      public async Task Validate_UserNameNotNull(
          [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
          AddMemberToGroup useCase)
       {
@@ -21,7 +21,8 @@ namespace Tests.Regression.Validators
          var addMember =
             new AddMemberToGroupRequest()
             {
-               Group = new Group() { Id = 1000 }
+               Phone = "+1 (602) 333-4567",
+               GroupUniqueKey = Guid.NewGuid()
             };
 
          // Act
@@ -34,7 +35,7 @@ namespace Tests.Regression.Validators
 
       [Theory]
       [AutoMoq]
-      public async Task Validate_UserIsValid(
+      public async Task Validate_UserPhoneNotNull(
          [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
          AddMemberToGroup useCase)
       {
@@ -42,8 +43,31 @@ namespace Tests.Regression.Validators
          var addMember =
             new AddMemberToGroupRequest()
             {
-               User = new User(),
-               Group = new Group() { Id = 1000 }
+               Name = "John Doe",
+               GroupUniqueKey = Guid.NewGuid()
+            };
+
+         // Act
+         var response = await useCase.Handle(addMember, new CancellationToken());
+
+         // Assert
+         Assert.False(response.Succeeded);
+         Assert.True(response.ValidationMessages?.Any() == true);
+      }
+
+      [Theory]
+      [AutoMoq]
+      public async Task Validate_RequestIsValid(
+         [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
+         AddMemberToGroup useCase)
+      {
+         // Arrange
+         var addMember =
+            new AddMemberToGroupRequest()
+            {
+               Name = "John Doe",
+               Phone = "+1 (602) 333-4567",
+               GroupUniqueKey = Guid.NewGuid()
             };
 
          // Act
@@ -64,29 +88,8 @@ namespace Tests.Regression.Validators
          var addMember =
             new AddMemberToGroupRequest()
             {
-               User = new User() { Id = 1000 }
-            };
-
-         // Act
-         var response = await useCase.Handle(addMember, new CancellationToken());
-
-         // Assert
-         Assert.False(response.Succeeded);
-         Assert.True(response.ValidationMessages?.Any() == true);
-      }
-
-      [Theory]
-      [AutoMoq]
-      public async Task Validate_GroupIsValid(
-         [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
-         AddMemberToGroup useCase)
-      {
-         // Arrange
-         var addMember =
-            new AddMemberToGroupRequest()
-            {
-               User = new User() { Id = 1000 },
-               Group = new Group()
+               Name = "John Doe",
+               Phone = "+1 (602) 333-4567"
             };
 
          // Act
