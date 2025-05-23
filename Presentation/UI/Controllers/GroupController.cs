@@ -160,9 +160,29 @@ namespace UI.Controllers
             var addMemberRequest =
                new AddMemberToGroupRequest()
                {
-                  User = new Core.Entities.User() { UniqueKey = Guid.Empty },
-                  Group = new Core.Entities.Group() { UniqueKey = Guid.Empty }
+                  Phone = model.Phone,
+                  GroupUniqueKey = model.Group.UniqueKey
                };
+
+            var response = await _mediator.Send(addMemberRequest);
+            if (response.Succeeded)
+            {
+               if (response.Result?.Success == true)
+               {
+                  // Member added to group
+                  return RedirectToAction("", "");
+               }
+            }
+            else
+            {
+               if (response.ValidationMessages?.Any() == true)
+               {
+                  // Unable to add user to group
+                  ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
+
+                  return View(model);
+               }
+            }
          }
          catch (Exception ex)
          {
@@ -171,7 +191,7 @@ namespace UI.Controllers
 
          ModelState.AddModelError(string.Empty, "Unable to invite member to group at this time, please try again later.");
 
-         return View();
+         return View(model);
       }
    }
 }

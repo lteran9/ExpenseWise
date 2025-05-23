@@ -9,20 +9,26 @@
       @if (Model?.Group != null)
       {
          <h2>@Model.Group.Name</h2>
-         <form asp-action="" method="post">
+         <form asp-action="Invite" method="post">
             @Html.AntiForgeryToken()
             @Html.ValidationSummary()
 
             <div class="mb-3">
-               <label asp-for="Name" class="form-label">Name</label>
-               <input asp-for="Name" class="form-control" type="text" placeholder="John Doe" required />
-            </div>
-            <div class="mb-3">
                <label asp-for="Phone" class="form-label">Phone</label>
-               <input asp-for="Phone" class="form-control" type="text" placeholder="+1 (602) 333-4567" required />
+               <div class="input-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">+1</button>
+                  <ul class="dropdown-menu">
+                     <li><a class="dropdown-item" href="#" onclick="SiteJs.UpdateDropdown(this)">+1</a></li>
+                     <li><a class="dropdown-item" href="#" onclick="SiteJs.UpdateDropdown(this)">+52</a></li>
+                  </ul>
+                  <input asp-for="Phone" class="form-control" type="text" placeholder="(602) 333-4567" required />
+               </div>
             </div>
-            <div class="d-grid">
+            <div class="d-grid d-md-block text-md-end mb-3">
                <button type="submit" class="btn btn-primary">Send</button>
+            </div>
+            <div class="d-grid d-md-block text-md-end">
+               <a href="@Url.Action("Index", "Group")" class="btn btn-secondary">Back</a>
             </div>
 
             <input asp-for="Group.UniqueKey" type="hidden" />

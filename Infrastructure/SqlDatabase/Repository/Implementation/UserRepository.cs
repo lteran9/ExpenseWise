@@ -52,6 +52,14 @@ namespace Infrastructure.SqlDatabase
                   return dbEntity;
                }
             }
+            else if (!string.IsNullOrEmpty(entity.Phone))
+            {
+               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == entity.Phone);
+               if (dbEntity?.Active == true)
+               {
+                  return dbEntity;
+               }
+            }
          }
 
          return null;

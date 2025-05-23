@@ -4,20 +4,40 @@ using Core.Entities;
 
 namespace Infrastructure.SqlDatabase
 {
-   public class QueryAdapter : IQueryPort<Group>
+   public class QueryAdapter : IQueryPort<Group>, IQueryPort<MemberOf>
    {
-      private readonly IQuery<GroupEntity> _query;
+      private readonly IQuery<GroupEntity> _groupQuery;
+      private readonly IQuery<MemberOfEntity> _memberOfQuery;
 
       public QueryAdapter()
       {
-         _query = new GroupQuery();
+         _groupQuery = new GroupQuery();
+         _memberOfQuery = new MemberOfQuery();
       }
+
+      #region MemberOf
+
+      public async Task<List<MemberOf>> FindAsync(MemberOf entity)
+      {
+         var dbMemberOf = await _memberOfQuery.Find(MapEntityToDatabase(entity));
+         if (dbMemberOf?.Any() == true)
+         {
+            return dbMemberOf.Select(MapDatabaseToEntity).ToList();
+         }
+
+         return new List<MemberOf>();
+      }
+
+      private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.MemberOfMapper.Map<MemberOf>(dbEntity);
+      private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.MemberOfMapper.Map<MemberOfEntity>(entity);
+
+      #endregion
 
       #region Group 
 
       public async Task<List<Group>> FindAsync(Group entity)
       {
-         var dbGroups = await _query.Find(MapEntityToDatabase(entity));
+         var dbGroups = await _groupQuery.Find(MapEntityToDatabase(entity));
          if (dbGroups?.Any() == true)
          {
             var groups = dbGroups.Select(MapDatabaseToEntity).ToList();
