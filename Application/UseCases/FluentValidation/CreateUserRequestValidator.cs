@@ -19,7 +19,9 @@ namespace Application.UseCases.FluentValidation
             .WithMessage("Please provide a valid email address.");
          RuleFor(x => x.Phone)
             .NotEmpty()
-            .WithMessage("Please provide a phone number for the account.");
+            .WithMessage("Please provide a phone number for the account.")
+            .Matches(new Regex(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}"))
+            .WithMessage("Please enter a valid phone number.");
          RuleFor(x => x.Password)
             .NotEmpty()
             .WithMessage("Please provide a password for the account.")
