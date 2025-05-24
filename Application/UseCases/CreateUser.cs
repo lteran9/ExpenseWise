@@ -35,7 +35,8 @@ namespace Application.UseCases
                {
                   Name = request.Name,
                   Email = request.Email,
-                  Phone = request.Phone
+                  Phone = request.Phone,
+                  CountryCode = request.CountryCode
                };
 
             var userResponse = await _userRepository.CreateAsync(user);

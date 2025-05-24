@@ -47,6 +47,11 @@ body {
    text-align: start;
 }
 
+.input-group .form-select {
+   flex: 0 1 auto;
+   min-width: 85px;
+}
+
 .input-validation-error {
    border: 1px solid red;
 }

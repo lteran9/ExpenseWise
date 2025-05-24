@@ -15,6 +15,9 @@ namespace Infrastructure.SqlDatabase
             if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
             if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
 
+            // Strip characters from phone number to improve searchability
+            entity.Phone = StripPhoneOfCharacters(entity.Phone);
+
             var insert = context.Add(entity);
             await context.SaveChangesAsync();
             return insert.Entity;
@@ -31,6 +34,7 @@ namespace Infrastructure.SqlDatabase
                // Only return active users
                if (dbEntity?.Active == true)
                {
+                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
                   return dbEntity;
                }
             }
@@ -40,6 +44,7 @@ namespace Infrastructure.SqlDatabase
                // Only return active users
                if (dbEntity?.Active == true)
                {
+                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
                   return dbEntity;
                }
             }
@@ -49,6 +54,7 @@ namespace Infrastructure.SqlDatabase
                // Only return active users
                if (dbEntity?.Active == true)
                {
+                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
                   return dbEntity;
                }
             }
@@ -57,6 +63,7 @@ namespace Infrastructure.SqlDatabase
                var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == entity.Phone);
                if (dbEntity?.Active == true)
                {
+                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
                   return dbEntity;
                }
             }
@@ -69,6 +76,9 @@ namespace Infrastructure.SqlDatabase
       {
          using (var context = new CoreContext())
          {
+            // Strip characters from phone number to improve searchability
+            entity.Phone = StripPhoneOfCharacters(entity.Phone);
+
             var update = context.Update(entity);
             await context.SaveChangesAsync();
             return update.Entity;
@@ -82,6 +92,20 @@ namespace Infrastructure.SqlDatabase
          // Soft delete
          entity.Active = false;
          return await UpdateAsync(entity);
+      }
+
+      private string StripPhoneOfCharacters(string phone)
+      {
+         return phone
+            .Replace("(", "")
+            .Replace(")", "")
+            .Replace("-", "")
+            .Replace(" ", "");
+      }
+
+      private string FormatPhoneNumber(string phone)
+      {
+         return string.Format("{0:(###) ###-####}", phone);
       }
    }
 }

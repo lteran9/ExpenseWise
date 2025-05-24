@@ -33,10 +33,11 @@ namespace UI.Controllers
                new CreateUserRequest()
                {
                   Name = $"{model.FirstName} {model.LastName}",
-                  Email = model.Email!,
-                  Phone = model.Phone!,
-                  Password = model.Password!,
-                  ConfirmPassword = model.ConfirmPassword!
+                  Email = model.Email,
+                  Phone = model.Phone,
+                  CountryCode = model.CountryCode,
+                  Password = model.Password,
+                  ConfirmPassword = model.ConfirmPassword
                };
 
             var response = await _mediator.Send(createUserRequest);
