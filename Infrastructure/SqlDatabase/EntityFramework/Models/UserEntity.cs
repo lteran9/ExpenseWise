@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-   [Table("users"), Index(nameof(UniqueKey), IsUnique = true), Index(nameof(Email), IsUnique = true)]
+   [Table("users"),
+      Index(nameof(UniqueKey), IsUnique = true),
+      Index(nameof(Email), IsUnique = true),
+      Index(nameof(Phone), IsUnique = true)]
    public class UserEntity
    {
       [Key, Column("id")]
