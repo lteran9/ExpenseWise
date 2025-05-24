@@ -19,7 +19,6 @@ namespace Tests.Regression.UseCases
          var addMemberRequest =
             new AddMemberToGroupRequest()
             {
-               Name = "John Doe",
                Phone = "+1 (602) 333-4567",
                GroupUniqueKey = Guid.NewGuid()
             };

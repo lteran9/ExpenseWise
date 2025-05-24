@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20250822153003_CreateInitialTablesAndSeed")]
+    [Migration("20250914175934_CreateInitialTablesAndSeed")]
     partial class CreateInitialTablesAndSeed
     {
         /// <inheritdoc />
@@ -242,6 +242,12 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("active");
 
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)")
+                        .HasColumnName("country_code");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -281,6 +287,9 @@ namespace SqlDatabase.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Phone")
                         .IsUnique();
 
                     b.HasIndex("UniqueKey")

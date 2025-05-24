@@ -70,12 +70,14 @@ namespace Application.UseCases
    public class AddMemberToGroupRequest : IRequest<ResponseWrapper<AddMemberToGroupResponse>>
    {
       public string Phone { get; set; }
+      public string CountryCode { get; set; }
 
       public Guid GroupUniqueKey { get; set; }
 
       public AddMemberToGroupRequest()
       {
          Phone = string.Empty;
+         CountryCode = string.Empty;
       }
    }
 

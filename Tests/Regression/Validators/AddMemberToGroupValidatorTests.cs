@@ -43,7 +43,6 @@ namespace Tests.Regression.Validators
          var addMember =
             new AddMemberToGroupRequest()
             {
-               Name = "John Doe",
                GroupUniqueKey = Guid.NewGuid()
             };
 
@@ -65,7 +64,6 @@ namespace Tests.Regression.Validators
          var addMember =
             new AddMemberToGroupRequest()
             {
-               Name = "John Doe",
                Phone = "+1 (602) 333-4567",
                GroupUniqueKey = Guid.NewGuid()
             };
@@ -88,7 +86,6 @@ namespace Tests.Regression.Validators
          var addMember =
             new AddMemberToGroupRequest()
             {
-               Name = "John Doe",
                Phone = "+1 (602) 333-4567"
             };
 

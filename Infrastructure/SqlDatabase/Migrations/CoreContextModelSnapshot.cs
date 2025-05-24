@@ -239,6 +239,12 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("active");
 
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)")
+                        .HasColumnName("country_code");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -278,6 +284,9 @@ namespace SqlDatabase.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Phone")
                         .IsUnique();
 
                     b.HasIndex("UniqueKey")

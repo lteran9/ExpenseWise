@@ -80,6 +80,7 @@ namespace Application.UseCases
       public string Name { get; set; }
       public string Email { get; set; }
       public string Phone { get; set; }
+      public string CountryCode { get; set; }
       public string Password { get; set; }
       public string ConfirmPassword { get; set; }
 
@@ -88,6 +89,7 @@ namespace Application.UseCases
          Name = string.Empty;
          Email = string.Empty;
          Phone = string.Empty;
+         CountryCode = string.Empty;
          Password = string.Empty;
          ConfirmPassword = string.Empty;
       }

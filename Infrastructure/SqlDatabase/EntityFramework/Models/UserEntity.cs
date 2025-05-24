@@ -25,6 +25,8 @@ namespace Infrastructure.SqlDatabase
       public string Email { get; set; }
       [Column("phone"), MaxLength(16)]
       public string Phone { get; set; }
+      [Column("country_code"), MaxLength(8)]
+      public string CountryCode { get; set; }
 
       [Column("unique_key")]
       public Guid UniqueKey { get; set; }
@@ -42,6 +44,7 @@ namespace Infrastructure.SqlDatabase
          LastName = string.Empty;
          Email = string.Empty;
          Phone = string.Empty;
+         CountryCode = string.Empty;
          // Default to true
          Active = true;
       }

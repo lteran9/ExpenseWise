@@ -46,6 +46,7 @@ namespace SqlDatabase.Migrations
                     last_name = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false),
                     email = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false),
                     phone = table.Column<string>(type: "varchar(16)", maxLength: 16, nullable: false),
+                    country_code = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: false),
                     unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -218,6 +219,12 @@ namespace SqlDatabase.Migrations
                 name: "IX_users_email",
                 table: "users",
                 column: "email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_phone",
+                table: "users",
+                column: "phone",
                 unique: true);
 
             migrationBuilder.CreateIndex(
