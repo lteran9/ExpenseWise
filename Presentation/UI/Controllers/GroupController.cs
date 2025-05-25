@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Application.UseCases;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +41,7 @@ namespace UI.Controllers
          }
          catch (Exception ex)
          {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex);
          }
 
          return View();
@@ -89,7 +88,7 @@ namespace UI.Controllers
          }
          catch (Exception ex)
          {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex);
          }
 
          ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
@@ -186,7 +185,7 @@ namespace UI.Controllers
          }
          catch (Exception ex)
          {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex);
          }
 
          ModelState.AddModelError(string.Empty, "Unable to invite member to group at this time, please try again later.");

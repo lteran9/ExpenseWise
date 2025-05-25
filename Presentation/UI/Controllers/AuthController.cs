@@ -2,6 +2,7 @@ using System;
 using Application.UseCases;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using UI.Configuration;
 using UI.Models;
 
 namespace UI.Controllers
@@ -59,7 +60,7 @@ namespace UI.Controllers
          }
          catch (Exception ex)
          {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex);
          }
 
          ModelState.AddModelError(string.Empty, "Unable to create user. Please try again.");
@@ -105,7 +106,7 @@ namespace UI.Controllers
          }
          catch (Exception ex)
          {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex);
          }
 
          ModelState.AddModelError(string.Empty, "Unable to authenticate user. Please check your username and password.");
