@@ -66,6 +66,8 @@ namespace ExpenseWise.DependencyConfiguration
          serviceCollection.AddSession(options =>
          {
             options.IdleTimeout = TimeSpan.FromMinutes(expiration);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
          });
 
          return serviceCollection;

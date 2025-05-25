@@ -10,6 +10,7 @@ builder.Services
 builder.Services
    .ConfigureDependencies()
    .RegisterUseCases()
+   .AddHttpContextAccessor()
    .ConfigureSession(45);
 
 var app = builder.Build();

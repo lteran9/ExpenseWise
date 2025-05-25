@@ -20,7 +20,7 @@ namespace Core.Entities
          Name = string.Empty;
          Email = string.Empty;
          Phone = string.Empty;
-
+         CountryCode = string.Empty;
          Groups = new List<Group>();
       }
    }

@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@inject IHttpContextAccessor Accessor
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -29,8 +31,15 @@
                   </li>
                </ul>
                <div class="navbar-nav">
-                  <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="SignIn">Sign In</a>
-                  <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Register">Register</a>
+                  @if (!string.IsNullOrEmpty(Accessor.HttpContext?.Session.GetString("User")))
+                  {
+                     <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="LogOut">Log Out</a>
+                  }
+                  else
+                  {
+                     <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="SignIn">Sign In</a>
+                     <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Register">Register</a>
+                  }
                </div>
             </div>
          </div>

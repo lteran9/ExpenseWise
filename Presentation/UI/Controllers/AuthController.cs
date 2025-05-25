@@ -127,5 +127,13 @@ namespace UI.Controllers
 
          return View();
       }
+
+      [HttpGet]
+      public IActionResult LogOut()
+      {
+         HttpContext.Session.SetString("User", string.Empty);
+
+         return View();
+      }
    }
 }
