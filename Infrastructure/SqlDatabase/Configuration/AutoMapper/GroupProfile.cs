@@ -13,6 +13,7 @@ namespace Infrastructure.SqlDatabase
             .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.UserMapper.Map<User>(s.Owner)));
          // Entity to Database
          CreateMap<Group, GroupEntity>()
+            .ForMember(d => d.OwnerId, src => src.MapFrom(s => s.Owner.Id))
             .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.UserMapper.Map<UserEntity>(s.Owner)));
       }
    }

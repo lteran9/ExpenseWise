@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20250914175934_CreateInitialTablesAndSeed")]
+    [Migration("20250917000504_CreateInitialTablesAndSeed")]
     partial class CreateInitialTablesAndSeed
     {
         /// <inheritdoc />
@@ -89,7 +89,7 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("varchar(64)")
                         .HasColumnName("name");
 
-                    b.Property<int?>("OwnerId")
+                    b.Property<int>("OwnerId")
                         .HasColumnType("int")
                         .HasColumnName("owner_id");
 
@@ -129,7 +129,7 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
-                    b.Property<int?>("GroupId")
+                    b.Property<int>("GroupId")
                         .HasColumnType("int")
                         .HasColumnName("group_id");
 
@@ -137,7 +137,7 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int")
                         .HasColumnName("user_id");
 
@@ -302,7 +302,9 @@ namespace SqlDatabase.Migrations
                 {
                     b.HasOne("Infrastructure.SqlDatabase.UserEntity", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerId");
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Owner");
                 });
@@ -311,11 +313,15 @@ namespace SqlDatabase.Migrations
                 {
                     b.HasOne("Infrastructure.SqlDatabase.GroupEntity", "Group")
                         .WithMany()
-                        .HasForeignKey("GroupId");
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Infrastructure.SqlDatabase.UserEntity", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Group");
 

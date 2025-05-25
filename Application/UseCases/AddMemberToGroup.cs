@@ -36,25 +36,29 @@ namespace Application.UseCases
 
             if (user != null && group != null)
             {
-               var membership =
-                  new MemberOf()
-                  {
-                     User = user,
-                     Group = group
-                  };
-
-               var response = await _memberOfRepository.CreateAsync(membership);
-               if (response != null)
+               // Shallow validation?
+               if (user.CountryCode == request.CountryCode)
                {
-                  return Successful(
-                     new AddMemberToGroupResponse()
+                  var membership =
+                     new MemberOf()
                      {
-                        Success = true
-                     });
-               }
-               else
-               {
-                  return Failed(default);
+                        User = user,
+                        Group = group
+                     };
+
+                  var response = await _memberOfRepository.CreateAsync(membership);
+                  if (response != null)
+                  {
+                     return Successful(
+                        new AddMemberToGroupResponse()
+                        {
+                           Success = true
+                        });
+                  }
+                  else
+                  {
+                     return Failed(default);
+                  }
                }
             }
             else

@@ -11,7 +11,7 @@ namespace Infrastructure.SqlDatabase
       [Key, Column("id")]
       public int Id { get; set; }
       [Column("owner_id")]
-      public int? OwnerId { get; set; }
+      public int OwnerId { get; set; }
 
       [Column("active")]
       public bool Active { get; set; }

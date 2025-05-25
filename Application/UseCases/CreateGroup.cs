@@ -10,12 +10,14 @@ namespace Application.UseCases
 {
    public class CreateGroup : BaseRequestHandler<CreateGroupRequest, CreateGroupResponse>
    {
-      private readonly IDatabasePort<Group> _repository;
+      private readonly IDatabasePort<Group> _groupRepository;
+      private readonly IDatabasePort<MemberOf> _memberOfRepository;
       private readonly AbstractValidator<CreateGroupRequest> _validator;
 
-      public CreateGroup(IDatabasePort<Group> repository)
+      public CreateGroup(IDatabasePort<Group> groupRepository, IDatabasePort<MemberOf> memberOfRepository)
       {
-         _repository = repository;
+         _groupRepository = groupRepository;
+         _memberOfRepository = memberOfRepository;
          _validator = new CreateGroupRequestValidator();
       }
 
@@ -33,15 +35,30 @@ namespace Application.UseCases
                   EndDate = request.EndDate
                };
 
-            var response = await _repository.CreateAsync(group);
-            if (response != null)
+            var groupResponse = await _groupRepository.CreateAsync(group);
+            if (groupResponse != null)
             {
-               return Successful(
-                  new CreateGroupResponse()
+               var memberOf =
+                  new MemberOf()
                   {
-                     Id = response.Id,
-                     UniqueKey = response.UniqueKey
-                  });
+                     Group = new Group() { Id = groupResponse.Id },
+                     User = new User() { Id = group.Owner.Id }
+                  };
+
+               var memberOfResponse = await _memberOfRepository.CreateAsync(memberOf);
+               if (memberOfResponse != null)
+               {
+                  return Successful(
+                     new CreateGroupResponse()
+                     {
+                        Id = groupResponse.Id,
+                        UniqueKey = memberOfResponse.Group.UniqueKey
+                     });
+               }
+               else
+               {
+                  return Failed(default);
+               }
             }
             else
             {

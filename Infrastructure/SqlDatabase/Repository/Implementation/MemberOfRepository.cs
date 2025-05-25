@@ -13,6 +13,9 @@ namespace Infrastructure.SqlDatabase
             if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
             if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
 
+            entity.Group = null;
+            entity.User = null;
+
             var insert = context.Add(entity);
             await context.SaveChangesAsync();
             return insert.Entity;

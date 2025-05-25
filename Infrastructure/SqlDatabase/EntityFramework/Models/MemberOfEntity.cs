@@ -10,10 +10,10 @@ namespace Infrastructure.SqlDatabase
    {
       [Key]
       public int Id { get; set; }
-      [Column("user_id")]
-      public int? UserId { get; set; }
-      [Column("group_id")]
-      public int? GroupId { get; set; }
+      [Column("user_id"), ForeignKey(nameof(User))]
+      public int UserId { get; set; }
+      [Column("group_id"), ForeignKey(nameof(Group))]
+      public int GroupId { get; set; }
 
       [Column("active")]
       public bool Active { get; set; }
@@ -23,9 +23,7 @@ namespace Infrastructure.SqlDatabase
       [Column("updated_at")]
       public DateTime UpdatedAt { get; set; }
 
-      [ForeignKey(nameof(UserId))]
       public UserEntity? User { get; set; }
-      [ForeignKey(nameof(GroupId))]
       public GroupEntity? Group { get; set; }
 
       public MemberOfEntity()
