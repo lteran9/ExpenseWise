@@ -60,7 +60,7 @@ namespace Infrastructure.SqlDatabase
             }
             else if (!string.IsNullOrEmpty(entity.Phone))
             {
-               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == entity.Phone);
+               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == StripPhoneOfCharacters(entity.Phone));
                if (dbEntity?.Active == true)
                {
                   dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
