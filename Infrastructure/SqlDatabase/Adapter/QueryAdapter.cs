@@ -19,7 +19,7 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<List<MemberOf>> FindAsync(MemberOf entity)
       {
-         var dbMemberOf = await _memberOfQuery.Find(MapEntityToDatabase(entity));
+         var dbMemberOf = await _memberOfQuery.FindAsync(MapEntityToDatabase(entity));
          if (dbMemberOf?.Any() == true)
          {
             return dbMemberOf.Select(MapDatabaseToEntity).ToList();
@@ -37,7 +37,7 @@ namespace Infrastructure.SqlDatabase
 
       public async Task<List<Group>> FindAsync(Group entity)
       {
-         var dbGroups = await _groupQuery.Find(MapEntityToDatabase(entity));
+         var dbGroups = await _groupQuery.FindAsync(MapEntityToDatabase(entity));
          if (dbGroups?.Any() == true)
          {
             var groups = dbGroups.Select(MapDatabaseToEntity).ToList();

@@ -7,6 +7,7 @@ namespace UI.Models
       public string Name { get; set; }
       public string Email { get; set; }
       public string Phone { get; set; }
+      public string CountryCode { get; set; }
 
       public Guid Id { get; set; }
 
@@ -15,6 +16,7 @@ namespace UI.Models
          Name = string.Empty;
          Email = string.Empty;
          Phone = string.Empty;
+         CountryCode = string.Empty;
       }
    }
 }

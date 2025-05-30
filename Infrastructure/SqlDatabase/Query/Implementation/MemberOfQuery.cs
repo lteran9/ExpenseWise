@@ -6,7 +6,7 @@ namespace Infrastructure.SqlDatabase
 {
    public class MemberOfQuery : IQuery<MemberOfEntity>
    {
-      public async Task<List<MemberOfEntity>> Find(MemberOfEntity entity)
+      public async Task<List<MemberOfEntity>> FindAsync(MemberOfEntity entity)
       {
          using (var context = new CoreContext())
          {

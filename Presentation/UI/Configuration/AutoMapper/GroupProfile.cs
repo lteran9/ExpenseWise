@@ -10,7 +10,8 @@ namespace UI.Configuration
       public GroupProfile()
       {
          CreateMap<Group, GroupViewModel>()
-            .ForMember(x => x.OwnerId, src => src.MapFrom(s => s.Owner.UniqueKey));
+            .ForMember(x => x.OwnerId, src => src.MapFrom(s => s.Owner.UniqueKey))
+            .ForMember(x => x.Members, src => src.MapFrom(s => s.Members.Select(ModelMapper.UserMapper.Map<UserViewModel>).ToList()));
       }
    }
 }

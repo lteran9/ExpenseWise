@@ -30,6 +30,7 @@ namespace Infrastructure.SqlDatabase
             if (entity.Id > 0)
             {
                var dbEntity = await context.FindAsync<GroupEntity>(entity.Id);
+
                // Only return active records for now
                if (dbEntity?.Active == true)
                {

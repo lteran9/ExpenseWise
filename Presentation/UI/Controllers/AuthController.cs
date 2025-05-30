@@ -61,9 +61,21 @@ namespace UI.Controllers
          catch (Exception ex)
          {
             _logger.LogError(ex);
+
+            if (ex.InnerException?.Message?.Contains("users.IX_users_email") == true)
+            {
+               ModelState.AddModelError(string.Empty, "The email address provided is already in use.");
+            }
+            else if (ex.InnerException?.Message?.Contains("users.IX_users_phone") == true)
+            {
+               ModelState.AddModelError(string.Empty, "The phone number provided is already in use.");
+            }
          }
 
-         ModelState.AddModelError(string.Empty, "Unable to create user. Please try again.");
+         if (ModelState.ErrorCount == 0)
+         {
+            ModelState.AddModelError(string.Empty, "Unable to create user. Please try again.");
+         }
 
          return View(model);
       }

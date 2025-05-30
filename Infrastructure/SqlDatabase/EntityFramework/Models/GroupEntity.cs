@@ -33,12 +33,15 @@ namespace Infrastructure.SqlDatabase
 
       [ForeignKey(nameof(OwnerId))]
       public UserEntity? Owner { get; set; }
+      public ICollection<MemberOfEntity>? Membership { get; set; }
 
       public GroupEntity()
       {
          Name = string.Empty;
          // Default to true
          Active = true;
+         // Nullable list
+         Membership = new List<MemberOfEntity>();
       }
    }
 }

@@ -160,6 +160,7 @@ namespace UI.Controllers
                new AddMemberToGroupRequest()
                {
                   Phone = model.Phone,
+                  CountryCode = model.CountryCode,
                   GroupUniqueKey = model.Group.UniqueKey
                };
 
@@ -169,7 +170,7 @@ namespace UI.Controllers
                if (response.Result?.Success == true)
                {
                   // Member added to group
-                  return RedirectToAction("", "");
+                  return RedirectToAction("Index");
                }
             }
             else

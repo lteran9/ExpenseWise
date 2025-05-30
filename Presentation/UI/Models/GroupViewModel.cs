@@ -12,9 +12,12 @@ namespace UI.Models
       public DateTime? StartDate { get; set; }
       public DateTime? EndDate { get; set; }
 
+      public List<UserViewModel> Members { get; set; }
+
       public GroupViewModel()
       {
          Name = string.Empty;
+         Members = new List<UserViewModel>();
       }
    }
 }

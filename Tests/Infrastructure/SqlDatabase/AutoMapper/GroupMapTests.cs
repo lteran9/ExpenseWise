@@ -45,7 +45,8 @@ namespace Tests.Infrastructure.AutoMapper
                Name = "Las Vegas 2025 Trip",
                UniqueKey = uniqueKey,
                OwnerId = dbOwner.Id,
-               Owner = dbOwner
+               Owner = dbOwner,
+               Membership = new List<MemberOfEntity>() { new MemberOfEntity() { User = dbOwner } }
             };
 
          var group =
@@ -54,10 +55,13 @@ namespace Tests.Infrastructure.AutoMapper
                Id = 1000,
                Name = "Las Vegas 2025 Trip",
                UniqueKey = uniqueKey,
-               Owner = DatabaseMapper.UserMapper.Map<User>(dbOwner)
+               Owner = DatabaseMapper.UserMapper.Map<User>(dbOwner),
+               Members = new List<User>() { DatabaseMapper.UserMapper.Map<User>(dbOwner) }
             };
 
-         Assert.Equivalent(group, DatabaseMapper.GroupMapper.Map<Group>(dbGroup));
+         var mappedGroup = DatabaseMapper.GroupMapper.Map<Group>(dbGroup);
+
+         Assert.Equivalent(group, mappedGroup);
       }
 
       [Theory]
@@ -73,7 +77,8 @@ namespace Tests.Infrastructure.AutoMapper
                Id = 1000,
                Name = groupName,
                UniqueKey = uniqueKey,
-               Owner = owner
+               Owner = owner,
+               Members = new List<User>() { owner }
             };
 
          var dbGroup =
