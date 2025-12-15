@@ -1,5 +1,4 @@
 using System;
-using Application.UseCases.Ports;
 
 namespace Infrastructure.SqlDatabase
 {

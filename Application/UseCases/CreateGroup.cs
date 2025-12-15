@@ -52,7 +52,7 @@ namespace Application.UseCases
                      new CreateGroupResponse()
                      {
                         Id = groupResponse.Id,
-                        UniqueKey = memberOfResponse.Group.UniqueKey
+                        UniqueKey = groupResponse.UniqueKey
                      });
                }
                else
