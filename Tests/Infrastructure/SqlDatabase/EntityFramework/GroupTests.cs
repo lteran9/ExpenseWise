@@ -8,11 +8,11 @@ namespace Tests.Infrastructure.EntityFramework
     public class GroupTests
     {
         public static IEnumerable<object[]> GroupEntityData =>
-           new List<object[]>()
-           {
-            new object[] { new GroupEntity() { Id = 1, Name = "SampleGroup", OwnerId = 1, UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
-            new object[] { new GroupEntity() { Id = 2, Name = "RandomGroup", OwnerId = 2, UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } }
-           };
+            new List<object[]>()
+            {
+                new object[] { new GroupEntity() { Id = 1, Name = "SampleGroup", OwnerId = 1, UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
+                new object[] { new GroupEntity() { Id = 2, Name = "RandomGroup", OwnerId = 2, UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } }
+            };
 
         [Theory]
         [MemberData(nameof(GroupEntityData))]
@@ -26,14 +26,14 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.CreateAsync(
-               It.Is<GroupEntity>(g =>
-                  g.Id == group.Id &&
-                  g.Name == group.Name &&
-                  g.OwnerId == group.OwnerId &&
-                  g.UniqueKey == group.UniqueKey &&
-                  g.CreatedAt == group.CreatedAt &&
-                  g.UpdatedAt == group.UpdatedAt
-               ))
+                It.Is<GroupEntity>(g =>
+                    g.Id == group.Id &&
+                    g.Name == group.Name &&
+                    g.OwnerId == group.OwnerId &&
+                    g.UniqueKey == group.UniqueKey &&
+                    g.CreatedAt == group.CreatedAt &&
+                    g.UpdatedAt == group.UpdatedAt
+                ))
             );
         }
 
@@ -49,14 +49,14 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.RetrieveAsync(
-               It.Is<GroupEntity>(g =>
-                  g.Id == group.Id &&
-                  g.Name == group.Name &&
-                  g.OwnerId == group.OwnerId &&
-                  g.UniqueKey == group.UniqueKey &&
-                  g.CreatedAt == group.CreatedAt &&
-                  g.UpdatedAt == group.UpdatedAt
-               ))
+                It.Is<GroupEntity>(g =>
+                    g.Id == group.Id &&
+                    g.Name == group.Name &&
+                    g.OwnerId == group.OwnerId &&
+                    g.UniqueKey == group.UniqueKey &&
+                    g.CreatedAt == group.CreatedAt &&
+                    g.UpdatedAt == group.UpdatedAt
+                ))
            );
         }
 
@@ -72,14 +72,14 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.UpdateAsync(
-               It.Is<GroupEntity>(g =>
-                  g.Id == group.Id &&
-                  g.Name == group.Name &&
-                  g.OwnerId == group.OwnerId &&
-                  g.UniqueKey == group.UniqueKey &&
-                  g.CreatedAt == group.CreatedAt &&
-                  g.UpdatedAt == group.UpdatedAt
-               ))
+                It.Is<GroupEntity>(g =>
+                    g.Id == group.Id &&
+                    g.Name == group.Name &&
+                    g.OwnerId == group.OwnerId &&
+                    g.UniqueKey == group.UniqueKey &&
+                    g.CreatedAt == group.CreatedAt &&
+                    g.UpdatedAt == group.UpdatedAt
+                ))
             );
         }
 
@@ -95,14 +95,14 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.DeleteAsync(
-               It.Is<GroupEntity>(g =>
-                  g.Id == group.Id &&
-                  g.Name == group.Name &&
-                  g.OwnerId == group.OwnerId &&
-                  g.UniqueKey == group.UniqueKey &&
-                  g.CreatedAt == group.CreatedAt &&
-                  g.UpdatedAt == group.UpdatedAt
-               ))
+                It.Is<GroupEntity>(g =>
+                    g.Id == group.Id &&
+                    g.Name == group.Name &&
+                    g.OwnerId == group.OwnerId &&
+                    g.UniqueKey == group.UniqueKey &&
+                    g.CreatedAt == group.CreatedAt &&
+                    g.UpdatedAt == group.UpdatedAt
+                ))
             );
         }
     }

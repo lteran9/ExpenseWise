@@ -8,11 +8,11 @@ namespace Tests.Infrastructure.EntityFramework
     public class UserTests
     {
         public static IEnumerable<object[]> UserEntityData =>
-           new List<object[]>()
-           {
-            new object[] { new UserEntity() { Id = 1, FirstName = "Test", LastName = "Tester", Email = "tester@test.com", UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
-            new object[] { new UserEntity() { Id = 2, FirstName = "Jane", LastName = "Doe", Email = "j.doe@test.com", UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } }
-           };
+            new List<object[]>()
+            {
+                new object[] { new UserEntity() { Id = 1, FirstName = "Test", LastName = "Tester", Email = "tester@test.com", UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } },
+                new object[] { new UserEntity() { Id = 2, FirstName = "Jane", LastName = "Doe", Email = "j.doe@test.com", UniqueKey = Guid.NewGuid(), CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now } }
+            };
 
         [Theory]
         [MemberData(nameof(UserEntityData))]
@@ -26,15 +26,15 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.CreateAsync(
-               It.Is<UserEntity>(u =>
-                  u.Id == user.Id &&
-                  u.FirstName == user.FirstName &&
-                  u.LastName == user.LastName &&
-                  u.Email == user.Email &&
-                  u.UniqueKey == user.UniqueKey &&
-                  u.CreatedAt == user.CreatedAt &&
-                  u.UpdatedAt == user.UpdatedAt
-               ))
+                It.Is<UserEntity>(u =>
+                    u.Id == user.Id &&
+                    u.FirstName == user.FirstName &&
+                    u.LastName == user.LastName &&
+                    u.Email == user.Email &&
+                    u.UniqueKey == user.UniqueKey &&
+                    u.CreatedAt == user.CreatedAt &&
+                    u.UpdatedAt == user.UpdatedAt
+                ))
             );
         }
 
@@ -50,15 +50,15 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.RetrieveAsync(
-               It.Is<UserEntity>(u =>
-                  u.Id == user.Id &&
-                  u.FirstName == user.FirstName &&
-                  u.LastName == user.LastName &&
-                  u.Email == user.Email &&
-                  u.UniqueKey == user.UniqueKey &&
-                  u.CreatedAt == user.CreatedAt &&
-                  u.UpdatedAt == user.UpdatedAt
-               ))
+                It.Is<UserEntity>(u =>
+                    u.Id == user.Id &&
+                    u.FirstName == user.FirstName &&
+                    u.LastName == user.LastName &&
+                    u.Email == user.Email &&
+                    u.UniqueKey == user.UniqueKey &&
+                    u.CreatedAt == user.CreatedAt &&
+                    u.UpdatedAt == user.UpdatedAt
+                ))
             );
         }
 
@@ -74,15 +74,15 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.UpdateAsync(
-               It.Is<UserEntity>(u =>
-                  u.Id == user.Id &&
-                  u.FirstName == user.FirstName &&
-                  u.LastName == user.LastName &&
-                  u.Email == user.Email &&
-                  u.UniqueKey == user.UniqueKey &&
-                  u.CreatedAt == user.CreatedAt &&
-                  u.UpdatedAt == user.UpdatedAt
-               ))
+                It.Is<UserEntity>(u =>
+                    u.Id == user.Id &&
+                    u.FirstName == user.FirstName &&
+                    u.LastName == user.LastName &&
+                    u.Email == user.Email &&
+                    u.UniqueKey == user.UniqueKey &&
+                    u.CreatedAt == user.CreatedAt &&
+                    u.UpdatedAt == user.UpdatedAt
+                ))
             );
         }
 
@@ -98,15 +98,15 @@ namespace Tests.Infrastructure.EntityFramework
 
             // Assert
             mockRepo.Verify(repo => repo.DeleteAsync(
-               It.Is<UserEntity>(u =>
-                  u.Id == user.Id &&
-                  u.FirstName == user.FirstName &&
-                  u.LastName == user.LastName &&
-                  u.Email == user.Email &&
-                  u.UniqueKey == user.UniqueKey &&
-                  u.CreatedAt == user.CreatedAt &&
-                  u.UpdatedAt == user.UpdatedAt
-               ))
+                It.Is<UserEntity>(u =>
+                    u.Id == user.Id &&
+                    u.FirstName == user.FirstName &&
+                    u.LastName == user.LastName &&
+                    u.Email == user.Email &&
+                    u.UniqueKey == user.UniqueKey &&
+                    u.CreatedAt == user.CreatedAt &&
+                    u.UpdatedAt == user.UpdatedAt
+                ))
             );
         }
     }

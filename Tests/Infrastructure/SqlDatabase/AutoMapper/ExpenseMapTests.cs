@@ -28,24 +28,24 @@ namespace Tests.Infrastructure.AutoMapper
             var expenseName = "Drinks @ the Club";
 
             var dbExpense =
-               new ExpenseEntity()
-               {
-                   Id = 1,
-                   Currency = currency,
-                   Amount = amount,
-                   Settled = true,
-                   Description = expenseName
-               };
+                new ExpenseEntity()
+                {
+                    Id = 1,
+                    Currency = currency,
+                    Amount = amount,
+                    Settled = true,
+                    Description = expenseName
+                };
 
             var expense =
-               new Expense()
-               {
-                   Id = 1,
-                   Currency = currency,
-                   Amount = amount,
-                   Settled = true,
-                   Description = expenseName
-               };
+                new Expense()
+                {
+                    Id = 1,
+                    Currency = currency,
+                    Amount = amount,
+                    Settled = true,
+                    Description = expenseName
+                };
 
             Assert.Equivalent(expense, DatabaseMapper.ExpenseMapper.Map<Expense>(dbExpense));
         }
@@ -58,24 +58,24 @@ namespace Tests.Infrastructure.AutoMapper
             var expenseName = "Drinks @ the Club";
 
             var expense =
-               new Expense()
-               {
-                   Id = 1,
-                   Currency = currency,
-                   Amount = amount,
-                   Settled = true,
-                   Description = expenseName
-               };
+                new Expense()
+                {
+                    Id = 1,
+                    Currency = currency,
+                    Amount = amount,
+                    Settled = true,
+                    Description = expenseName
+                };
 
             var dbExpense =
-               new ExpenseEntity()
-               {
-                   Id = 1,
-                   Currency = currency,
-                   Amount = amount,
-                   Settled = true,
-                   Description = expenseName
-               };
+                new ExpenseEntity()
+                {
+                    Id = 1,
+                    Currency = currency,
+                    Amount = amount,
+                    Settled = true,
+                    Description = expenseName
+                };
 
             Assert.Equivalent(dbExpense, DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(expense));
         }

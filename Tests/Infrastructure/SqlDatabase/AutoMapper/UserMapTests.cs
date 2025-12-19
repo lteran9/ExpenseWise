@@ -26,25 +26,25 @@ namespace Tests.Infrastructure.AutoMapper
             var uniqueKey = Guid.NewGuid();
 
             var user =
-               new User()
-               {
-                   Id = 1000,
-                   Name = "Test Tester",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new User()
+                {
+                    Id = 1000,
+                    Name = "Test Tester",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             var dbUser =
-               new UserEntity()
-               {
-                   Id = 1000,
-                   FirstName = "Test",
-                   LastName = "Tester",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new UserEntity()
+                {
+                    Id = 1000,
+                    FirstName = "Test",
+                    LastName = "Tester",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             Assert.Equivalent(user, DatabaseMapper.UserMapper.Map<User>(dbUser));
         }
@@ -55,25 +55,25 @@ namespace Tests.Infrastructure.AutoMapper
             var uniqueKey = Guid.NewGuid();
 
             var user =
-               new User()
-               {
-                   Id = 1000,
-                   Name = "Test Tester",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new User()
+                {
+                    Id = 1000,
+                    Name = "Test Tester",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             var dbUser =
-               new UserEntity()
-               {
-                   Id = 1000,
-                   FirstName = "Test",
-                   LastName = "Tester",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new UserEntity()
+                {
+                    Id = 1000,
+                    FirstName = "Test",
+                    LastName = "Tester",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
         }
@@ -84,25 +84,25 @@ namespace Tests.Infrastructure.AutoMapper
             var uniqueKey = Guid.NewGuid();
 
             var user =
-               new User()
-               {
-                   Id = 1000,
-                   Name = "Quetzalcoatl",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new User()
+                {
+                    Id = 1000,
+                    Name = "Quetzalcoatl",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             var dbUser =
-               new UserEntity()
-               {
-                   Id = 1000,
-                   FirstName = "Quetzalcoatl",
-                   LastName = "",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new UserEntity()
+                {
+                    Id = 1000,
+                    FirstName = "Quetzalcoatl",
+                    LastName = "",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
         }
@@ -115,25 +115,25 @@ namespace Tests.Infrastructure.AutoMapper
             // Empty Name
 
             var user =
-               new User()
-               {
-                   Id = 1000,
-                   Name = "",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new User()
+                {
+                    Id = 1000,
+                    Name = "",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             var dbUser =
-               new UserEntity()
-               {
-                   Id = 1000,
-                   FirstName = "",
-                   LastName = "",
-                   Email = "sample@test.com",
-                   Phone = "+1 602 333 4578",
-                   UniqueKey = uniqueKey
-               };
+                new UserEntity()
+                {
+                    Id = 1000,
+                    FirstName = "",
+                    LastName = "",
+                    Email = "sample@test.com",
+                    Phone = "+1 602 333 4578",
+                    UniqueKey = uniqueKey
+                };
 
             Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
         }

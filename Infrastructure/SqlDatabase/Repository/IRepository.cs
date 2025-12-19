@@ -8,6 +8,5 @@ namespace Infrastructure.SqlDatabase
         Task<T?> RetrieveAsync(T entity);
         Task<T?> UpdateAsync(T entity);
         Task<T?> DeleteAsync(T entity);
-
     }
 }

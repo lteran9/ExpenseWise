@@ -9,21 +9,21 @@ namespace Tests.Infrastructure.AutoMapper
         public static IEnumerable<object[]> DbEntityData =>
            new List<object[]>()
            {
-            new object[] {
-               new UserEntity() { Id = 1000, FirstName = "Test", LastName = "Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() },
-               new GroupEntity() { Id = 1, OwnerId = 1000, Active = true, Name = "Last Vegas Trip",  UniqueKey = Guid.NewGuid() },
-               new ExpenseEntity() { Id = 1, Amount = 100.00M, Currency = "USD", Description = "Drinks @ the Club", UniqueKey = Guid.NewGuid() }
-            }
+                new object[] {
+                    new UserEntity() { Id = 1000, FirstName = "Test", LastName = "Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() },
+                    new GroupEntity() { Id = 1, OwnerId = 1000, Active = true, Name = "Last Vegas Trip",  UniqueKey = Guid.NewGuid() },
+                    new ExpenseEntity() { Id = 1, Amount = 100.00M, Currency = "USD", Description = "Drinks @ the Club", UniqueKey = Guid.NewGuid() }
+                }
            };
 
         public static IEnumerable<object[]> CoreEntityData =>
            new List<object[]>()
            {
-            new object[] {
-               new User() { Id = 1000, Name = "Test Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() },
-               new Group() { Id = 1, Active = true, Name = "Last Vegas Trip",  UniqueKey = Guid.NewGuid() },
-               new Expense() { Id = 1, Amount = 100.00M, Currency = "USD", Description = "Drinks @ the Club" }
-            }
+                new object[] {
+                    new User() { Id = 1000, Name = "Test Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() },
+                    new Group() { Id = 1, Active = true, Name = "Last Vegas Trip",  UniqueKey = Guid.NewGuid() },
+                    new Expense() { Id = 1, Amount = 100.00M, Currency = "USD", Description = "Drinks @ the Club" }
+                }
            };
 
         [Fact]
@@ -45,29 +45,29 @@ namespace Tests.Infrastructure.AutoMapper
         public void AutoMapper_DatabaseToEntity(UserEntity user, GroupEntity group, ExpenseEntity expense)
         {
             var dbSplit =
-               new SplitEntity()
-               {
-                   Id = 1,
-                   Paid = false,
-                   PaidOn = DateTime.MinValue,
-                   UserId = user.Id,
-                   User = user,
-                   GroupId = group.Id,
-                   Group = group,
-                   ExpenseId = expense.Id,
-                   Expense = expense
-               };
+                new SplitEntity()
+                {
+                    Id = 1,
+                    Paid = false,
+                    PaidOn = DateTime.MinValue,
+                    UserId = user.Id,
+                    User = user,
+                    GroupId = group.Id,
+                    Group = group,
+                    ExpenseId = expense.Id,
+                    Expense = expense
+                };
 
             var split =
-               new Split()
-               {
-                   Id = 1,
-                   Paid = false,
-                   PaidOn = DateTime.MinValue,
-                   User = DatabaseMapper.UserMapper.Map<User>(user),
-                   Group = DatabaseMapper.GroupMapper.Map<Group>(group),
-                   Expense = DatabaseMapper.ExpenseMapper.Map<Expense>(expense)
-               };
+                new Split()
+                {
+                    Id = 1,
+                    Paid = false,
+                    PaidOn = DateTime.MinValue,
+                    User = DatabaseMapper.UserMapper.Map<User>(user),
+                    Group = DatabaseMapper.GroupMapper.Map<Group>(group),
+                    Expense = DatabaseMapper.ExpenseMapper.Map<Expense>(expense)
+                };
 
             Assert.Equivalent(split, DatabaseMapper.SplitMapper.Map<Split>(dbSplit));
         }
@@ -77,29 +77,29 @@ namespace Tests.Infrastructure.AutoMapper
         public void AutoMapper_EntityToDatabase(User user, Group group, Expense expense)
         {
             var split =
-               new Split()
-               {
-                   Id = 1,
-                   Paid = false,
-                   PaidOn = DateTime.MinValue,
-                   User = user,
-                   Group = group,
-                   Expense = expense
-               };
+                new Split()
+                {
+                    Id = 1,
+                    Paid = false,
+                    PaidOn = DateTime.MinValue,
+                    User = user,
+                    Group = group,
+                    Expense = expense
+                };
 
             var dbSplit =
-               new SplitEntity()
-               {
-                   Id = 1,
-                   Paid = false,
-                   PaidOn = DateTime.MinValue,
-                   UserId = user.Id,
-                   User = DatabaseMapper.UserMapper.Map<UserEntity>(user),
-                   GroupId = group.Id,
-                   Group = DatabaseMapper.GroupMapper.Map<GroupEntity>(group),
-                   ExpenseId = expense.Id,
-                   Expense = DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(expense)
-               };
+                new SplitEntity()
+                {
+                    Id = 1,
+                    Paid = false,
+                    PaidOn = DateTime.MinValue,
+                    UserId = user.Id,
+                    User = DatabaseMapper.UserMapper.Map<UserEntity>(user),
+                    GroupId = group.Id,
+                    Group = DatabaseMapper.GroupMapper.Map<GroupEntity>(group),
+                    ExpenseId = expense.Id,
+                    Expense = DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(expense)
+                };
 
             Assert.Equivalent(dbSplit, DatabaseMapper.SplitMapper.Map<SplitEntity>(split));
         }
