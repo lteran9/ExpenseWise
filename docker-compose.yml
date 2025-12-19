@@ -1,11 +1,11 @@
 services:
   webapp:
-    build: 
+    build:
       context: .
     image: 'expensewise-1:latest'
-    ports: 
+    ports:
       - 8080:8080
-    networks: 
+    networks:
       - network
     depends_on:
       - mysql

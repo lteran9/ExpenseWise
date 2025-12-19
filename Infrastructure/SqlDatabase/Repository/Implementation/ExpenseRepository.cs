@@ -5,66 +5,66 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-   internal class ExpenseRepository : IRepository<ExpenseEntity>
-   {
-      public async Task<ExpenseEntity?> CreateAsync(ExpenseEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            // Default values
-            if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
-            if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
-            if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
-
-            var insert = context.Add(entity);
-            await context.SaveChangesAsync();
-            return insert.Entity;
-         }
-      }
-
-      public async Task<ExpenseEntity?> RetrieveAsync(ExpenseEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            if (entity.Id > 0)
+    internal class ExpenseRepository : IRepository<ExpenseEntity>
+    {
+        public async Task<ExpenseEntity?> CreateAsync(ExpenseEntity entity)
+        {
+            using (var context = new CoreContext())
             {
-               return await context.FindAsync<ExpenseEntity>(entity.Id);
+                // Default values
+                if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
+                if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
+                if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
 
+                var insert = context.Add(entity);
+                await context.SaveChangesAsync();
+                return insert.Entity;
             }
-            else if (entity.UniqueKey != Guid.Empty)
+        }
+
+        public async Task<ExpenseEntity?> RetrieveAsync(ExpenseEntity entity)
+        {
+            using (var context = new CoreContext())
             {
-               return await context.Expenses.FirstOrDefaultAsync(x => x.UniqueKey == entity.UniqueKey);
+                if (entity.Id > 0)
+                {
+                    return await context.FindAsync<ExpenseEntity>(entity.Id);
+
+                }
+                else if (entity.UniqueKey != Guid.Empty)
+                {
+                    return await context.Expenses.FirstOrDefaultAsync(x => x.UniqueKey == entity.UniqueKey);
+                }
             }
-         }
 
-         return null;
-      }
+            return null;
+        }
 
-      public async Task<ExpenseEntity?> UpdateAsync(ExpenseEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            var update = context.Update(entity);
-            await context.SaveChangesAsync();
-            return update.Entity;
-         }
-      }
-
-      public async Task<ExpenseEntity?> DeleteAsync(ExpenseEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            if (entity.Id > 0)
+        public async Task<ExpenseEntity?> UpdateAsync(ExpenseEntity entity)
+        {
+            using (var context = new CoreContext())
             {
-               context.Expenses.Attach(entity);
-               context.Expenses.Remove(entity);
-               await context.SaveChangesAsync();
-
-               return entity;
+                var update = context.Update(entity);
+                await context.SaveChangesAsync();
+                return update.Entity;
             }
-         }
+        }
 
-         return null;
-      }
-   }
+        public async Task<ExpenseEntity?> DeleteAsync(ExpenseEntity entity)
+        {
+            using (var context = new CoreContext())
+            {
+                if (entity.Id > 0)
+                {
+                    context.Expenses.Attach(entity);
+                    context.Expenses.Remove(entity);
+                    await context.SaveChangesAsync();
+
+                    return entity;
+                }
+            }
+
+            return null;
+        }
+    }
 }

@@ -4,95 +4,95 @@ using Infrastructure.SqlDatabase;
 
 namespace Tests.Infrastructure.AutoMapper
 {
-   public class MemberOfMapTests
-   {
-      public static IEnumerable<object[]> DbEntityData =>
-         new List<object[]>()
-         {
+    public class MemberOfMapTests
+    {
+        public static IEnumerable<object[]> DbEntityData =>
+           new List<object[]>()
+           {
             new object[] {
                new UserEntity() { Id = 1000, FirstName = "Test", LastName = "Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() },
                new GroupEntity() { Id = 1, OwnerId = 1000, Active = true, Name = "Last Vegas Trip",  UniqueKey = Guid.NewGuid() }
             }
-         };
+           };
 
-      public static IEnumerable<object[]> CoreEntityData =>
-         new List<object[]>()
-         {
+        public static IEnumerable<object[]> CoreEntityData =>
+           new List<object[]>()
+           {
             new object[] {
                new User() { Id = 1000, Name = "Test Tester", Email = "test@example.com", Phone = "+16023334578", UniqueKey = Guid.NewGuid() },
                new Group() { Id = 1, Name = "Last Vegas Trip", UniqueKey = Guid.NewGuid() }
             }
-         };
+           };
 
-      [Fact]
-      public void EquivalenceMap()
-      {
-         var dbUser1 = new MemberOfEntity();
-         var dbUser2 = new MemberOfEntity();
+        [Fact]
+        public void EquivalenceMap()
+        {
+            var dbUser1 = new MemberOfEntity();
+            var dbUser2 = new MemberOfEntity();
 
-         Assert.Equivalent(dbUser1, dbUser2);
+            Assert.Equivalent(dbUser1, dbUser2);
 
-         var user1 = new MemberOf();
-         var user2 = new MemberOf();
+            var user1 = new MemberOf();
+            var user2 = new MemberOf();
 
-         Assert.Equivalent(user1, user2);
-      }
+            Assert.Equivalent(user1, user2);
+        }
 
-      [Theory]
-      [MemberData(nameof(DbEntityData))]
-      public void AutoMapper_DatabaseToEntity(UserEntity user, GroupEntity group)
-      {
-         var membership =
-            new MemberOf()
-            {
-               Id = 1,
-               User = DatabaseMapper.UserMapper.Map<User>(user),
-               Group = DatabaseMapper.GroupMapper.Map<Group>(group)
-            };
+        [Theory]
+        [MemberData(nameof(DbEntityData))]
+        public void AutoMapper_DatabaseToEntity(UserEntity user, GroupEntity group)
+        {
+            var membership =
+               new MemberOf()
+               {
+                   Id = 1,
+                   User = DatabaseMapper.UserMapper.Map<User>(user),
+                   Group = DatabaseMapper.GroupMapper.Map<Group>(group)
+               };
 
-         var dbMembership =
-            new MemberOfEntity()
-            {
-               Id = 1,
-               UserId = user.Id,
-               User = user,
-               GroupId = group.Id,
-               Group = group,
-               Active = true
-            };
+            var dbMembership =
+               new MemberOfEntity()
+               {
+                   Id = 1,
+                   UserId = user.Id,
+                   User = user,
+                   GroupId = group.Id,
+                   Group = group,
+                   Active = true
+               };
 
-         Assert.Equivalent(membership, DatabaseMapper.MemberOfMapper.Map<MemberOf>(dbMembership));
-      }
+            Assert.Equivalent(membership, DatabaseMapper.MemberOfMapper.Map<MemberOf>(dbMembership));
+        }
 
-      [Theory]
-      [MemberData(nameof(CoreEntityData))]
-      public void AutoMapper_EntityToDatabase(User user, Group group)
-      {
-         // Arrange
-         group.Owner = user;
-         group.Members.Add(user);
+        [Theory]
+        [MemberData(nameof(CoreEntityData))]
+        public void AutoMapper_EntityToDatabase(User user, Group group)
+        {
+            // Arrange
+            group.Owner = user;
+            group.Members.Add(user);
 
-         var membership =
-            new MemberOf()
-            {
-               Id = 1000,
-               User = user,
-               Group = group
-            };
+            var membership =
+               new MemberOf()
+               {
+                   Id = 1000,
+                   User = user,
+                   Group = group
+               };
 
-         var dbMembership =
-            new MemberOfEntity()
-            {
-               Id = 1000,
-               UserId = user.Id,
-               User = DatabaseMapper.UserMapper.Map<UserEntity>(user),
-               GroupId = group.Id,
-               Group = DatabaseMapper.GroupMapper.Map<GroupEntity>(group),
-               Active = true
-            };
+            var dbMembership =
+               new MemberOfEntity()
+               {
+                   Id = 1000,
+                   UserId = user.Id,
+                   User = DatabaseMapper.UserMapper.Map<UserEntity>(user),
+                   GroupId = group.Id,
+                   Group = DatabaseMapper.GroupMapper.Map<GroupEntity>(group),
+                   Active = true
+               };
 
-         // Assert
-         Assert.Equivalent(dbMembership, DatabaseMapper.MemberOfMapper.Map<MemberOfEntity>(membership));
-      }
-   }
+            // Assert
+            Assert.Equivalent(dbMembership, DatabaseMapper.MemberOfMapper.Map<MemberOfEntity>(membership));
+        }
+    }
 }

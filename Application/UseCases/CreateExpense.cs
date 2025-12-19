@@ -8,64 +8,64 @@ using MediatR;
 
 namespace Application.UseCases
 {
-   public class CreateExpense : BaseRequestHandler<CreateExpenseRequest, CreateExpenseResponse>
-   {
-      private readonly IDatabasePort<Expense> _repository;
-      private readonly AbstractValidator<CreateExpenseRequest> _validator;
+    public class CreateExpense : BaseRequestHandler<CreateExpenseRequest, CreateExpenseResponse>
+    {
+        private readonly IDatabasePort<Expense> _repository;
+        private readonly AbstractValidator<CreateExpenseRequest> _validator;
 
-      public CreateExpense(IDatabasePort<Expense> repository)
-      {
-         _repository = repository;
-         _validator = new CreateExpenseRequestValidator();
-      }
+        public CreateExpense(IDatabasePort<Expense> repository)
+        {
+            _repository = repository;
+            _validator = new CreateExpenseRequestValidator();
+        }
 
-      public override async Task<ResponseWrapper<CreateExpenseResponse>> Handle(CreateExpenseRequest request, CancellationToken cancellationToken)
-      {
-         var validationResult = await _validator.ValidateAsync(request);
-         if (validationResult.IsValid)
-         {
-            var expense =
-               new Expense()
-               {
-                  Description = request.Description,
-                  Currency = request.Currency,
-                  Amount = request.Amount
-               };
-
-            var response = await _repository.CreateAsync(expense);
-            if (response != null)
+        public override async Task<ResponseWrapper<CreateExpenseResponse>> Handle(CreateExpenseRequest request, CancellationToken cancellationToken)
+        {
+            var validationResult = await _validator.ValidateAsync(request);
+            if (validationResult.IsValid)
             {
-               return Successful(
-                  new CreateExpenseResponse()
-                  {
-                     Id = response.Id
-                  });
+                var expense =
+                   new Expense()
+                   {
+                       Description = request.Description,
+                       Currency = request.Currency,
+                       Amount = request.Amount
+                   };
+
+                var response = await _repository.CreateAsync(expense);
+                if (response != null)
+                {
+                    return Successful(
+                       new CreateExpenseResponse()
+                       {
+                           Id = response.Id
+                       });
+                }
+                else
+                {
+                    return Failed(default);
+                }
             }
-            else
-            {
-               return Failed(default);
-            }
-         }
 
-         return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
-      }
-   }
+            return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
+        }
+    }
 
-   public class CreateExpenseRequest : IRequest<ResponseWrapper<CreateExpenseResponse>>
-   {
-      public string Description { get; set; }
-      public string Currency { get; set; }
-      public decimal Amount { get; set; }
+    public class CreateExpenseRequest : IRequest<ResponseWrapper<CreateExpenseResponse>>
+    {
+        public string Description { get; set; }
+        public string Currency { get; set; }
+        public decimal Amount { get; set; }
 
-      public CreateExpenseRequest()
-      {
-         Description = string.Empty;
-         Currency = string.Empty;
-      }
-   }
+        public CreateExpenseRequest()
+        {
+            Description = string.Empty;
+            Currency = string.Empty;
+        }
+    }
 
-   public class CreateExpenseResponse
-   {
-      public int Id { get; set; }
-   }
+    public class CreateExpenseResponse
+    {
+        public int Id { get; set; }
+    }
 }

@@ -4,108 +4,108 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-   internal class UserRepository : IRepository<UserEntity>
-   {
-      public async Task<UserEntity?> CreateAsync(UserEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            // Default values
-            if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
-            if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
-            if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
-
-            // Strip characters from phone number to improve searchability
-            entity.Phone = StripPhoneOfCharacters(entity.Phone);
-
-            var insert = context.Add(entity);
-            await context.SaveChangesAsync();
-            return insert.Entity;
-         }
-      }
-
-      public async Task<UserEntity?> RetrieveAsync(UserEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            if (entity.Id > 0)
+    internal class UserRepository : IRepository<UserEntity>
+    {
+        public async Task<UserEntity?> CreateAsync(UserEntity entity)
+        {
+            using (var context = new CoreContext())
             {
-               var dbEntity = await context.FindAsync<UserEntity>(entity.Id);
-               // Only return active users
-               if (dbEntity?.Active == true)
-               {
-                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
-                  return dbEntity;
-               }
+                // Default values
+                if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
+                if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
+                if (entity.UniqueKey == Guid.Empty) entity.UniqueKey = Guid.NewGuid();
+
+                // Strip characters from phone number to improve searchability
+                entity.Phone = StripPhoneOfCharacters(entity.Phone);
+
+                var insert = context.Add(entity);
+                await context.SaveChangesAsync();
+                return insert.Entity;
             }
-            else if (entity.UniqueKey != Guid.Empty)
+        }
+
+        public async Task<UserEntity?> RetrieveAsync(UserEntity entity)
+        {
+            using (var context = new CoreContext())
             {
-               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.UniqueKey == entity.UniqueKey);
-               // Only return active users
-               if (dbEntity?.Active == true)
-               {
-                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
-                  return dbEntity;
-               }
+                if (entity.Id > 0)
+                {
+                    var dbEntity = await context.FindAsync<UserEntity>(entity.Id);
+                    // Only return active users
+                    if (dbEntity?.Active == true)
+                    {
+                        dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
+                        return dbEntity;
+                    }
+                }
+                else if (entity.UniqueKey != Guid.Empty)
+                {
+                    var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.UniqueKey == entity.UniqueKey);
+                    // Only return active users
+                    if (dbEntity?.Active == true)
+                    {
+                        dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
+                        return dbEntity;
+                    }
+                }
+                else if (!string.IsNullOrEmpty(entity.Email))
+                {
+                    var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Email == entity.Email);
+                    // Only return active users
+                    if (dbEntity?.Active == true)
+                    {
+                        dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
+                        return dbEntity;
+                    }
+                }
+                else if (!string.IsNullOrEmpty(entity.Phone))
+                {
+                    var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == StripPhoneOfCharacters(entity.Phone));
+                    if (dbEntity?.Active == true)
+                    {
+                        dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
+                        return dbEntity;
+                    }
+                }
             }
-            else if (!string.IsNullOrEmpty(entity.Email))
+
+            return null;
+        }
+
+        public async Task<UserEntity?> UpdateAsync(UserEntity entity)
+        {
+            using (var context = new CoreContext())
             {
-               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Email == entity.Email);
-               // Only return active users
-               if (dbEntity?.Active == true)
-               {
-                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
-                  return dbEntity;
-               }
+                // Strip characters from phone number to improve searchability
+                entity.Phone = StripPhoneOfCharacters(entity.Phone);
+
+                var update = context.Update(entity);
+                await context.SaveChangesAsync();
+                return update.Entity;
             }
-            else if (!string.IsNullOrEmpty(entity.Phone))
-            {
-               var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == StripPhoneOfCharacters(entity.Phone));
-               if (dbEntity?.Active == true)
-               {
-                  dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
-                  return dbEntity;
-               }
-            }
-         }
+        }
 
-         return null;
-      }
+        /* Hard deletes involve deleting foreign key relationships as well. */
 
-      public async Task<UserEntity?> UpdateAsync(UserEntity entity)
-      {
-         using (var context = new CoreContext())
-         {
-            // Strip characters from phone number to improve searchability
-            entity.Phone = StripPhoneOfCharacters(entity.Phone);
+        public async Task<UserEntity?> DeleteAsync(UserEntity entity)
+        {
+            // Soft delete
+            entity.Active = false;
+            return await UpdateAsync(entity);
+        }
 
-            var update = context.Update(entity);
-            await context.SaveChangesAsync();
-            return update.Entity;
-         }
-      }
+        private string StripPhoneOfCharacters(string phone)
+        {
+            return phone
+               .Replace("(", "")
+               .Replace(")", "")
+               .Replace("-", "")
+               .Replace(" ", "");
+        }
 
-      /* Hard deletes involve deleting foreign key relationships as well. */
-
-      public async Task<UserEntity?> DeleteAsync(UserEntity entity)
-      {
-         // Soft delete
-         entity.Active = false;
-         return await UpdateAsync(entity);
-      }
-
-      private string StripPhoneOfCharacters(string phone)
-      {
-         return phone
-            .Replace("(", "")
-            .Replace(")", "")
-            .Replace("-", "")
-            .Replace(" ", "");
-      }
-
-      private string FormatPhoneNumber(string phone)
-      {
-         return string.Format("{0:(###) ###-####}", phone);
-      }
-   }
+        private string FormatPhoneNumber(string phone)
+        {
+            return string.Format("{0:(###) ###-####}", phone);
+        }
+    }
 }

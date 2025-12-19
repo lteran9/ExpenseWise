@@ -3,10 +3,10 @@
 
 // Write your JavaScript code.
 ; (function (SiteJs, $) {
-   var _self = SiteJs;
+  var _self = SiteJs;
 
-   _self.UpdateDropdown = function (listItem) {
-      document.querySelector('.dropdown-toggle').innerText = listItem.text;
-   }
+  _self.UpdateDropdown = function (listItem) {
+    document.querySelector('.dropdown-toggle').innerText = listItem.text;
+  }
 
 })(window.SiteJs = window.SiteJs || {}, jQuery);

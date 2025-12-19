@@ -7,146 +7,146 @@ using UI.Models;
 
 namespace UI.Controllers
 {
-   public class AuthController : BaseController
-   {
-      private readonly IMediator _mediator;
-      private readonly ILogger<AuthController> _logger;
+    public class AuthController : BaseController
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger<AuthController> _logger;
 
-      public AuthController(IMediator mediator, ILogger<AuthController> logger)
-      {
-         _mediator = mediator;
-         _logger = logger;
-      }
+        public AuthController(IMediator mediator, ILogger<AuthController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
 
-      [HttpGet]
-      public IActionResult Register()
-      {
-         return View();
-      }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
 
-      [HttpPost]
-      [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Register(AuthViewModel model)
-      {
-         try
-         {
-            var createUserRequest =
-               new CreateUserRequest()
-               {
-                  Name = $"{model.FirstName} {model.LastName}",
-                  Email = model.Email,
-                  Phone = model.Phone,
-                  CountryCode = model.CountryCode,
-                  Password = model.Password,
-                  ConfirmPassword = model.ConfirmPassword
-               };
-
-            var response = await _mediator.Send(createUserRequest);
-            if (response.Succeeded)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(AuthViewModel model)
+        {
+            try
             {
-               HttpContext.Session.SetString("User", response.Result!.UniqueKey.ToString());
+                var createUserRequest =
+                   new CreateUserRequest()
+                   {
+                       Name = $"{model.FirstName} {model.LastName}",
+                       Email = model.Email,
+                       Phone = model.Phone,
+                       CountryCode = model.CountryCode,
+                       Password = model.Password,
+                       ConfirmPassword = model.ConfirmPassword
+                   };
 
-               return RedirectToAction("Index", "Group");
+                var response = await _mediator.Send(createUserRequest);
+                if (response.Succeeded)
+                {
+                    HttpContext.Session.SetString("User", response.Result!.UniqueKey.ToString());
+
+                    return RedirectToAction("Index", "Group");
+                }
+                else
+                {
+                    if (response?.ValidationMessages?.Any() == true)
+                    {
+                        AddValidationErrorsToModelState(response);
+
+                        return View(model);
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-               if (response?.ValidationMessages?.Any() == true)
-               {
-                  AddValidationErrorsToModelState(response);
+                _logger.LogError(ex);
 
-                  return View(model);
-               }
+                if (ex.InnerException?.Message?.Contains("users.IX_users_email") == true)
+                {
+                    ModelState.AddModelError(string.Empty, "The email address provided is already in use.");
+                }
+                else if (ex.InnerException?.Message?.Contains("users.IX_users_phone") == true)
+                {
+                    ModelState.AddModelError(string.Empty, "The phone number provided is already in use.");
+                }
             }
-         }
-         catch (Exception ex)
-         {
-            _logger.LogError(ex);
 
-            if (ex.InnerException?.Message?.Contains("users.IX_users_email") == true)
+            if (ModelState.ErrorCount == 0)
             {
-               ModelState.AddModelError(string.Empty, "The email address provided is already in use.");
+                ModelState.AddModelError(string.Empty, "Unable to create user. Please try again.");
             }
-            else if (ex.InnerException?.Message?.Contains("users.IX_users_phone") == true)
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult SignIn()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SignIn(AuthViewModel model)
+        {
+            try
             {
-               ModelState.AddModelError(string.Empty, "The phone number provided is already in use.");
+                var authenticateUserRequest =
+                   new AuthenticateUserRequest()
+                   {
+                       Email = model.Email!,
+                       Password = model.Password!
+                   };
+
+                var response = await _mediator.Send(authenticateUserRequest);
+                if (response.Succeeded)
+                {
+                    HttpContext.Session.SetString("User", response.Result!.Id.ToString());
+
+                    return RedirectToAction("Index", "Group");
+                }
+                else
+                {
+                    if (response?.ValidationMessages?.Any() == true)
+                    {
+                        AddValidationErrorsToModelState(response);
+
+                        return View(model);
+                    }
+                }
             }
-         }
-
-         if (ModelState.ErrorCount == 0)
-         {
-            ModelState.AddModelError(string.Empty, "Unable to create user. Please try again.");
-         }
-
-         return View(model);
-      }
-
-      [HttpGet]
-      public IActionResult SignIn()
-      {
-         return View();
-      }
-
-      [HttpPost]
-      [ValidateAntiForgeryToken]
-      public async Task<IActionResult> SignIn(AuthViewModel model)
-      {
-         try
-         {
-            var authenticateUserRequest =
-               new AuthenticateUserRequest()
-               {
-                  Email = model.Email!,
-                  Password = model.Password!
-               };
-
-            var response = await _mediator.Send(authenticateUserRequest);
-            if (response.Succeeded)
+            catch (Exception ex)
             {
-               HttpContext.Session.SetString("User", response.Result!.Id.ToString());
-
-               return RedirectToAction("Index", "Group");
+                _logger.LogError(ex);
             }
-            else
-            {
-               if (response?.ValidationMessages?.Any() == true)
-               {
-                  AddValidationErrorsToModelState(response);
 
-                  return View(model);
-               }
-            }
-         }
-         catch (Exception ex)
-         {
-            _logger.LogError(ex);
-         }
+            ModelState.AddModelError(string.Empty, "Unable to authenticate user. Please check your username and password.");
 
-         ModelState.AddModelError(string.Empty, "Unable to authenticate user. Please check your username and password.");
+            return View(model);
+        }
 
-         return View(model);
-      }
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
-      [HttpGet]
-      public IActionResult ForgotPassword()
-      {
-         return View();
-      }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ForgotPassword(AuthViewModel model)
+        {
+            ModelState.AddModelError(string.Empty, "Please add a valid email address.");
 
-      [HttpPost]
-      [ValidateAntiForgeryToken]
-      public IActionResult ForgotPassword(AuthViewModel model)
-      {
-         ModelState.AddModelError(string.Empty, "Please add a valid email address.");
+            return View();
+        }
 
-         return View();
-      }
+        [HttpGet]
+        public IActionResult LogOut()
+        {
+            HttpContext.Session.SetString("User", string.Empty);
 
-      [HttpGet]
-      public IActionResult LogOut()
-      {
-         HttpContext.Session.SetString("User", string.Empty);
-
-         return View();
-      }
-   }
+            return View();
+        }
+    }
 }

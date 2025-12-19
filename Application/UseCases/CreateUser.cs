@@ -62,7 +62,7 @@ namespace Application.UseCases
                     }
                     else
                     {
-                        // Delete user since we were unable to create password 
+                        // Delete user since we were unable to create password
                         await _userRepository.DeleteAsync(user);
                     }
                 }

@@ -5,43 +5,43 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-   [Table("groups"), Index(nameof(UniqueKey), IsUnique = true)]
-   public class GroupEntity
-   {
-      [Key, Column("id")]
-      public int Id { get; set; }
-      [Column("owner_id")]
-      public int OwnerId { get; set; }
+    [Table("groups"), Index(nameof(UniqueKey), IsUnique = true)]
+    public class GroupEntity
+    {
+        [Key, Column("id")]
+        public int Id { get; set; }
+        [Column("owner_id")]
+        public int OwnerId { get; set; }
 
-      [Column("active")]
-      public bool Active { get; set; }
+        [Column("active")]
+        public bool Active { get; set; }
 
-      [Column("name"), MaxLength(64)]
-      public string Name { get; set; }
+        [Column("name"), MaxLength(64)]
+        public string Name { get; set; }
 
-      [Column("unique_key")]
-      public Guid UniqueKey { get; set; }
+        [Column("unique_key")]
+        public Guid UniqueKey { get; set; }
 
-      [Column("start_date")]
-      public DateTime? StartDate { get; set; }
-      [Column("end_date")]
-      public DateTime? EndDate { get; set; }
-      [Column("created_at")]
-      public DateTime CreatedAt { get; set; }
-      [Column("updated_at")]
-      public DateTime UpdatedAt { get; set; }
+        [Column("start_date")]
+        public DateTime? StartDate { get; set; }
+        [Column("end_date")]
+        public DateTime? EndDate { get; set; }
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
 
-      [ForeignKey(nameof(OwnerId))]
-      public UserEntity? Owner { get; set; }
-      public ICollection<MemberOfEntity>? Membership { get; set; }
+        [ForeignKey(nameof(OwnerId))]
+        public UserEntity? Owner { get; set; }
+        public ICollection<MemberOfEntity>? Membership { get; set; }
 
-      public GroupEntity()
-      {
-         Name = string.Empty;
-         // Default to true
-         Active = true;
-         // Nullable list
-         Membership = new List<MemberOfEntity>();
-      }
-   }
+        public GroupEntity()
+        {
+            Name = string.Empty;
+            // Default to true
+            Active = true;
+            // Nullable list
+            Membership = new List<MemberOfEntity>();
+        }
+    }
 }
