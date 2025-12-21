@@ -10,7 +10,6 @@ namespace Tests.Regression.Validators
     public class DeleteGroupValidatorTests
     {
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-#pragma warning disable IDE0060 // Remove unused parameter
         [Theory]
         [AutoMoq]
         public async Task Validate_GroupIsValid(
@@ -29,7 +28,8 @@ namespace Tests.Regression.Validators
 
             // Assert
             Assert.False(response.Succeeded);
-            Assert.True(response.ValidationMessages?.Any() == true);
+            Assert.NotNull(response.ValidationMessages);
+            Assert.NotEmpty(response.ValidationMessages);
         }
 
         [Theory]
@@ -50,9 +50,9 @@ namespace Tests.Regression.Validators
 
             // Assert
             Assert.False(response.Succeeded);
-            Assert.True(response.ValidationMessages?.Any() == true);
+            Assert.NotNull(response.ValidationMessages);
+            Assert.NotEmpty(response.ValidationMessages);
         }
-#pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
     }
 }
