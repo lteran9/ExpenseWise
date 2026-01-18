@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <DockerfileRunArguments>-p 8080:8080</DockerfileRunArguments>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- <DockerfileRunArguments>-p 8080:8080</DockerfileRunArguments> -->
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\Configuration\DependencyConfiguration\DependencyConfiguration.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Configuration\DependencyConfiguration\DependencyConfiguration.csproj" />
+  </ItemGroup>
 
 </Project>

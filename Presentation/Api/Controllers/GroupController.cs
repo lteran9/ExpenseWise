@@ -1,12 +1,13 @@
 using System;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Application.UseCases;
 
 namespace Api.Controllers
 {
-    public class GroupController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class GroupController : ControllerBase
     {
         private readonly IMediator _mediator;
 

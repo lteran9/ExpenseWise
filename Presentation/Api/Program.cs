@@ -3,8 +3,8 @@ using ExpenseWise.DependencyConfiguration;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 // Configure Dependencies
@@ -20,7 +20,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// TODO: Only enable HTTPS redirection when not in local environment
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

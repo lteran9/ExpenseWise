@@ -5,8 +5,8 @@ using Application.UseCases;
 
 namespace ExpenseWise.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
