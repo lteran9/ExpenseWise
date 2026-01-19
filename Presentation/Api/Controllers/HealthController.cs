@@ -9,7 +9,6 @@ namespace Api.Controllers
     public class HealthController : ControllerBase
     {
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult Get() => Ok("API running on .NET 10");
     }
 }

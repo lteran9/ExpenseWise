@@ -76,7 +76,7 @@ namespace Application.UseCases
         }
     }
 
-    public class CreateUserRequest : IRequest<ResponseWrapper<CreateUserResponse>>
+    public record CreateUserRequest : IRequest<ResponseWrapper<CreateUserResponse>>
     {
         public string Name { get; set; }
         public string Email { get; set; }
@@ -96,7 +96,7 @@ namespace Application.UseCases
         }
     }
 
-    public class CreateUserResponse
+    public record CreateUserResponse
     {
         public int Id { get; set; }
         public Guid UniqueKey { get; set; }

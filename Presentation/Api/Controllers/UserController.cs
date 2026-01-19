@@ -16,20 +16,8 @@ namespace ExpenseWise.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
-        {
-            try
-            {
-                return new JsonResult(await _mediator.Send(request));
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult(ex.Message);
-            }
-        }
-
-        [HttpGet("{id}")]
+        [HttpGet(nameof(Retrieve))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Retrieve([FromRoute] FindUserRequest request)
         {
             try
@@ -42,7 +30,36 @@ namespace ExpenseWise.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpPost(nameof(Create))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
+        {
+            try
+            {
+                return new JsonResult(await _mediator.Send(request));
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(ex.Message);
+            }
+        }
+
+        [HttpPut(nameof(Update))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
+        {
+            try
+            {
+                return new JsonResult(await _mediator.Send(request));
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(ex.Message);
+            }
+        }
+
+        [HttpDelete(nameof(Delete))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete([FromBody] DeleteUserRequest request)
         {
             try
