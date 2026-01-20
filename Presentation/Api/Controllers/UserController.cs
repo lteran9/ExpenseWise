@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Application.UseCases;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace ExpenseWise.Controllers
 {
@@ -18,7 +19,7 @@ namespace ExpenseWise.Controllers
 
         [HttpGet(nameof(Retrieve))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Retrieve([FromRoute] FindUserRequest request)
+        public async Task<IActionResult> Retrieve([FromQuery] FindUserRequest request)
         {
             try
             {
@@ -33,6 +34,34 @@ namespace ExpenseWise.Controllers
         [HttpPost(nameof(Create))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
+        {
+            try
+            {
+                return new JsonResult(await _mediator.Send(request));
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(ex.Message);
+            }
+        }
+
+        [HttpPost(nameof(Authenticate))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Authenticate([FromBody] AuthenticateUserRequest request)
+        {
+            try
+            {
+                return new JsonResult(await _mediator.Send(request));
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(ex.Message);
+            }
+        }
+
+        [HttpPost(nameof(ForgotPassword))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             try
             {
