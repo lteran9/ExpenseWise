@@ -1,27 +1,29 @@
 using System;
 using Application.UseCases;
 using Application.UseCases.Ports;
-using Core.Entities;
 using AutoFixture.Xunit2;
+using Core.Entities;
 using Moq;
 
 namespace Tests.Regression.Validators
 {
-    public class FindUserValidatorTests
+    public class UpdateUserValidatorTests
     {
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         [Theory]
         [AutoMoq]
         public async Task Validate_UserGuidIsPresent(
             [Frozen] Mock<IDatabasePort<User>> mock,
-            FindUser useCase
+            UpdateUser useCase
         )
         {
             // Arrange
             var request =
-                new FindUserRequest()
+                new UpdateUserRequest()
                 {
-
+                    Name = "Test Tester",
+                    Phone = "+1 (602) 333-4578",
+                    Email = "test@user.com"
                 };
 
             // Act
