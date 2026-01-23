@@ -59,6 +59,11 @@ namespace ExpenseWise.DependencyConfiguration
 
             #endregion
 
+            return serviceCollection;
+        }
+
+        public static IServiceCollection ConfigureExpenseWiseApi(this IServiceCollection serviceCollection)
+        {
             #region OpenAPI Client
             serviceCollection.AddTransient<IExpenseWiseClient>(x =>
             {
