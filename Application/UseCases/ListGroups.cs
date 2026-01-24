@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using MediatR;
 using Application.UseCases.FluentValidation;
 using Application.UseCases.MediatR;
@@ -35,7 +35,16 @@ namespace Application.UseCases
                         return Successful(
                            new ListGroupsResponse()
                            {
-                               Groups = groups
+                               Groups = groups.Select(x =>
+                                new RetrieveGroupResponse()
+                                {
+                                    Active = x.Active,
+                                    Name = x.Name,
+                                    StartDate = x.StartDate ?? DateTime.MinValue,
+                                    EndDate = x.EndDate ?? DateTime.MinValue,
+                                    OwnerId = x.Owner.UniqueKey,
+                                    Members = x.Members.Select(y => y.UniqueKey).ToList()
+                                }).ToList()
                            });
                     }
                     else
@@ -60,11 +69,11 @@ namespace Application.UseCases
 
     public record ListGroupsResponse
     {
-        public List<Group> Groups { get; set; }
+        public List<RetrieveGroupResponse> Groups { get; set; }
 
         public ListGroupsResponse()
         {
-            Groups = new List<Group>();
+            Groups = new List<RetrieveGroupResponse>();
         }
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases.FluentValidation;
 using Application.UseCases.MediatR;
 using Application.UseCases.Ports;
@@ -46,8 +46,8 @@ namespace Application.UseCases
                        new Password()
                        {
                            UserId = userResponse.Id,
-                           Cipher = Convert.ToHexString(cipher),
-                           Encrypted = encrypted
+                           Cipher = Convert.ToHexString(cipher), // Salt
+                           Encrypted = encrypted // Hash
                        };
 
                     var passwordResponse = await _passwordRepository.CreateAsync(password);
