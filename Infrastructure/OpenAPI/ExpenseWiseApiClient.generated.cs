@@ -36,7 +36,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateUserResponse> UserCreateAsync(CreateUserRequest body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<UserResponse> UserCreateAsync(CreateUserRequest body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
@@ -242,7 +242,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CreateUserResponse> UserCreateAsync(CreateUserRequest body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<UserResponse> UserCreateAsync(CreateUserRequest body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -290,7 +290,7 @@ namespace OpenAPI
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<CreateUserResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<UserResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1822,18 +1822,6 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CreateUserResponse
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("uniqueKey")]
-        public System.Guid UniqueKey { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record DeleteGroupRequest
     {
 
@@ -1992,6 +1980,33 @@ namespace OpenAPI
 
         [System.Text.Json.Serialization.JsonPropertyName("phone")]
         public string Phone { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record UserResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("email")]
+        public string Email { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("phone")]
+        public string Phone { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("uniqueKey")]
+        public System.Guid UniqueKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("succeeded")]
+        public bool Succeeded { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("error")]
+        public string Error { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("validationMessages")]
+        public System.Collections.Generic.ICollection<string> ValidationMessages { get; set; }
 
     }
 

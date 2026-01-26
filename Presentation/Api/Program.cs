@@ -1,3 +1,4 @@
+﻿using System.Text.Json.Serialization;
 using ExpenseWise.DependencyConfiguration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddSchemaTransformer((schema, context, cancellationToken) =>
+    {
+        schema.AdditionalPropertiesAllowed = false;
+        return Task.CompletedTask;
+    });
+});
 // Configure Dependencies
 builder.Services
    .ConfigureDependencies()

@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class HealthController : ControllerBase
     {
         [HttpGet]

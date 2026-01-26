@@ -1,4 +1,4 @@
-using ExpenseWise.DependencyConfiguration;
+﻿using ExpenseWise.DependencyConfiguration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +8,11 @@ builder.Services
    .AddRazorRuntimeCompilation();
 
 builder.Services
-   .ConfigureDependencies()
-   .RegisterUseCases()
+    .ConfigureDependencies()
+    .RegisterUseCases()
+   //.ConfigureExpenseWiseApi()
    .AddHttpContextAccessor()
-   .ConfigureSession(45);
+   .ConfigureSession();
 
 var app = builder.Build();
 

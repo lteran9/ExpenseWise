@@ -40,7 +40,7 @@ namespace Application.UseCases
                            StartDate = response.StartDate ?? DateTime.MinValue,
                            EndDate = response.EndDate ?? DateTime.MinValue,
                            OwnerId = response.Owner.UniqueKey,
-                           Members = response.Members.Select(x => x.UniqueKey).ToList()
+                           Members = response.Members.Select(x => new FindUserResponse() { UniqueKey = x.UniqueKey, Name = x.Name, Email = x.Email, Phone = x.Phone }).ToList()
                        });
                 }
                 else
@@ -64,17 +64,18 @@ namespace Application.UseCases
 
         public string Name { get; set; }
 
+        public Guid OwnerId { get; set; }
+        public Guid UniqueKey { get; set; }
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        public Guid OwnerId { get; set; }
-
-        public List<Guid> Members { get; set; }
+        public List<FindUserResponse> Members { get; set; }
 
         public RetrieveGroupResponse()
         {
             Name = string.Empty;
-            Members = new List<Guid>();
+            Members = new List<FindUserResponse>();
         }
     }
 }

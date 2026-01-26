@@ -40,6 +40,7 @@ namespace Application.UseCases
                            Name = response.Name,
                            Phone = response.Phone,
                            Email = response.Email,
+                           UniqueKey = response.UniqueKey
                        });
                 }
                 else
@@ -64,6 +65,8 @@ namespace Application.UseCases
         public string Name { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
+
+        public Guid UniqueKey { get; set; }
 
         public FindUserResponse()
         {

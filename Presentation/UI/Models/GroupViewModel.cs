@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 
 namespace UI.Models
 {
     public class GroupViewModel
     {
+        public bool Active { get; set; }
+
         public string Name { get; set; }
 
         public Guid OwnerId { get; set; }

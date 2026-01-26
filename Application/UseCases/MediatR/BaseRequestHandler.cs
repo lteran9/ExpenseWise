@@ -1,5 +1,4 @@
-using System;
-using FluentValidation;
+﻿using System;
 using MediatR;
 
 namespace Application.UseCases.MediatR

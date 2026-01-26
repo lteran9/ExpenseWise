@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -108,7 +108,7 @@ namespace UI.Controllers
             var response = await _mediator.Send(request);
             if (response.Succeeded)
             {
-                var groupEntity = response.Result?.Group;
+                var groupEntity = response.Result;
                 if (groupEntity != null)
                 {
                     return View(ModelMapper.GroupMapper.Map<GroupViewModel>(groupEntity));
@@ -134,7 +134,7 @@ namespace UI.Controllers
             var response = await _mediator.Send(request);
             if (response.Succeeded)
             {
-                var groupEntity = response.Result?.Group;
+                var groupEntity = response.Result;
                 if (groupEntity != null)
                 {
                     var viewModel =

@@ -10,10 +10,5 @@ namespace Application.UseCases.MediatR
         public List<string>? ValidationMessages { get; set; }
 
         public ResponseWrapper() { }
-
-        public ResponseWrapper(T result)
-        {
-            Result = result;
-        }
     }
 }
