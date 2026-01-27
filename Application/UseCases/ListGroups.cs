@@ -43,7 +43,7 @@ namespace Application.UseCases
                                     StartDate = x.StartDate ?? DateTime.MinValue,
                                     EndDate = x.EndDate ?? DateTime.MinValue,
                                     OwnerId = x.Owner.UniqueKey,
-                                    Members = x.Members.Select(y => y.UniqueKey).ToList()
+                                    Members = x.Members.Select(y => new FindUserResponse() { Name = y.Name, Email = y.Email, Phone = y.Phone, UniqueKey = y.UniqueKey }).ToList()
                                 }).ToList()
                            });
                     }
