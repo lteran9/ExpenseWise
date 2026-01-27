@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
@@ -55,11 +55,11 @@ namespace Tests.Infrastructure.AutoMapper
                     Id = 1000,
                     Name = "Las Vegas 2025 Trip",
                     UniqueKey = uniqueKey,
-                    Owner = DatabaseMapper.UserMapper.Map<User>(dbOwner),
-                    Members = new List<User>() { DatabaseMapper.UserMapper.Map<User>(dbOwner) }
+                    Owner = DatabaseMapper.Instance.Map<User>(dbOwner),
+                    Members = new List<User>() { DatabaseMapper.Instance.Map<User>(dbOwner) }
                 };
 
-            var mappedGroup = DatabaseMapper.GroupMapper.Map<Group>(dbGroup);
+            var mappedGroup = DatabaseMapper.Instance.Map<Group>(dbGroup);
 
             Assert.Equivalent(group, mappedGroup);
         }
@@ -88,10 +88,10 @@ namespace Tests.Infrastructure.AutoMapper
                     Name = groupName,
                     UniqueKey = uniqueKey,
                     OwnerId = owner.Id,
-                    Owner = DatabaseMapper.UserMapper.Map<UserEntity>(owner)
+                    Owner = DatabaseMapper.Instance.Map<UserEntity>(owner)
                 };
 
-            Assert.Equivalent(dbGroup, DatabaseMapper.GroupMapper.Map<GroupEntity>(user));
+            Assert.Equivalent(dbGroup, DatabaseMapper.Instance.Map<GroupEntity>(user));
         }
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases;
 using Core.Entities;
 
@@ -28,8 +28,8 @@ namespace Infrastructure.SqlDatabase
             return new List<MemberOf>();
         }
 
-        private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.MemberOfMapper.Map<MemberOf>(dbEntity);
-        private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.MemberOfMapper.Map<MemberOfEntity>(entity);
+        private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.Instance.Map<MemberOf>(dbEntity);
+        private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.Instance.Map<MemberOfEntity>(entity);
 
         #endregion
 
@@ -54,8 +54,8 @@ namespace Infrastructure.SqlDatabase
             return new List<Group>();
         }
 
-        private Group MapDatabaseToEntity(GroupEntity dbEntity) => DatabaseMapper.GroupMapper.Map<Group>(dbEntity);
-        private GroupEntity MapEntityToDatabase(Group entity) => DatabaseMapper.GroupMapper.Map<GroupEntity>(entity);
+        private Group MapDatabaseToEntity(GroupEntity dbEntity) => DatabaseMapper.Instance.Map<Group>(dbEntity);
+        private GroupEntity MapEntityToDatabase(Group entity) => DatabaseMapper.Instance.Map<GroupEntity>(entity);
 
         #endregion
     }

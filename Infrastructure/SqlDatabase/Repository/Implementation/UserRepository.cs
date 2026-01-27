@@ -1,5 +1,4 @@
-using System;
-using Application.UseCases.Ports;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
@@ -78,6 +77,8 @@ namespace Infrastructure.SqlDatabase
             {
                 // Strip characters from phone number to improve searchability
                 entity.Phone = StripPhoneOfCharacters(entity.Phone);
+                // Updated at
+                entity.UpdatedAt = DateTime.Now;
 
                 var update = context.Update(entity);
                 await context.SaveChangesAsync();

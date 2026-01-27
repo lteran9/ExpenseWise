@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
@@ -46,8 +46,8 @@ namespace Tests.Infrastructure.AutoMapper
                 new MemberOf()
                 {
                     Id = 1,
-                    User = DatabaseMapper.UserMapper.Map<User>(user),
-                    Group = DatabaseMapper.GroupMapper.Map<Group>(group)
+                    User = DatabaseMapper.Instance.Map<User>(user),
+                    Group = DatabaseMapper.Instance.Map<Group>(group)
                 };
 
             var dbMembership =
@@ -61,7 +61,7 @@ namespace Tests.Infrastructure.AutoMapper
                     Active = true
                 };
 
-            Assert.Equivalent(membership, DatabaseMapper.MemberOfMapper.Map<MemberOf>(dbMembership));
+            Assert.Equivalent(membership, DatabaseMapper.Instance.Map<MemberOf>(dbMembership));
         }
 
         [Theory]
@@ -85,14 +85,14 @@ namespace Tests.Infrastructure.AutoMapper
                 {
                     Id = 1000,
                     UserId = user.Id,
-                    User = DatabaseMapper.UserMapper.Map<UserEntity>(user),
+                    User = DatabaseMapper.Instance.Map<UserEntity>(user),
                     GroupId = group.Id,
-                    Group = DatabaseMapper.GroupMapper.Map<GroupEntity>(group),
+                    Group = DatabaseMapper.Instance.Map<GroupEntity>(group),
                     Active = true
                 };
 
             // Assert
-            Assert.Equivalent(dbMembership, DatabaseMapper.MemberOfMapper.Map<MemberOfEntity>(membership));
+            Assert.Equivalent(dbMembership, DatabaseMapper.Instance.Map<MemberOfEntity>(membership));
         }
     }
 }
