@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases.FluentValidation;
 using Application.UseCases.MediatR;
 using Application.UseCases.Ports;
@@ -35,7 +35,12 @@ namespace Application.UseCases
                     return Successful(
                        new RetrieveGroupResponse()
                        {
-                           Group = response
+                           Active = response.Active,
+                           Name = response.Name,
+                           StartDate = response.StartDate ?? DateTime.MinValue,
+                           EndDate = response.EndDate ?? DateTime.MinValue,
+                           OwnerId = response.Owner.UniqueKey,
+                           Members = response.Members.Select(x => new FindUserResponse() { UniqueKey = x.UniqueKey, Name = x.Name, Email = x.Email, Phone = x.Phone }).ToList()
                        });
                 }
                 else
@@ -48,13 +53,29 @@ namespace Application.UseCases
         }
     }
 
-    public class RetrieveGroupRequest : IRequest<ResponseWrapper<RetrieveGroupResponse>>
+    public record RetrieveGroupRequest : IRequest<ResponseWrapper<RetrieveGroupResponse>>
     {
         public Guid UniqueKey { get; set; }
     }
 
-    public class RetrieveGroupResponse
+    public record RetrieveGroupResponse
     {
-        public Group? Group { get; set; }
+        public bool Active { get; set; }
+
+        public string Name { get; set; }
+
+        public Guid OwnerId { get; set; }
+        public Guid UniqueKey { get; set; }
+
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+
+        public List<FindUserResponse> Members { get; set; }
+
+        public RetrieveGroupResponse()
+        {
+            Name = string.Empty;
+            Members = new List<FindUserResponse>();
+        }
     }
 }

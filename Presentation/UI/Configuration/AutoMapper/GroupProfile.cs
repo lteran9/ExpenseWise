@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using Application.UseCases;
 using AutoMapper;
 using Core.Entities;
 using UI.Models;
@@ -9,9 +10,9 @@ namespace UI.Configuration
     {
         public GroupProfile()
         {
-            CreateMap<Group, GroupViewModel>()
-               .ForMember(x => x.OwnerId, src => src.MapFrom(s => s.Owner.UniqueKey))
-               .ForMember(x => x.Members, src => src.MapFrom(s => s.Members.Select(ModelMapper.UserMapper.Map<UserViewModel>).ToList()));
+            CreateMap<RetrieveGroupResponse, GroupViewModel>()
+               .ForMember(x => x.OwnerId, src => src.MapFrom(s => s.OwnerId))
+               .ForMember(x => x.Members, src => src.MapFrom(s => s.Members.Select(ModelMapper.UserMapper.Map<UserViewModel>)));
         }
     }
 }

@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Application.UseCases.Ports;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 using Application.UseCases;
+using OpenAPI;
 
 namespace ExpenseWise.DependencyConfiguration
 {
@@ -56,6 +57,18 @@ namespace ExpenseWise.DependencyConfiguration
                 return x.GetService<QueryAdapter>()!;
             });
 
+            #endregion
+
+            return serviceCollection;
+        }
+
+        public static IServiceCollection ConfigureExpenseWiseApi(this IServiceCollection serviceCollection)
+        {
+            #region OpenAPI Client
+            serviceCollection.AddTransient<IExpenseWiseClient>(x =>
+            {
+                return new ExpenseWiseClient(new HttpClient());
+            });
             #endregion
 
             return serviceCollection;

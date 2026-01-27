@@ -2,25 +2,15 @@
 
 A tool for tracking expenses and balances on a group level for varied occasions. ExpenseWise makes it easy to calculate totals by keeping an informal ledger that can be updated on an as needed basis.
 
-## Pre-requisites
-
-- Docker
-- MySql Workbench
-- Insomnia
-
 ## Install
 
 ### Clone repo into your machine
 
-### Build API image
+### Docker Commands
 
-`docker build -t expensewise-1 .`
-
-### Build UI image
-
-### Run the Docker compose file
-
-`docker compose up`
+- `docker compose build --no-cache`
+- `docker compose up`
+- `docker compose down`
 
 ## Dependencies
 
@@ -40,9 +30,10 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 flowchart LR;
    id2(Mobile) --> id3(UI);
    id1(Desktop) --> id3(UI);
+   
    subgraph Azure
-   id3(UI) --> id4(API)
-   id4(API) --> A@{ shape: cyl, label: "MySQL" };
+    id3(UI) --> id4(API)
+    id4(API) --> A@{ shape: cyl, label: "MySQL" };
    end
 ```
 

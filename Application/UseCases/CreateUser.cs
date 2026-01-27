@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases.FluentValidation;
 using Application.UseCases.MediatR;
 using Application.UseCases.Ports;
@@ -46,8 +46,8 @@ namespace Application.UseCases
                        new Password()
                        {
                            UserId = userResponse.Id,
-                           Cipher = Convert.ToHexString(cipher),
-                           Encrypted = encrypted
+                           Cipher = Convert.ToHexString(cipher), // Salt
+                           Encrypted = encrypted // Hash
                        };
 
                     var passwordResponse = await _passwordRepository.CreateAsync(password);
@@ -76,7 +76,7 @@ namespace Application.UseCases
         }
     }
 
-    public class CreateUserRequest : IRequest<ResponseWrapper<CreateUserResponse>>
+    public record CreateUserRequest : IRequest<ResponseWrapper<CreateUserResponse>>
     {
         public string Name { get; set; }
         public string Email { get; set; }
@@ -96,7 +96,7 @@ namespace Application.UseCases
         }
     }
 
-    public class CreateUserResponse
+    public record CreateUserResponse
     {
         public int Id { get; set; }
         public Guid UniqueKey { get; set; }

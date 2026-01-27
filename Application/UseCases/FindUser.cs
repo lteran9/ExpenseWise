@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases.FluentValidation;
 using Application.UseCases.MediatR;
 using Application.UseCases.Ports;
@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.UseCases
 {
-    public class FindUser : BaseRequestHandler<FindUserRequest, FindUserResponse>
+    public sealed class FindUser : BaseRequestHandler<FindUserRequest, FindUserResponse>
     {
         private readonly IDatabasePort<User> _repository;
         private readonly AbstractValidator<FindUserRequest> _validator;
@@ -40,6 +40,7 @@ namespace Application.UseCases
                            Name = response.Name,
                            Phone = response.Phone,
                            Email = response.Email,
+                           UniqueKey = response.UniqueKey
                        });
                 }
                 else
@@ -52,18 +53,20 @@ namespace Application.UseCases
         }
     }
 
-    public class FindUserRequest : IRequest<ResponseWrapper<FindUserResponse>>
+    public record FindUserRequest : IRequest<ResponseWrapper<FindUserResponse>>
     {
         public Guid UniqueKey { get; set; }
     }
 
-    public class FindUserResponse
+    public record FindUserResponse
     {
         public int Id { get; set; }
 
         public string Name { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
+
+        public Guid UniqueKey { get; set; }
 
         public FindUserResponse()
         {

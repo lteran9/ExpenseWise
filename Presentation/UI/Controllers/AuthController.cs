@@ -1,7 +1,8 @@
-using System;
-using Application.UseCases;
+﻿using System;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+// using OpenAPI;
+using Application.UseCases;
 using UI.Configuration;
 using UI.Models;
 
@@ -9,6 +10,7 @@ namespace UI.Controllers
 {
     public class AuthController : BaseController
     {
+        //private readonly IExpenseWiseClient _apiClient;
         private readonly IMediator _mediator;
         private readonly ILogger<AuthController> _logger;
 
@@ -50,12 +52,7 @@ namespace UI.Controllers
                 }
                 else
                 {
-                    if (response?.ValidationMessages?.Any() == true)
-                    {
-                        AddValidationErrorsToModelState(response);
-
-                        return View(model);
-                    }
+                    ModelState.AddModelError(string.Empty, response.ValidationMessages!.First());
                 }
             }
             catch (Exception ex)
@@ -93,27 +90,18 @@ namespace UI.Controllers
             try
             {
                 var authenticateUserRequest =
-                   new AuthenticateUserRequest()
+                   new AuthenticateUserRequest
                    {
-                       Email = model.Email!,
-                       Password = model.Password!
+                       Email = model.Email,
+                       Password = model.Password
                    };
 
                 var response = await _mediator.Send(authenticateUserRequest);
-                if (response.Succeeded)
+                if (response != null)
                 {
                     HttpContext.Session.SetString("User", response.Result!.Id.ToString());
 
                     return RedirectToAction("Index", "Group");
-                }
-                else
-                {
-                    if (response?.ValidationMessages?.Any() == true)
-                    {
-                        AddValidationErrorsToModelState(response);
-
-                        return View(model);
-                    }
                 }
             }
             catch (Exception ex)
