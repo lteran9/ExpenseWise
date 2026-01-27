@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases.Ports;
 using Core.Entities;
 
@@ -64,7 +64,6 @@ namespace Infrastructure.SqlDatabase
                 existingRecord.Phone = mappedEntity.Phone;
                 existingRecord.UniqueKey = mappedEntity.UniqueKey;
                 existingRecord.Active = mappedEntity.Active;
-                existingRecord.UpdatedAt = DateTime.Now;
 
                 var updatedRecord = await _userRepository.UpdateAsync(existingRecord);
                 if (updatedRecord != null)
@@ -87,8 +86,8 @@ namespace Infrastructure.SqlDatabase
             return null;
         }
 
-        private User MapDatabaseToEntity(UserEntity dbEntity) => DatabaseMapper.UserMapper.Map<User>(dbEntity);
-        private UserEntity MapEntityToDatabase(User entity) => DatabaseMapper.UserMapper.Map<UserEntity>(entity);
+        private User MapDatabaseToEntity(UserEntity dbEntity) => DatabaseMapper.Instance.Map<User>(dbEntity);
+        private UserEntity MapEntityToDatabase(User entity) => DatabaseMapper.Instance.Map<UserEntity>(entity);
 
         #endregion
 
@@ -141,8 +140,8 @@ namespace Infrastructure.SqlDatabase
             return null;
         }
 
-        private Group MapDatabaseToEntity(GroupEntity dbEntity) => DatabaseMapper.GroupMapper.Map<Group>(dbEntity);
-        private GroupEntity MapEntityToDatabase(Group entity) => DatabaseMapper.GroupMapper.Map<GroupEntity>(entity);
+        private Group MapDatabaseToEntity(GroupEntity dbEntity) => DatabaseMapper.Instance.Map<Group>(dbEntity);
+        private GroupEntity MapEntityToDatabase(Group entity) => DatabaseMapper.Instance.Map<GroupEntity>(entity);
 
         #endregion
 
@@ -195,8 +194,8 @@ namespace Infrastructure.SqlDatabase
             return null;
         }
 
-        private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.MemberOfMapper.Map<MemberOf>(dbEntity);
-        private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.MemberOfMapper.Map<MemberOfEntity>(entity);
+        private MemberOf MapDatabaseToEntity(MemberOfEntity dbEntity) => DatabaseMapper.Instance.Map<MemberOf>(dbEntity);
+        private MemberOfEntity MapEntityToDatabase(MemberOf entity) => DatabaseMapper.Instance.Map<MemberOfEntity>(entity);
 
         #endregion
 
@@ -251,8 +250,8 @@ namespace Infrastructure.SqlDatabase
             return null;
         }
 
-        private Expense MapDatabaseToEntity(ExpenseEntity dbEntity) => DatabaseMapper.ExpenseMapper.Map<Expense>(dbEntity);
-        private ExpenseEntity MapEntityToDatabase(Expense entity) => DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(entity);
+        private Expense MapDatabaseToEntity(ExpenseEntity dbEntity) => DatabaseMapper.Instance.Map<Expense>(dbEntity);
+        private ExpenseEntity MapEntityToDatabase(Expense entity) => DatabaseMapper.Instance.Map<ExpenseEntity>(entity);
 
         #endregion
 
@@ -308,8 +307,8 @@ namespace Infrastructure.SqlDatabase
             return null;
         }
 
-        private Password MapDatabaseToEntity(PasswordEntity dbEntity) => DatabaseMapper.PasswordMapper.Map<Password>(dbEntity);
-        private PasswordEntity MapEntityToDatabase(Password entity) => DatabaseMapper.PasswordMapper.Map<PasswordEntity>(entity);
+        private Password MapDatabaseToEntity(PasswordEntity dbEntity) => DatabaseMapper.Instance.Map<Password>(dbEntity);
+        private PasswordEntity MapEntityToDatabase(Password entity) => DatabaseMapper.Instance.Map<PasswordEntity>(entity);
 
 
         #endregion

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
@@ -46,7 +46,7 @@ namespace Tests.Infrastructure.AutoMapper
                     UniqueKey = uniqueKey
                 };
 
-            Assert.Equivalent(user, DatabaseMapper.UserMapper.Map<User>(dbUser));
+            Assert.Equivalent(user, DatabaseMapper.Instance.Map<User>(dbUser));
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace Tests.Infrastructure.AutoMapper
                     UniqueKey = uniqueKey
                 };
 
-            Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
+            Assert.Equivalent(dbUser, DatabaseMapper.Instance.Map<UserEntity>(user));
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace Tests.Infrastructure.AutoMapper
                     UniqueKey = uniqueKey
                 };
 
-            Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
+            Assert.Equivalent(dbUser, DatabaseMapper.Instance.Map<UserEntity>(user));
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace Tests.Infrastructure.AutoMapper
                     UniqueKey = uniqueKey
                 };
 
-            Assert.Equivalent(dbUser, DatabaseMapper.UserMapper.Map<UserEntity>(user));
+            Assert.Equivalent(dbUser, DatabaseMapper.Instance.Map<UserEntity>(user));
         }
     }
 }

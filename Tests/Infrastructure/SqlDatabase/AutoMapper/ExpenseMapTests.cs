@@ -47,7 +47,7 @@ namespace Tests.Infrastructure.AutoMapper
                     Description = expenseName
                 };
 
-            Assert.Equivalent(expense, DatabaseMapper.ExpenseMapper.Map<Expense>(dbExpense));
+            Assert.Equivalent(expense, DatabaseMapper.Instance.Map<Expense>(dbExpense));
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace Tests.Infrastructure.AutoMapper
                     Description = expenseName
                 };
 
-            Assert.Equivalent(dbExpense, DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(expense));
+            Assert.Equivalent(dbExpense, DatabaseMapper.Instance.Map<ExpenseEntity>(expense));
         }
     }
 }

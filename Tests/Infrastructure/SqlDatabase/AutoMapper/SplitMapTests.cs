@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
@@ -64,12 +64,12 @@ namespace Tests.Infrastructure.AutoMapper
                     Id = 1,
                     Paid = false,
                     PaidOn = DateTime.MinValue,
-                    User = DatabaseMapper.UserMapper.Map<User>(user),
-                    Group = DatabaseMapper.GroupMapper.Map<Group>(group),
-                    Expense = DatabaseMapper.ExpenseMapper.Map<Expense>(expense)
+                    User = DatabaseMapper.Instance.Map<User>(user),
+                    Group = DatabaseMapper.Instance.Map<Group>(group),
+                    Expense = DatabaseMapper.Instance.Map<Expense>(expense)
                 };
 
-            Assert.Equivalent(split, DatabaseMapper.SplitMapper.Map<Split>(dbSplit));
+            Assert.Equivalent(split, DatabaseMapper.Instance.Map<Split>(dbSplit));
         }
 
         [Theory]
@@ -94,14 +94,14 @@ namespace Tests.Infrastructure.AutoMapper
                     Paid = false,
                     PaidOn = DateTime.MinValue,
                     UserId = user.Id,
-                    User = DatabaseMapper.UserMapper.Map<UserEntity>(user),
+                    User = DatabaseMapper.Instance.Map<UserEntity>(user),
                     GroupId = group.Id,
-                    Group = DatabaseMapper.GroupMapper.Map<GroupEntity>(group),
+                    Group = DatabaseMapper.Instance.Map<GroupEntity>(group),
                     ExpenseId = expense.Id,
-                    Expense = DatabaseMapper.ExpenseMapper.Map<ExpenseEntity>(expense)
+                    Expense = DatabaseMapper.Instance.Map<ExpenseEntity>(expense)
                 };
 
-            Assert.Equivalent(dbSplit, DatabaseMapper.SplitMapper.Map<SplitEntity>(split));
+            Assert.Equivalent(dbSplit, DatabaseMapper.Instance.Map<SplitEntity>(split));
         }
     }
 }

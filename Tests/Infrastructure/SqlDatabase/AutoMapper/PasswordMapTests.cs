@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
 
@@ -39,7 +39,7 @@ namespace Tests.Infrastructure.AutoMapper
                     Encrypted = "XYYKJ7tcrU51Xy2ksZw6mp7PgiXvCLonJ0s2CwjLunG1z6j9CGFKaFyUznEbA594"
                 };
 
-            Assert.Equivalent(password, DatabaseMapper.PasswordMapper.Map<Password>(dbPassword));
+            Assert.Equivalent(password, DatabaseMapper.Instance.Map<Password>(dbPassword));
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace Tests.Infrastructure.AutoMapper
                     Encrypted = "XYYKJ7tcrU51Xy2ksZw6mp7PgiXvCLonJ0s2CwjLunG1z6j9CGFKaFyUznEbA594"
                 };
 
-            Assert.Equivalent(dbPassword, DatabaseMapper.PasswordMapper.Map<PasswordEntity>(password));
+            Assert.Equivalent(dbPassword, DatabaseMapper.Instance.Map<PasswordEntity>(password));
         }
     }
 }

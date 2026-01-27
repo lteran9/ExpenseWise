@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using AutoMapper;
 using Core.Entities;
 
@@ -10,12 +10,12 @@ namespace Infrastructure.SqlDatabase
         {
             // Database to Entity
             CreateMap<GroupEntity, Group>()
-               .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.UserMapper.Map<User>(s.Owner)))
-               .ForMember(d => d.Members, src => src.MapFrom(s => s.Membership!.Select(x => DatabaseMapper.UserMapper.Map<User>(x.User))));
+                .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.Instance.Map<User>(s.Owner)))
+                .ForMember(d => d.Members, src => src.MapFrom(s => s.Membership!.Select(x => DatabaseMapper.Instance.Map<User>(x.User))));
             // Entity to Database
             CreateMap<Group, GroupEntity>()
-               .ForMember(d => d.OwnerId, src => src.MapFrom(s => s.Owner.Id))
-               .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.UserMapper.Map<UserEntity>(s.Owner)));
+                .ForMember(d => d.OwnerId, src => src.MapFrom(s => s.Owner.Id))
+                .ForMember(d => d.Owner, src => src.MapFrom(s => DatabaseMapper.Instance.Map<UserEntity>(s.Owner)));
         }
     }
 }
