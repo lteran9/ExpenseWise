@@ -35,7 +35,7 @@ namespace UI.Controllers
                     var groups = response.Result?.Groups;
                     if (groups?.Any() == true)
                     {
-                        return View(groups.Select(ModelMapper.GroupMapper.Map<GroupViewModel>));
+                        return View(groups.Select(ModelMapper.Instance.Map<GroupViewModel>));
                     }
                 }
             }
@@ -93,33 +93,82 @@ namespace UI.Controllers
 
             ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
 
-            return View();
+            return View(model);
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid key)
         {
-            var request =
-               new RetrieveGroupRequest()
-               {
-                   UniqueKey = key
-               };
-
-            var response = await _mediator.Send(request);
-            if (response.Succeeded)
+            try
             {
-                var groupEntity = response.Result;
-                if (groupEntity != null)
+                var request =
+                   new RetrieveGroupRequest()
+                   {
+                       UniqueKey = key
+                   };
+
+                var response = await _mediator.Send(request);
+                if (response.Succeeded)
                 {
-                    return View(ModelMapper.GroupMapper.Map<GroupViewModel>(groupEntity));
+                    var groupEntity = response.Result;
+                    if (groupEntity != null)
+                    {
+                        return View(ModelMapper.Instance.Map<GroupViewModel>(groupEntity));
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Group entity in successful response was null.");
+                    }
                 }
-                else
-                {
-                    _logger.LogInformation("Group entity in successful response was null.");
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
             }
 
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(GroupViewModel model)
+        {
+            try
+            {
+                var request =
+                    new UpdateGroupRequest()
+                    {
+                        UniqueKey = model.UniqueKey,
+                        Name = model.Name,
+                        Active = model.Active,
+                        StartDate = model.StartDate ?? DateTime.MinValue,
+                        EndDate = model.EndDate ?? DateTime.MinValue
+                    };
+
+                var response = await _mediator.Send(request);
+                if (response.Succeeded)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    if (response.ValidationMessages?.Any() == true)
+                    {
+                        ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+            }
+
+            if (ModelState.ErrorCount == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
+            }
+
+            return View(model);
         }
 
         [HttpGet]
@@ -140,7 +189,7 @@ namespace UI.Controllers
                     var viewModel =
                        new GroupInviteViewModel()
                        {
-                           Group = ModelMapper.GroupMapper.Map<GroupViewModel>(groupEntity)
+                           Group = ModelMapper.Instance.Map<GroupViewModel>(groupEntity)
                        };
 
                     return View(viewModel);

@@ -40,7 +40,7 @@ namespace Application.UseCases
                            StartDate = response.StartDate ?? DateTime.MinValue,
                            EndDate = response.EndDate ?? DateTime.MinValue,
                            OwnerId = response.Owner.UniqueKey,
-                           Members = response.Members.Select(x => new FindUserResponse() { UniqueKey = x.UniqueKey, Name = x.Name, Email = x.Email, Phone = x.Phone }).ToList()
+                           UniqueKey = response.UniqueKey
                        });
                 }
                 else

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Application.UseCases.Ports;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,7 +39,9 @@ namespace Infrastructure.SqlDatabase
                 }
                 else if (entity.UniqueKey != Guid.Empty)
                 {
-                    var dbEntity = await context.Groups.FirstOrDefaultAsync(x => x.UniqueKey == entity.UniqueKey);
+                    var dbEntity = await context.Groups
+                        .Include(g => g.Owner)
+                        .FirstOrDefaultAsync(x => x.UniqueKey == entity.UniqueKey);
                     // Only return active records for now
                     if (dbEntity?.Active == true)
                     {

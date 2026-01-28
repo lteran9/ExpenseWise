@@ -24,6 +24,10 @@
                <label asp-for="EndDate" class="form-label">End Date</label>
                <input asp-for="EndDate" type="date" class="form-control" required />
             </div>
+            <div class="mb-3">
+               <input type="checkbox" asp-for="Active" class="form-check-input me-2" />
+               <label asp-for="Active" class="form-check-label">Active</label>
+            </div>
             <div class="d-grid d-md-block text-md-end mb-3">
                <button type="submit" class="btn btn-primary">Update</button>
             </div>

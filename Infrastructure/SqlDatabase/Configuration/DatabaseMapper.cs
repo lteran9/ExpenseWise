@@ -13,7 +13,6 @@ namespace Infrastructure.SqlDatabase
                 new MapperConfiguration(cfg =>
                 {
                     cfg.AddProfile(Activator.CreateInstance(typeof(UserProfile)) as Profile);
-                    cfg.AddProfile(Activator.CreateInstance(typeof(UserProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(GroupProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(MemberOfProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(ExpenseProfile)) as Profile);
