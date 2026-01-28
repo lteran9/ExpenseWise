@@ -55,6 +55,7 @@ namespace Infrastructure.SqlDatabase
         public async Task<User?> UpdateAsync(User entity)
         {
             var mappedEntity = MapEntityToDatabase(entity);
+            // Get tracked entity
             var existingRecord = await _userRepository.RetrieveAsync(mappedEntity);
             if (existingRecord != null)
             {
@@ -120,10 +121,21 @@ namespace Infrastructure.SqlDatabase
 
         public async Task<Group?> UpdateAsync(Group entity)
         {
-            var dbGroup = await _groupRepository.UpdateAsync(MapEntityToDatabase(entity));
-            if (dbGroup != null)
+            var mappedEntity = MapEntityToDatabase(entity);
+            // Get tracked entity
+            var existingRecord = await _groupRepository.RetrieveAsync(mappedEntity);
+            if (existingRecord != null)
             {
-                return MapDatabaseToEntity(dbGroup);
+                existingRecord.Name = mappedEntity.Name;
+                existingRecord.Active = mappedEntity.Active;
+                existingRecord.StartDate = mappedEntity.StartDate;
+                existingRecord.EndDate = mappedEntity.EndDate;
+
+                var updatedRecord = await _groupRepository.UpdateAsync(existingRecord);
+                if (updatedRecord != null)
+                {
+                    return MapDatabaseToEntity(updatedRecord);
+                }
             }
 
             return null;
