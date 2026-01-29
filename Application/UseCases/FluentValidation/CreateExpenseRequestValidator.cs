@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FluentValidation;
 
 namespace Application.UseCases.FluentValidation
@@ -15,7 +15,9 @@ namespace Application.UseCases.FluentValidation
                .WithMessage("Please provide a currency type.");
             RuleFor(x => x.Amount)
                .NotEmpty()
-               .WithMessage("Please provide an expense amount.");
+               .WithMessage("Please provide an expense amount.")
+               .GreaterThan(0)
+               .WithMessage("Expense amount must be greater than zero.");
         }
     }
 }
