@@ -97,7 +97,7 @@ namespace UI.Controllers
                    };
 
                 var response = await _mediator.Send(authenticateUserRequest);
-                if (response != null)
+                if (response?.Succeeded == true)
                 {
                     HttpContext.Session.SetString("User", response.Result!.Id.ToString());
 

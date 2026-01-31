@@ -14,21 +14,26 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WithEmptyDescription_ShouldFail(
-        CreateExpense useCase)
+            CreateExpense useCase)
         {
             // Arrange
-            var request = new CreateExpenseRequest
-            {
-                Description = "",
-                Currency = "USD",
-                Amount = 100.00M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "",
+                    Currency = "USD",
+                    Amount = 100.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             // Act
             var response = await useCase.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.False(response.Succeeded);
+            Assert.NotNull(response.ValidationMessages);
+            Assert.NotEmpty(response.ValidationMessages);
         }
 
         [Theory]
@@ -36,16 +41,21 @@ namespace Tests.Regression.UseCases
         public async Task CreateExpense_WithEmptyCurrency_ShouldFail(
             CreateExpense useCase)
         {
-            var request = new CreateExpenseRequest
-            {
-                Description = "Test expense",
-                Currency = "",
-                Amount = 100.00M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Test expense",
+                    Currency = "",
+                    Amount = 100.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             var response = await useCase.Handle(request, CancellationToken.None);
 
             Assert.False(response.Succeeded);
+            Assert.NotNull(response.ValidationMessages);
+            Assert.NotEmpty(response.ValidationMessages);
         }
 
         [Theory]
@@ -53,16 +63,21 @@ namespace Tests.Regression.UseCases
         public async Task CreateExpense_WithZeroAmount_ShouldFail(
             CreateExpense useCase)
         {
-            var request = new CreateExpenseRequest
-            {
-                Description = "Test expense",
-                Currency = "USD",
-                Amount = 0
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Test expense",
+                    Currency = "USD",
+                    Amount = 0,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             var response = await useCase.Handle(request, CancellationToken.None);
 
             Assert.False(response.Succeeded);
+            Assert.NotNull(response.ValidationMessages);
+            Assert.NotEmpty(response.ValidationMessages);
         }
 
         [Theory]
@@ -70,16 +85,21 @@ namespace Tests.Regression.UseCases
         public async Task CreateExpense_WithNegativeAmount_ShouldFail(
             CreateExpense useCase)
         {
-            var request = new CreateExpenseRequest
-            {
-                Description = "Test expense",
-                Currency = "USD",
-                Amount = -50.00M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Test expense",
+                    Currency = "USD",
+                    Amount = -50.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             var response = await useCase.Handle(request, CancellationToken.None);
 
             Assert.False(response.Succeeded);
+            Assert.NotNull(response.ValidationMessages);
+            Assert.NotEmpty(response.ValidationMessages);
         }
 
         #endregion
@@ -96,12 +116,15 @@ namespace Tests.Regression.UseCases
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync((Expense?)null);
 
-            var request = new CreateExpenseRequest
-            {
-                Description = "Test expense",
-                Currency = "USD",
-                Amount = 100.00M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Test expense",
+                    Currency = "USD",
+                    Amount = 100.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             // Act
             var response = await useCase.Handle(request, CancellationToken.None);
@@ -119,12 +142,15 @@ namespace Tests.Regression.UseCases
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ThrowsAsync(new InvalidOperationException("Database error"));
 
-            var request = new CreateExpenseRequest
-            {
-                Description = "Test expense",
-                Currency = "USD",
-                Amount = 100.00M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Test expense",
+                    Currency = "USD",
+                    Amount = 100.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => useCase.Handle(request, CancellationToken.None));
@@ -144,12 +170,15 @@ namespace Tests.Regression.UseCases
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = 42 });
 
-            var request = new CreateExpenseRequest
-            {
-                Description = "Coffee",
-                Currency = "EUR",
-                Amount = 5.50M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Coffee",
+                    Currency = "EUR",
+                    Amount = 5.50M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             // Act
             await useCase.Handle(request, CancellationToken.None);
@@ -173,12 +202,15 @@ namespace Tests.Regression.UseCases
             [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
             CreateExpense useCase)
         {
-            var request = new CreateExpenseRequest
-            {
-                Description = "Large expense",
-                Currency = "USD",
-                Amount = 999999.99M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Large expense",
+                    Currency = "USD",
+                    Amount = 999999.99M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = 1 });
@@ -194,12 +226,15 @@ namespace Tests.Regression.UseCases
             [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
             CreateExpense useCase)
         {
-            var request = new CreateExpenseRequest
-            {
-                Description = "Small expense",
-                Currency = "USD",
-                Amount = 0.01M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Small expense",
+                    Currency = "USD",
+                    Amount = 0.01M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = 1 });
@@ -216,12 +251,15 @@ namespace Tests.Regression.UseCases
             CreateExpense useCase)
         {
             var longDescription = new string('A', 1000);
-            var request = new CreateExpenseRequest
-            {
-                Description = longDescription,
-                Currency = "USD",
-                Amount = 100.00M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = longDescription,
+                    Currency = "USD",
+                    Amount = 100.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = 1 });
@@ -246,12 +284,15 @@ namespace Tests.Regression.UseCases
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = expectedId });
 
-            var request = new CreateExpenseRequest
-            {
-                Description = "Test",
-                Currency = "USD",
-                Amount = 100.00M
-            };
+            var request =
+                new CreateExpenseRequest
+                {
+                    Description = "Test",
+                    Currency = "USD",
+                    Amount = 100.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
+                };
 
             // Act
             var response = await useCase.Handle(request, CancellationToken.None);

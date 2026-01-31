@@ -101,7 +101,9 @@ namespace Tests.Infrastructure.AutoMapper
                     Expense = DatabaseMapper.Instance.Map<ExpenseEntity>(expense)
                 };
 
-            Assert.Equivalent(dbSplit, DatabaseMapper.Instance.Map<SplitEntity>(split));
+            var mappedEntity = DatabaseMapper.Instance.Map<SplitEntity>(split);
+
+            Assert.Equivalent(dbSplit, mappedEntity);
         }
     }
 }

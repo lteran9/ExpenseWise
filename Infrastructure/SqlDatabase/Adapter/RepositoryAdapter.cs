@@ -8,13 +8,14 @@ namespace Infrastructure.SqlDatabase
     /// The adapter handles conversion between the Core Entities classes and the Entity Framework models.
     /// </summary>
     public class RepositoryAdapter :
-       IDatabasePort<User>, IDatabasePort<Group>, IDatabasePort<MemberOf>, IDatabasePort<Expense>, IDatabasePort<Password>
+       IDatabasePort<User>, IDatabasePort<Group>, IDatabasePort<MemberOf>, IDatabasePort<Expense>, IDatabasePort<Password>, IDatabasePort<Split>
     {
         private readonly IRepository<UserEntity> _userRepository;
         private readonly IRepository<GroupEntity> _groupRepository;
         private readonly IRepository<MemberOfEntity> _memberOfRepository;
         private readonly IRepository<ExpenseEntity> _expenseRepository;
         private readonly IRepository<PasswordEntity> _passwordRepository;
+        private readonly IRepository<SplitEntity> _splitRepository;
 
         public RepositoryAdapter()
         {
@@ -23,6 +24,7 @@ namespace Infrastructure.SqlDatabase
             _memberOfRepository = new MemberOfRepository();
             _expenseRepository = new ExpenseRepository();
             _passwordRepository = new PasswordRepository();
+            _splitRepository = new SplitRepository();
         }
 
         #region User
@@ -322,6 +324,56 @@ namespace Infrastructure.SqlDatabase
         private Password MapDatabaseToEntity(PasswordEntity dbEntity) => DatabaseMapper.Instance.Map<Password>(dbEntity);
         private PasswordEntity MapEntityToDatabase(Password entity) => DatabaseMapper.Instance.Map<PasswordEntity>(entity);
 
+        #endregion
+
+        #region Split
+
+        public async Task<Split?> CreateAsync(Split entity)
+        {
+            var dbSplit = await _splitRepository.CreateAsync(MapEntityToDatabase(entity));
+            if (dbSplit != null)
+            {
+                return MapDatabaseToEntity(dbSplit);
+            }
+
+            return null;
+        }
+
+        public async Task<Split?> RetrieveAsync(Split entity)
+        {
+            var dbSplit = await _splitRepository.RetrieveAsync(MapEntityToDatabase(entity));
+            if (dbSplit != null)
+            {
+                return MapDatabaseToEntity(dbSplit);
+            }
+
+            return null;
+        }
+
+        public async Task<Split?> DeleteAsync(Split entity)
+        {
+            var dbSplit = await _splitRepository.DeleteAsync(MapEntityToDatabase(entity));
+            if (dbSplit != null)
+            {
+                return MapDatabaseToEntity(dbSplit);
+            }
+
+            return null;
+        }
+
+        public async Task<Split?> UpdateAsync(Split entity)
+        {
+            var dbSplit = await _splitRepository.UpdateAsync(MapEntityToDatabase(entity));
+            if (dbSplit != null)
+            {
+                return MapDatabaseToEntity(dbSplit);
+            }
+
+            return null;
+        }
+
+        private Split MapDatabaseToEntity(SplitEntity dbEntity) => DatabaseMapper.Instance.Map<Split>(dbEntity);
+        private SplitEntity MapEntityToDatabase(Split entity) => DatabaseMapper.Instance.Map<SplitEntity>(entity);
 
         #endregion
     }

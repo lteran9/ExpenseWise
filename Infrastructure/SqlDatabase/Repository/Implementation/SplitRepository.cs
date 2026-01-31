@@ -1,6 +1,4 @@
-using System;
-using System.Net.Mime;
-using Application.UseCases.Ports;
+﻿using System;
 
 namespace Infrastructure.SqlDatabase
 {
@@ -13,6 +11,11 @@ namespace Infrastructure.SqlDatabase
                 // Default values
                 if (entity.CreatedAt == DateTime.MinValue) entity.CreatedAt = DateTime.Now;
                 if (entity.UpdatedAt == DateTime.MinValue) entity.UpdatedAt = DateTime.Now;
+
+                // Relationships should already exist by the time we are creating a Split record
+                entity.User = null;
+                entity.Expense = null;
+                entity.Group = null;
 
                 var insert = context.Add(entity);
                 await context.SaveChangesAsync();

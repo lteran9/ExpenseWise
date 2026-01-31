@@ -18,7 +18,7 @@
                   <div class="vr"></div>
                   <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-secondary flex-fill">Invite</a>
                   <div class="vr"></div>
-                  <a href="#" class="btn btn-secondary flex-fill">Expense</a>
+                  <a asp-action="Create" asp-controller="Expense" asp-route-group="@group.UniqueKey" class="btn btn-secondary flex-fill">Expense</a>
                </div>
                <fieldset>
                   <legend>Members: @(group.Members.Count)</legend>

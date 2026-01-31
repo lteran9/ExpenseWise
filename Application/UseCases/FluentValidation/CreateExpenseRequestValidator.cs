@@ -18,6 +18,12 @@ namespace Application.UseCases.FluentValidation
                .WithMessage("Please provide an expense amount.")
                .GreaterThan(0)
                .WithMessage("Expense amount must be greater than zero.");
+            RuleFor(x => x.GroupKey)
+               .NotEqual(Guid.Empty)
+               .WithMessage("Form data is malformed.");
+            RuleFor(x => x.UserKey)
+                .NotEqual(Guid.Empty)
+                .WithMessage("Form data is malformed.");
         }
     }
 }

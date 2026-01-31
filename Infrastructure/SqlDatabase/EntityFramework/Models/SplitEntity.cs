@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,7 +20,7 @@ namespace Infrastructure.SqlDatabase
         public bool Paid { get; set; }
 
         [Column("paid_on")]
-        public DateTime PaidOn { get; set; }
+        public DateTime? PaidOn { get; set; }
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
         [Column("updated_at")]

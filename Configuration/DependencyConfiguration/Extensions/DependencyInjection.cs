@@ -47,6 +47,10 @@ namespace ExpenseWise.DependencyConfiguration
             {
                 return x.GetService<RepositoryAdapter>()!;
             });
+            serviceCollection.AddScoped<IDatabasePort<Split>>(x =>
+            {
+                return x.GetService<RepositoryAdapter>()!;
+            });
 
             #endregion
 
