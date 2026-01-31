@@ -26,7 +26,9 @@ namespace Tests.Regression.Validators
                 {
                     Description = "Valid expense",
                     Currency = "USD",
-                    Amount = 100.00M
+                    Amount = 100.00M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
                 };
 
             // Act
@@ -186,7 +188,9 @@ namespace Tests.Regression.Validators
                 {
                     Description = "Valid",
                     Currency = "USD",
-                    Amount = 0.01M
+                    Amount = 0.01M,
+                    UserKey = Guid.NewGuid(),
+                    GroupKey = Guid.NewGuid()
                 };
 
             var response = await useCase.Handle(request, CancellationToken.None);
