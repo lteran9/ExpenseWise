@@ -1,0 +1,31 @@
+@model ExpenseViewModel
+@{
+   ViewData["Title"] = "Create Expense";
+}
+
+<h1 class="display-4 text-center">Add Expense</h1>
+<div class="card">
+   <div class="card-body">
+      <form asp-action="Create" method="post">
+         @Html.AntiForgeryToken()
+         @Html.ValidationSummary()
+
+         <div class="mb-3">
+            <label asp-for="Description" class="form-label">Description</label>
+            <input asp-for="Description" class="form-control" type="text" required />
+         </div>
+         <div class="mb-3">
+            <label asp-for="Amount" class="form-label">Amount</label>
+            <input asp-for="Amount" class="form-control" type="number" step="0.01" required />
+         </div>
+         <div class="d-grid d-md-block text-md-end mb-3">
+            <button type="submit" class="btn btn-primary">Add Expense</button>
+         </div>
+         <div class="d-grid d-md-block text-md-end">
+            <a href="@Url.Action("Index", "Group")" class="btn btn-secondary">Back</a>
+         </div>
+
+         <input asp-for="GroupKey" type="hidden" />
+      </form>
+   </div>
+</div>
