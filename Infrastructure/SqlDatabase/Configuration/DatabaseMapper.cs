@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Infrastructure.SqlDatabase
 {
@@ -18,7 +19,7 @@ namespace Infrastructure.SqlDatabase
                     cfg.AddProfile(Activator.CreateInstance(typeof(ExpenseProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(SplitProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(PasswordProfile)) as Profile);
-                }).CreateMapper();
+                }, NullLoggerFactory.Instance).CreateMapper();
         }
     }
 }
