@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace UI.Configuration
 {
@@ -14,7 +15,7 @@ namespace UI.Configuration
                 {
                     cfg.AddProfile(Activator.CreateInstance(typeof(GroupProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(UserProfile)) as Profile);
-                }).CreateMapper();
+                }, NullLoggerFactory.Instance).CreateMapper();
         }
     }
 }

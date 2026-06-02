@@ -7,10 +7,19 @@ namespace UI.Controllers
 {
     public class HomeController : BaseController
     {
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Index()
         {
+            _logger.LogInformation("Home - Index action called.");
+
             return View();
         }
 
@@ -18,6 +27,8 @@ namespace UI.Controllers
         [AllowAnonymous]
         public IActionResult Privacy()
         {
+            _logger.LogInformation("Home - Privacy action called.");
+
             return View();
         }
 
