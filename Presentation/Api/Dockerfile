@@ -21,11 +21,11 @@ WORKDIR /app
 # Copy published output from build stage
 COPY --from=build /app/publish .
 
-# Expose port 8080 (default for ASP.NET Core in containers)
-EXPOSE 8080
+# Expose port 8081 (default for ASP.NET Core in containers)
+EXPOSE 8081
 
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Development
-ENV ASPNETCORE_URLS=http://+:8080
+ENV HTTP_PORTS=8081
 
 ENTRYPOINT ["dotnet", "Api.dll"]

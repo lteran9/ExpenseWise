@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- <DockerfileRunArguments>-p 8080:8080</DockerfileRunArguments> -->
   </PropertyGroup>
 
   <ItemGroup>

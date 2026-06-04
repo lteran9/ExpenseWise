@@ -1,11 +1,22 @@
 services:
+  webapi:
+    build:
+      context: .
+      dockerfile: Presentation/Api/Dockerfile
+    image: "expensewise-api-1:latest"
+    ports:
+      - '${API_PORT:-8081}:8081'
+    networks:
+      - network
+    depends_on:
+      - mysql
   webapp:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: "expensewise-1:latest"
+      dockerfile: Presentation/UI/Dockerfile
+    image: "expensewise-ui-1:latest"
     ports:
-      - 8080:8080
+      - '${UI_PORT:-8080}:8080'
     networks:
       - network
     depends_on:

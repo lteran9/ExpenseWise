@@ -120,7 +120,7 @@ namespace OpenAPI
         public ExpenseWiseClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            _baseUrl = "http://localhost:8080/";
+            _baseUrl = "http://localhost:8082/";
             _httpClient = httpClient;
             Initialize();
         }

@@ -12,6 +12,35 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 - `docker compose up`
 - `docker compose down`
 
+## Run in Docker
+
+Recommended commands to build and run the API, UI, and database together:
+
+- Build and start in detached mode:
+
+```bash
+docker compose up --build -d
+```
+
+- Follow logs for all services:
+
+```bash
+docker compose logs -f
+```
+
+- Stop and remove containers, networks and volumes:
+
+```bash
+docker compose down --volumes
+```
+
+- Optional: set custom ports or DB env vars before running:
+
+```bash
+export API_PORT=8081 UI_PORT=8080 DB_PASSWORD=secret DB_DATABASE=expensewise DB_USERNAME=expense
+docker compose up --build -d
+```
+
 ## Dependencies
 
 - [MediatR](https://github.com/jbogard/MediatR/)
