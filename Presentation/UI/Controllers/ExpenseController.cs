@@ -51,10 +51,7 @@ namespace UI.Controllers
                     }
                     else
                     {
-                        if (response.ValidationMessages?.Any() == true)
-                        {
-                            ModelState.AddModelError(string.Empty, response.ValidationMessages!.First());
-                        }
+                        AddValidationErrorsToModelState(response);
                     }
                 }
             }

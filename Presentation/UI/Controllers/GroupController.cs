@@ -38,6 +38,10 @@ namespace UI.Controllers
                         return View(groups.Select(ModelMapper.Instance.Map<GroupViewModel>));
                     }
                 }
+                else
+                {
+                    AddValidationErrorsToModelState(response);
+                }
             }
             catch (Exception ex)
             {
@@ -81,9 +85,13 @@ namespace UI.Controllers
                    };
 
                 var response = await _mediator.Send(createGroupRequest);
-                if (response?.Succeeded == true)
+                if (response.Succeeded == true)
                 {
                     return RedirectToAction("Index");
+                }
+                else
+                {
+                    AddValidationErrorsToModelState(response);
                 }
             }
             catch (Exception ex)
@@ -91,7 +99,10 @@ namespace UI.Controllers
                 _logger.LogError(ex);
             }
 
-            ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
+            if (ModelState.ErrorCount == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
+            }
 
             return View(model);
         }
@@ -152,10 +163,7 @@ namespace UI.Controllers
                 }
                 else
                 {
-                    if (response.ValidationMessages?.Any() == true)
-                    {
-                        ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
-                    }
+                    AddValidationErrorsToModelState(response);
                 }
             }
             catch (Exception ex)
@@ -224,13 +232,7 @@ namespace UI.Controllers
                 }
                 else
                 {
-                    if (response.ValidationMessages?.Any() == true)
-                    {
-                        // Unable to add user to group
-                        ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
-
-                        return View(model);
-                    }
+                    AddValidationErrorsToModelState(response);
                 }
             }
             catch (Exception ex)
@@ -238,7 +240,10 @@ namespace UI.Controllers
                 _logger.LogError(ex);
             }
 
-            ModelState.AddModelError(string.Empty, "Unable to invite member to group at this time, please try again later.");
+            if (ModelState.ErrorCount == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to invite member to group at this time, please try again later.");
+            }
 
             return View(model);
         }

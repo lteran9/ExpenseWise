@@ -8,9 +8,12 @@ namespace UI.Controllers
     {
         protected void AddValidationErrorsToModelState<T>(ResponseWrapper<T> response) where T : class
         {
-            foreach (var message in response.ValidationMessages!)
+            if (response.ValidationMessages?.Any() == true)
             {
-                ModelState.AddModelError(string.Empty, message);
+                foreach (var message in response.ValidationMessages)
+                {
+                    ModelState.AddModelError(string.Empty, message);
+                }
             }
         }
     }
