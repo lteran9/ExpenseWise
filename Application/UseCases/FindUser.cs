@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
     public sealed class FindUser : BaseRequestHandler<FindUserRequest, FindUserResponse>
     {
-        private readonly IDatabasePort<User> _repository;
+        private readonly IUserRepository _repository;
         private readonly AbstractValidator<FindUserRequest> _validator;
 
-        public FindUser(IDatabasePort<User> repository)
+        public FindUser(IUserRepository repository)
         {
             _repository = repository;
             _validator = new FindUserRequestValidator();
@@ -30,7 +30,7 @@ namespace Application.UseCases
                        UniqueKey = request.UniqueKey
                    };
 
-                var response = await _repository.RetrieveAsync(user);
+                var response = await _repository.FindByUniqueKey(user.UniqueKey);
                 if (response != null)
                 {
                     return Successful(

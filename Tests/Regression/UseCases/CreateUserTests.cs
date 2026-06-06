@@ -12,11 +12,13 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateUserMoq(
-           [Frozen] Mock<IDatabasePort<User>> mockRepository,
+           [Frozen] Mock<IUserRepository> mockRepository,
+           [Frozen] Mock<IPasswordRepository> mockPasswordRepository,
            CreateUser useCase)
         {
             // Arrange
             mockRepository.Setup(x => x.CreateAsync(It.IsAny<User>())).ReturnsAsync(new User() { Id = 1000 });
+            mockPasswordRepository.Setup(x => x.CreateAsync(It.IsAny<Password>())).ReturnsAsync(new Password());
             var createUser =
                new CreateUserRequest()
                {

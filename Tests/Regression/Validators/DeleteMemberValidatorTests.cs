@@ -13,7 +13,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task DeleteMember_Has_UserId(
-           [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            DeleteMember useCase)
         {
             // Arrange

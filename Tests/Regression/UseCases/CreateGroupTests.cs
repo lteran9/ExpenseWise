@@ -12,11 +12,12 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateGroupMoq(
-           [Frozen] Mock<IDatabasePort<Group>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            CreateGroup useCase)
         {
             // Arrange
             mockRepository.Setup(x => x.CreateAsync(It.IsAny<Group>())).ReturnsAsync(new Group() { Id = 1 });
+            mockRepository.Setup(x => x.AddMemberAsync(It.IsAny<MemberOf>())).ReturnsAsync(new MemberOf() { Id = 1 });
             var createGroup =
                new CreateGroupRequest()
                {

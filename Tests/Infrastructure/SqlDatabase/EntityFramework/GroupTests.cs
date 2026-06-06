@@ -19,7 +19,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Create(GroupEntity group)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<GroupEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<GroupEntity>>();
 
             // Act
             var dbGroup = await mockRepo.Object.CreateAsync(group);
@@ -42,7 +42,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Retrieve(GroupEntity group)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<GroupEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<GroupEntity>>();
 
             // Act
             var dbGroup = await mockRepo.Object.RetrieveAsync(group);
@@ -65,7 +65,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Update(GroupEntity group)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<GroupEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<GroupEntity>>();
 
             // Act
             var dbGroup = await mockRepo.Object.UpdateAsync(group);
@@ -88,7 +88,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Delete(GroupEntity group)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<GroupEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<GroupEntity>>();
 
             // Act
             var dbGroup = await mockRepo.Object.DeleteAsync(group);

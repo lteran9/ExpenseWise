@@ -109,7 +109,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WhenRepositoryReturnsNull_ShouldFail(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             // Arrange
@@ -136,7 +136,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WhenRepositoryThrows_ShouldFail(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
@@ -163,7 +163,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WithValidRequest_MapsDataCorrectly(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             // Arrange
@@ -199,7 +199,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WithLargeAmount_ShouldSucceed(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             var request =
@@ -223,7 +223,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WithSmallAmount_ShouldSucceed(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             var request =
@@ -247,7 +247,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WithVeryLongDescription_ShouldSucceed(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             var longDescription = new string('A', 1000);
@@ -276,7 +276,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task CreateExpense_WithValidRequest_ReturnsCorrectId(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             // Arrange

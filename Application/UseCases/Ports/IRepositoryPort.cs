@@ -1,9 +1,8 @@
-using System;
-using Core.Entities;
+using System.Threading.Tasks;
 
 namespace Application.UseCases.Ports
 {
-    public interface IDatabasePort<T> where T : class
+    public interface IRepositoryPort<T> where T : class
     {
         Task<T?> CreateAsync(T entity);
         Task<T?> RetrieveAsync(T entity);

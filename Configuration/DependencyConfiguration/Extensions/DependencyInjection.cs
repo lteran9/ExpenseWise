@@ -25,14 +25,16 @@ namespace ExpenseWise.DependencyConfiguration
 
             #region Database Ports
 
-            var repositoryAdapter = new RepositoryAdapter();
-
-            serviceCollection.AddSingleton<IDatabasePort<User>>(repositoryAdapter);
-            serviceCollection.AddSingleton<IDatabasePort<Group>>(repositoryAdapter);
-            serviceCollection.AddSingleton<IDatabasePort<MemberOf>>(repositoryAdapter);
-            serviceCollection.AddSingleton<IDatabasePort<Expense>>(repositoryAdapter);
-            serviceCollection.AddSingleton<IDatabasePort<Password>>(repositoryAdapter);
-            serviceCollection.AddSingleton<IDatabasePort<Split>>(repositoryAdapter);
+            serviceCollection.AddScoped<IUserRepository, UserRepository>();
+            serviceCollection.AddScoped<IGroupRepository, GroupRepository>();
+            serviceCollection.AddScoped<IExpenseRepository, ExpenseRepository>();
+            serviceCollection.AddScoped<IPasswordRepository, PasswordRepository>();
+            // serviceCollection.AddSingleton<IDatabasePort<User>>(repositoryAdapter);
+            // serviceCollection.AddSingleton<IDatabasePort<Group>>(repositoryAdapter);
+            // serviceCollection.AddSingleton<IDatabasePort<MemberOf>>(repositoryAdapter);
+            // serviceCollection.AddSingleton<IDatabasePort<Expense>>(repositoryAdapter);
+            // serviceCollection.AddSingleton<IDatabasePort<Password>>(repositoryAdapter);
+            // serviceCollection.AddSingleton<IDatabasePort<Split>>(repositoryAdapter);
 
             #endregion
 

@@ -10,16 +10,14 @@ namespace Application.UseCases
 {
     public class CreateExpense : BaseRequestHandler<CreateExpenseRequest, CreateExpenseResponse>
     {
-        private readonly IDatabasePort<Expense> _repository;
-        private readonly IDatabasePort<Split> _splitRepository;
-        private readonly IDatabasePort<User> _userRepository;
-        private readonly IDatabasePort<Group> _groupRepository;
+        private readonly IExpenseRepository _expenseRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IGroupRepository _groupRepository;
         private readonly AbstractValidator<CreateExpenseRequest> _validator;
 
-        public CreateExpense(IDatabasePort<Expense> repository, IDatabasePort<Split> splitRepository, IDatabasePort<User> userRepository, IDatabasePort<Group> groupRepository)
+        public CreateExpense(IExpenseRepository expenseRepository, IUserRepository userRepository, IGroupRepository groupRepository)
         {
-            _repository = repository;
-            _splitRepository = splitRepository;
+            _expenseRepository = expenseRepository;
             _userRepository = userRepository;
             _groupRepository = groupRepository;
             _validator = new CreateExpenseRequestValidator();
@@ -38,17 +36,17 @@ namespace Application.UseCases
                        Amount = request.Amount
                    };
 
-                var expenseResponse = await _repository.CreateAsync(expense);
+                var expenseResponse = await _expenseRepository.CreateAsync(expense);
                 if (expenseResponse != null)
                 {
                     // Retrieve existing user and group records by their unique keys so we can reference them by Id
-                    var userResponse = await _userRepository.RetrieveAsync(new User { UniqueKey = request.UserKey });
+                    var userResponse = await _userRepository.FindByUniqueKey(request.UserKey);
                     if (userResponse == null)
                     {
                         return Failed(default);
                     }
 
-                    var groupResponse = await _groupRepository.RetrieveAsync(new Group { UniqueKey = request.GroupKey });
+                    var groupResponse = await _groupRepository.FindByUniqueKeyAsync(request.GroupKey);
                     if (groupResponse == null)
                     {
                         return Failed(default);
@@ -62,7 +60,7 @@ namespace Application.UseCases
                             Group = new Group { Id = groupResponse.Id },
                         };
 
-                    var splitResponse = await _splitRepository.CreateAsync(split);
+                    var splitResponse = await _expenseRepository.AddSplitAsync(split);
                     if (splitResponse != null)
                     {
                         return Successful(

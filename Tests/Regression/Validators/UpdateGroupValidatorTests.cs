@@ -13,7 +13,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_GroupGuidIsPresent(
-            [Frozen] Mock<IDatabasePort<Group>> mock,
+            [Frozen] Mock<IGroupRepository> mock,
             UpdateGroup useCase
         )
         {
@@ -36,7 +36,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_NameIsPresent(
-            [Frozen] Mock<IDatabasePort<Group>> mock,
+            [Frozen] Mock<IGroupRepository> mock,
             UpdateGroup useCase
         )
         {
@@ -59,7 +59,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_NameIsLongerThanThreeCharacters(
-            [Frozen] Mock<IDatabasePort<Group>> mock,
+            [Frozen] Mock<IGroupRepository> mock,
             UpdateGroup useCase
         )
         {
@@ -83,7 +83,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_StartDateIsLessThanOrEqualToEndDate(
-            [Frozen] Mock<IDatabasePort<Group>> mock,
+            [Frozen] Mock<IGroupRepository> mock,
             UpdateGroup useCase
         )
         {

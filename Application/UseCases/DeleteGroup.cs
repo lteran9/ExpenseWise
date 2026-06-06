@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
     public class DeleteGroup : BaseRequestHandler<DeleteGroupRequest, DeleteGroupResponse>
     {
-        private readonly IDatabasePort<Group> _repository;
+        private readonly IGroupRepository _repository;
         private readonly AbstractValidator<DeleteGroupRequest> _validator;
 
-        public DeleteGroup(IDatabasePort<Group> repository)
+        public DeleteGroup(IGroupRepository repository)
         {
             _repository = repository;
             _validator = new DeleteGroupRequestValidator();
@@ -24,7 +24,7 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var group = await _repository.RetrieveAsync(new Group() { Id = request.GroupId });
+                var group = await _repository.FindByIdAsync(request.GroupId);
                 if (group != null && group.Owner.Id == request.RequestingUserId)
                 {
                     var response = await _repository.DeleteAsync(group);

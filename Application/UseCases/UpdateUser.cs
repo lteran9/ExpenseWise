@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
     public sealed class UpdateUser : BaseRequestHandler<UpdateUserRequest, UpdateUserResponse>
     {
-        private readonly IDatabasePort<User> _repository;
+        private readonly IUserRepository _repository;
         private readonly AbstractValidator<UpdateUserRequest> _validator;
 
-        public UpdateUser(IDatabasePort<User> repository)
+        public UpdateUser(IUserRepository repository)
         {
             _repository = repository;
             _validator = new UpdateUserRequestValidator();

@@ -12,7 +12,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task DeleteUserMoq(
-           [Frozen] Mock<IDatabasePort<User>> mockRepository,
+           [Frozen] Mock<IUserRepository> mockRepository,
            DeleteUser useCase)
         {
             // Arrange

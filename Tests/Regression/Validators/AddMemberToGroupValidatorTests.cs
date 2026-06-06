@@ -13,7 +13,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_UserPhoneNotNull(
-           [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            AddMemberToGroup useCase)
         {
             // Arrange
@@ -34,7 +34,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_GroupNotNull(
-           [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            AddMemberToGroup useCase)
         {
             // Arrange

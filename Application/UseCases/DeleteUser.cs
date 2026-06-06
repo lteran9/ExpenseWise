@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
     public class DeleteUser : BaseRequestHandler<DeleteUserRequest, DeleteUserResponse>
     {
-        private readonly IDatabasePort<User> _repository;
+        private readonly IUserRepository _repository;
         private readonly AbstractValidator<DeleteUserRequest> _validator;
 
-        public DeleteUser(IDatabasePort<User> repository)
+        public DeleteUser(IUserRepository repository)
         {
             _repository = repository;
             _validator = new DeleteUserRequestValidator();
@@ -24,23 +24,17 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var user = await _repository.RetrieveAsync(new User() { Id = request.Id });
-                if (user != null)
+                var response = await _repository.DeleteAsync(new User() { Id = request.Id });
+                if (response != null)
                 {
-                    var response = await _repository.DeleteAsync(user);
-                    if (response != null)
-                    {
-                        return Successful(
-                           new DeleteUserResponse()
-                           {
-                               Success = true
-                           });
-                    }
+                    return Successful(
+                       new DeleteUserResponse()
+                       {
+                           Success = true
+                       });
                 }
-                else
-                {
-                    return Invalid("User id not found.");
-                }
+
+                return Invalid("User id not found.");
             }
 
             return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());

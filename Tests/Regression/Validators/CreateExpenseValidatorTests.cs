@@ -14,7 +14,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_WithValidInput_ShouldSucceed(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             // Arrange
@@ -177,7 +177,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_WithMinimalValidAmount_ShouldSucceed(
-            [Frozen] Mock<IDatabasePort<Expense>> mockRepository,
+            [Frozen] Mock<IExpenseRepository> mockRepository,
             CreateExpense useCase)
         {
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))

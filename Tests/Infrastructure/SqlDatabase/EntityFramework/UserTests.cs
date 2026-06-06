@@ -19,7 +19,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Create(UserEntity user)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<UserEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<UserEntity>>();
 
             // Act
             var dbUser = await mockRepo.Object.CreateAsync(user);
@@ -43,7 +43,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Retrieve(UserEntity user)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<UserEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<UserEntity>>();
 
             // Act
             var dbUser = await mockRepo.Object.RetrieveAsync(user);
@@ -67,7 +67,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Update(UserEntity user)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<UserEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<UserEntity>>();
 
             // Act
             var dbUser = await mockRepo.Object.UpdateAsync(user);
@@ -91,7 +91,7 @@ namespace Tests.Infrastructure.EntityFramework
         public async Task Delete(UserEntity user)
         {
             // Arrange
-            var mockRepo = new Mock<IDatabasePort<UserEntity>>();
+            var mockRepo = new Mock<IRepositoryPort<UserEntity>>();
 
             // Act
             var dbUser = await mockRepo.Object.DeleteAsync(user);

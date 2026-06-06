@@ -10,11 +10,11 @@ namespace Application.UseCases
 {
     public class ListGroups : BaseRequestHandler<ListGroupsRequest, ListGroupsResponse>
     {
-        private readonly IDatabasePort<User> _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IQueryPort<Group> _groupQuery;
         private readonly AbstractValidator<ListGroupsRequest> _validator;
 
-        public ListGroups(IQueryPort<Group> query, IDatabasePort<User> repository)
+        public ListGroups(IQueryPort<Group> query, IUserRepository repository)
         {
             _groupQuery = query;
             _userRepository = repository;
@@ -26,7 +26,7 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var user = await _userRepository.RetrieveAsync(new User() { UniqueKey = request.UserId });
+                var user = await _userRepository.FindByUniqueKey(request.UserId);
                 if (user != null)
                 {
                     var groups = await _groupQuery.FindAsync(new Group() { Owner = user });
