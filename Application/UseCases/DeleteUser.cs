@@ -28,10 +28,10 @@ namespace Application.UseCases
                 if (response != null)
                 {
                     return Successful(
-                       new DeleteUserResponse()
-                       {
-                           Success = true
-                       });
+                        new DeleteUserResponse()
+                        {
+                            Success = true
+                        });
                 }
 
                 return Invalid("User id not found.");

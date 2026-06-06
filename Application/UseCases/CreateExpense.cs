@@ -29,18 +29,18 @@ namespace Application.UseCases
             if (validationResult.IsValid)
             {
                 var expense =
-                   new Expense()
-                   {
-                       Description = request.Description,
-                       Currency = request.Currency,
-                       Amount = request.Amount
-                   };
+                    new Expense()
+                    {
+                        Description = request.Description,
+                        Currency = request.Currency,
+                        Amount = request.Amount
+                    };
 
                 var expenseResponse = await _expenseRepository.CreateAsync(expense);
                 if (expenseResponse != null)
                 {
                     // Retrieve existing user and group records by their unique keys so we can reference them by Id
-                    var userResponse = await _userRepository.FindByUniqueKey(request.UserKey);
+                    var userResponse = await _userRepository.FindByUniqueKeyAsync(request.UserKey);
                     if (userResponse == null)
                     {
                         return Failed(default);
@@ -64,10 +64,10 @@ namespace Application.UseCases
                     if (splitResponse != null)
                     {
                         return Successful(
-                           new CreateExpenseResponse()
-                           {
-                               Id = expenseResponse.Id
-                           });
+                            new CreateExpenseResponse()
+                            {
+                                Id = expenseResponse.Id
+                            });
                     }
                 }
 

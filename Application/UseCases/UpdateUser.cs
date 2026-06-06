@@ -24,16 +24,17 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var user =
-                   new User()
-                   {
-                       UniqueKey = request.UniqueKey,
-                       Name = request.Name,
-                       Email = request.Email,
-                       Phone = request.Phone,
-                   };
+                var existingUser = await _repository.FindByUniqueKeyAsync(request.UniqueKey);
+                if (existingUser == null)
+                {
+                    return Invalid("User not found.");
+                }
 
-                var response = await _repository.UpdateAsync(user);
+                existingUser.Name = request.Name;
+                existingUser.Email = request.Email;
+                existingUser.Phone = request.Phone;
+
+                var response = await _repository.UpdateAsync(existingUser);
                 if (response != null)
                 {
                     return Successful(
@@ -46,7 +47,7 @@ namespace Application.UseCases
                 }
                 else
                 {
-                    return Invalid("User id not found.");
+                    return Invalid("Failed to update user.");
                 }
             }
 

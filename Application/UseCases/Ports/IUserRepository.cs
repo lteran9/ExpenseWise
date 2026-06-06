@@ -8,7 +8,7 @@ namespace Application.UseCases.Ports
     {
         Task<User?> FindByEmailAsync(string email);
         Task<User?> FindByPhoneAsync(string phone);
-        Task<User?> FindByUniqueKey(Guid key);
+        Task<User?> FindByUniqueKeyAsync(Guid key);
         Task<User?> CreateAsync(User entity);
         Task<User?> UpdateAsync(User entity);
         Task<User?> DeleteAsync(User entity);

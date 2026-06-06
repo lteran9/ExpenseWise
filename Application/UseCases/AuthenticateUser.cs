@@ -37,10 +37,10 @@ namespace Application.UseCases
                         if (password.Encrypted == Password.Hash(request.Password, password.Cipher))
                         {
                             return Successful(
-                               new AuthenticateUserResponse()
-                               {
-                                   Id = user.UniqueKey
-                               });
+                                new AuthenticateUserResponse()
+                                {
+                                    Id = user.UniqueKey
+                                });
                         }
                     }
                 }

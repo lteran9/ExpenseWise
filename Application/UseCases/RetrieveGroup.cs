@@ -33,15 +33,15 @@ namespace Application.UseCases
                 if (response != null)
                 {
                     return Successful(
-                       new RetrieveGroupResponse()
-                       {
-                           Active = response.Active,
-                           Name = response.Name,
-                           StartDate = response.StartDate ?? DateTime.MinValue,
-                           EndDate = response.EndDate ?? DateTime.MinValue,
-                           OwnerId = response.Owner.UniqueKey,
-                           UniqueKey = response.UniqueKey
-                       });
+                        new RetrieveGroupResponse()
+                        {
+                            Active = response.Active,
+                            Name = response.Name,
+                            StartDate = response.StartDate ?? DateTime.MinValue,
+                            EndDate = response.EndDate ?? DateTime.MinValue,
+                            OwnerId = response.Owner.UniqueKey,
+                            UniqueKey = response.UniqueKey
+                        });
                 }
                 else
                 {

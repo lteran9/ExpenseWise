@@ -25,33 +25,33 @@ namespace Application.UseCases
             if (validationResult.IsValid)
             {
                 var group =
-                   new Group()
-                   {
-                       Owner = new User() { Id = request.OwnerId },
-                       Name = request.Name,
-                       StartDate = request.StartDate,
-                       EndDate = request.EndDate
-                   };
+                    new Group()
+                    {
+                        Owner = new User() { Id = request.OwnerId },
+                        Name = request.Name,
+                        StartDate = request.StartDate,
+                        EndDate = request.EndDate
+                    };
 
                 var groupResponse = await _groupRepository.CreateAsync(group);
                 if (groupResponse != null)
                 {
                     var memberOf =
-                       new MemberOf()
-                       {
-                           Group = new Group() { Id = groupResponse.Id },
-                           User = new User() { Id = group.Owner.Id }
-                       };
+                        new MemberOf()
+                        {
+                            Group = new Group() { Id = groupResponse.Id },
+                            User = new User() { Id = group.Owner.Id }
+                        };
 
                     var memberOfResponse = await _groupRepository.AddMemberAsync(memberOf);
                     if (memberOfResponse != null)
                     {
                         return Successful(
-                           new CreateGroupResponse()
-                           {
-                               Id = groupResponse.Id,
-                               UniqueKey = groupResponse.UniqueKey
-                           });
+                            new CreateGroupResponse()
+                            {
+                                Id = groupResponse.Id,
+                                UniqueKey = groupResponse.UniqueKey
+                            });
                     }
                     else
                     {

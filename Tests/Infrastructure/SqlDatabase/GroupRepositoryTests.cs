@@ -130,5 +130,57 @@ namespace Tests.Infrastructure.SqlDatabase
             var stored = await verifyContext.MemberOf.FindAsync(1);
             Assert.Null(stored);
         }
+
+        [Fact]
+        public async Task GivenExistingGroup_WhenUpdateAsync_ThenUpdatesGroupWithoutDuplicateKeyViolation()
+        {
+            var options = CreateInMemoryOptions(nameof(GivenExistingGroup_WhenUpdateAsync_ThenUpdatesGroupWithoutDuplicateKeyViolation));
+            var uniqueKey = Guid.NewGuid();
+
+            await using (var context = new CoreContext(options))
+            {
+                context.Groups.Add(new GroupEntity
+                {
+                    Id = 1,
+                    Name = "Original Group",
+                    UniqueKey = uniqueKey,
+                    OwnerId = 1,
+                    Active = true,
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddDays(7),
+                    Owner = new UserEntity
+                    {
+                        Id = 1,
+                        FirstName = "Test",
+                        LastName = "Tester",
+                        Email = "sample@test.com",
+                        Phone = "16023334578",
+                        UniqueKey = Guid.NewGuid(),
+                        Active = true
+                    }
+                });
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new GroupRepository(() => new CoreContext(options));
+            var found = await repository.FindByUniqueKeyAsync(uniqueKey);
+
+            Assert.NotNull(found);
+            found!.Name = "Updated Group";
+            found.Active = false;
+
+            var updated = await repository.UpdateAsync(found);
+
+            Assert.NotNull(updated);
+            Assert.Equal("Updated Group", updated!.Name);
+            Assert.False(updated.Active);
+            Assert.Equal(uniqueKey, updated.UniqueKey);
+
+            await using var verifyContext = new CoreContext(options);
+            var stored = await verifyContext.Groups.FirstOrDefaultAsync(x => x.UniqueKey == uniqueKey);
+            Assert.NotNull(stored);
+            Assert.Equal("Updated Group", stored!.Name);
+            Assert.False(stored.Active);
+        }
     }
 }

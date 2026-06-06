@@ -12,7 +12,7 @@ namespace Infrastructure.SqlDatabase
                 return await context.Groups
                    .Include(group => group.Membership!)
                    .ThenInclude(member => member.User)
-                   .Where(x => x.OwnerId == entity.OwnerId)
+                   .Where(x => x.OwnerId == entity.OwnerId && x.Active == true)
                    .ToListAsync();
             }
         }

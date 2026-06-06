@@ -30,18 +30,18 @@ namespace Application.UseCases
                        UniqueKey = request.UniqueKey
                    };
 
-                var response = await _repository.FindByUniqueKey(user.UniqueKey);
+                var response = await _repository.FindByUniqueKeyAsync(user.UniqueKey);
                 if (response != null)
                 {
                     return Successful(
-                       new FindUserResponse()
-                       {
-                           Id = response.Id,
-                           Name = response.Name,
-                           Phone = response.Phone,
-                           Email = response.Email,
-                           UniqueKey = response.UniqueKey
-                       });
+                        new FindUserResponse()
+                        {
+                            Id = response.Id,
+                            Name = response.Name,
+                            Phone = response.Phone,
+                            Email = response.Email,
+                            UniqueKey = response.UniqueKey
+                        });
                 }
                 else
                 {

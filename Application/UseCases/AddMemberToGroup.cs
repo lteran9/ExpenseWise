@@ -38,20 +38,20 @@ namespace Application.UseCases
                     if (user.CountryCode == request.CountryCode)
                     {
                         var membership =
-                           new MemberOf()
-                           {
-                               User = user,
-                               Group = group
-                           };
+                            new MemberOf()
+                            {
+                                User = user,
+                                Group = group
+                            };
 
                         var response = await _groupRepository.AddMemberAsync(membership);
                         if (response != null)
                         {
                             return Successful(
-                               new AddMemberToGroupResponse()
-                               {
-                                   Success = true
-                               });
+                                new AddMemberToGroupResponse()
+                                {
+                                    Success = true
+                                });
                         }
                         else
                         {
