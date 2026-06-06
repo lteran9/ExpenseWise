@@ -26,27 +26,27 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var user = await _userRepository.FindByUniqueKey(request.UserId);
+                var user = await _userRepository.FindByUniqueKeyAsync(request.UserId);
                 if (user != null)
                 {
                     var groups = await _groupQuery.FindAsync(new Group() { Owner = user });
                     if (groups?.Any() == true)
                     {
                         return Successful(
-                           new ListGroupsResponse()
-                           {
-                               Groups = groups.Select(x =>
-                                new RetrieveGroupResponse()
-                                {
-                                    Active = x.Active,
-                                    Name = x.Name,
-                                    StartDate = x.StartDate ?? DateTime.MinValue,
-                                    EndDate = x.EndDate ?? DateTime.MinValue,
-                                    OwnerId = x.Owner.UniqueKey,
-                                    UniqueKey = x.UniqueKey,
-                                    Members = x.Members.Select(y => new FindUserResponse() { Name = y.Name, Email = y.Email, Phone = y.Phone, UniqueKey = y.UniqueKey }).ToList()
-                                }).ToList()
-                           });
+                            new ListGroupsResponse()
+                            {
+                                Groups = groups.Select(x =>
+                                    new RetrieveGroupResponse()
+                                    {
+                                        Active = x.Active,
+                                        Name = x.Name,
+                                        StartDate = x.StartDate ?? DateTime.MinValue,
+                                        EndDate = x.EndDate ?? DateTime.MinValue,
+                                        OwnerId = x.Owner.UniqueKey,
+                                        UniqueKey = x.UniqueKey,
+                                        Members = x.Members.Select(y => new FindUserResponse() { Name = y.Name, Email = y.Email, Phone = y.Phone, UniqueKey = y.UniqueKey }).ToList()
+                                    }).ToList()
+                            });
                     }
                     else
                     {

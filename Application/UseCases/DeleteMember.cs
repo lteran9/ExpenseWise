@@ -28,10 +28,10 @@ namespace Application.UseCases
                 if (response != null)
                 {
                     return Successful(
-                       new DeleteMemberResponse()
-                       {
-                           Success = true
-                       });
+                        new DeleteMemberResponse()
+                        {
+                            Success = true
+                        });
                 }
                 else
                 {

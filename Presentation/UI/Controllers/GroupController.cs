@@ -173,7 +173,7 @@ namespace UI.Controllers
 
             if (ModelState.ErrorCount == 0)
             {
-                ModelState.AddModelError(string.Empty, "Unable to create group at this time, please try again later.");
+                ModelState.AddModelError(string.Empty, "Unable to edit group at this time, please try again later.");
             }
 
             return View(model);

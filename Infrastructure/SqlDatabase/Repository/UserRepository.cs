@@ -74,7 +74,7 @@ namespace Infrastructure.SqlDatabase
             return null;
         }
 
-        public async Task<User?> FindByUniqueKey(Guid key)
+        public async Task<User?> FindByUniqueKeyAsync(Guid key)
         {
             using (var context = _contextFactory())
             {

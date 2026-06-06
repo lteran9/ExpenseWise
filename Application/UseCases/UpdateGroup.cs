@@ -24,28 +24,29 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var user =
-                    new Group()
-                    {
-                        UniqueKey = request.UniqueKey,
-                        Name = request.Name,
-                        Active = request.Active,
-                        StartDate = request.StartDate,
-                        EndDate = request.EndDate
-                    };
+                var existingGroup = await _repository.FindByUniqueKeyAsync(request.UniqueKey);
+                if (existingGroup == null)
+                {
+                    return Invalid("Group not found.");
+                }
 
-                var response = await _repository.UpdateAsync(user);
+                existingGroup.Name = request.Name;
+                existingGroup.Active = request.Active;
+                existingGroup.StartDate = request.StartDate;
+                existingGroup.EndDate = request.EndDate;
+
+                var response = await _repository.UpdateAsync(existingGroup);
                 if (response != null)
                 {
                     return Successful(
-                       new UpdateGroupResponse()
-                       {
-                           Success = true
-                       });
+                        new UpdateGroupResponse()
+                        {
+                            Success = true
+                        });
                 }
                 else
                 {
-                    return Invalid("Group id not found.");
+                    return Invalid("Failed to update group.");
                 }
             }
 

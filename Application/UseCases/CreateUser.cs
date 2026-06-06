@@ -31,34 +31,34 @@ namespace Application.UseCases
 
                 // Step 2: Create User and Password entities
                 var user =
-                   new User()
-                   {
-                       Name = request.Name,
-                       Email = request.Email,
-                       Phone = request.Phone,
-                       CountryCode = request.CountryCode
-                   };
+                    new User()
+                    {
+                        Name = request.Name,
+                        Email = request.Email,
+                        Phone = request.Phone,
+                        CountryCode = request.CountryCode
+                    };
 
                 var userResponse = await _userRepository.CreateAsync(user);
                 if (userResponse != null)
                 {
                     var password =
-                       new Password()
-                       {
-                           UserId = userResponse.Id,
-                           Cipher = Convert.ToHexString(cipher), // Salt
-                           Encrypted = encrypted // Hash
-                       };
+                        new Password()
+                        {
+                            UserId = userResponse.Id,
+                            Cipher = Convert.ToHexString(cipher), // Salt
+                            Encrypted = encrypted // Hash
+                        };
 
                     var passwordResponse = await _passwordRepository.CreateAsync(password);
                     if (passwordResponse != null)
                     {
                         return Successful(
-                           new CreateUserResponse()
-                           {
-                               Id = userResponse.Id,
-                               UniqueKey = userResponse.UniqueKey
-                           });
+                            new CreateUserResponse()
+                            {
+                                Id = userResponse.Id,
+                                UniqueKey = userResponse.UniqueKey
+                            });
                     }
                     else
                     {

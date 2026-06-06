@@ -134,5 +134,50 @@ namespace Tests.Infrastructure.SqlDatabase
             Assert.NotNull(stored);
             Assert.False(stored!.Active);
         }
+
+        [Fact]
+        public async Task GivenExistingUser_WhenUpdateAsync_ThenUpdatesUserWithoutDuplicateKeyViolation()
+        {
+            var options = CreateInMemoryOptions(nameof(GivenExistingUser_WhenUpdateAsync_ThenUpdatesUserWithoutDuplicateKeyViolation));
+            var uniqueKey = Guid.NewGuid();
+
+            await using (var context = new CoreContext(options))
+            {
+                context.Users.Add(new UserEntity
+                {
+                    Id = 1,
+                    FirstName = "Test",
+                    LastName = "Tester",
+                    Email = "sample@test.com",
+                    Phone = "16023334578",
+                    UniqueKey = uniqueKey,
+                    Active = true
+                });
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new UserRepository(() => new CoreContext(options));
+            var found = await repository.FindByUniqueKeyAsync(uniqueKey);
+
+            Assert.NotNull(found);
+            found!.Name = "Updated Name";
+            found.Email = "updated@test.com";
+            found.Phone = "16029998765";
+
+            var updated = await repository.UpdateAsync(found);
+
+            Assert.NotNull(updated);
+            Assert.Equal("Updated Name", updated!.Name);
+            Assert.Equal("updated@test.com", updated.Email);
+            Assert.Equal("16029998765", updated.Phone);
+            Assert.Equal(uniqueKey, updated.UniqueKey);
+
+            await using var verifyContext = new CoreContext(options);
+            var stored = await verifyContext.Users.FirstOrDefaultAsync(x => x.UniqueKey == uniqueKey);
+            Assert.NotNull(stored);
+            Assert.Equal("Updated Name", stored!.FirstName + " " + stored.LastName);
+            Assert.Equal("updated@test.com", stored.Email);
+            Assert.Equal("16029998765", stored.Phone);
+        }
     }
 }

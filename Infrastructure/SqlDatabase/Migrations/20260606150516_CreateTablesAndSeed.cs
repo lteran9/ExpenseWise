@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace SqlDatabase.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateInitialTablesAndSeed : Migration
+    public partial class CreateTablesAndSeed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -147,7 +147,7 @@ namespace SqlDatabase.Migrations
                     group_id = table.Column<int>(type: "int", nullable: false),
                     expense_id = table.Column<int>(type: "int", nullable: false),
                     paid = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    paid_on = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    paid_on = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },

@@ -73,6 +73,10 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(group);
 
+            // Prevent EF Core from updating/inserting the owner navigation
+            // when only the group's scalar values should change.
+            dbEntity.Owner = null;
+
             using (var context = _contextFactory())
             {
                 var update = context.Update(dbEntity);
@@ -95,11 +99,21 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(member);
 
+            // Prevent EF Core from trying to insert/update related User and Group entities
+            // when we only want to persist the membership join row.
+            dbEntity.User = null;
+            dbEntity.Group = null;
+
             using (var context = _contextFactory())
             {
                 var insert = context.Add(dbEntity);
                 await context.SaveChangesAsync();
-                return _adapter.MapDatabaseToEntity(insert.Entity);
+                return new MemberOf
+                {
+                    Id = insert.Entity.Id,
+                    User = new User { Id = insert.Entity.UserId },
+                    Group = new Group { Id = insert.Entity.GroupId }
+                };
             }
         }
 

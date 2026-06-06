@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20250917000504_CreateInitialTablesAndSeed")]
-    partial class CreateInitialTablesAndSeed
+    [Migration("20260606150516_CreateTablesAndSeed")]
+    partial class CreateTablesAndSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -208,7 +208,7 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("paid");
 
-                    b.Property<DateTime>("PaidOn")
+                    b.Property<DateTime?>("PaidOn")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("paid_on");
 
@@ -312,7 +312,7 @@ namespace SqlDatabase.Migrations
             modelBuilder.Entity("Infrastructure.SqlDatabase.MemberOfEntity", b =>
                 {
                     b.HasOne("Infrastructure.SqlDatabase.GroupEntity", "Group")
-                        .WithMany()
+                        .WithMany("Membership")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -364,6 +364,11 @@ namespace SqlDatabase.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Infrastructure.SqlDatabase.GroupEntity", b =>
+                {
+                    b.Navigation("Membership");
                 });
 
             modelBuilder.Entity("Infrastructure.SqlDatabase.UserEntity", b =>

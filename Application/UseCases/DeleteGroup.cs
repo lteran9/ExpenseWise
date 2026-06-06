@@ -31,10 +31,10 @@ namespace Application.UseCases
                     if (response != null)
                     {
                         return Successful(
-                           new DeleteGroupResponse()
-                           {
-                               Success = true
-                           });
+                            new DeleteGroupResponse()
+                            {
+                                Success = true
+                            });
                     }
                     else
                     {

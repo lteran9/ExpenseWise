@@ -71,11 +71,25 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(split);
 
+            // Prevent EF Core from trying to persist related User/Group/Expense
+            // entities when creating a split row.
+            dbEntity.User = null;
+            dbEntity.Group = null;
+            dbEntity.Expense = null;
+
             using (var context = _contextFactory())
             {
                 var insert = context.Add(dbEntity);
                 await context.SaveChangesAsync();
-                return _adapter.MapDatabaseToEntity(insert.Entity);
+                return new Split
+                {
+                    Id = insert.Entity.Id,
+                    Paid = insert.Entity.Paid,
+                    PaidOn = insert.Entity.PaidOn,
+                    User = new User { Id = insert.Entity.UserId },
+                    Group = new Group { Id = insert.Entity.GroupId },
+                    Expense = new Expense { Id = insert.Entity.ExpenseId }
+                };
             }
         }
 
@@ -84,6 +98,9 @@ namespace Infrastructure.SqlDatabase
             using (var context = _contextFactory())
             {
                 var dbEntity = _adapter.MapEntityToDatabase(split);
+                dbEntity.User = null;
+                dbEntity.Group = null;
+                dbEntity.Expense = null;
                 if (dbEntity.Id > 0)
                 {
                     context.Splits.Attach(dbEntity);
