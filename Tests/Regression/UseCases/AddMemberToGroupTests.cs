@@ -12,9 +12,8 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task AddMember_WithValidRequest_ShouldSucceed(
-            [Frozen] Mock<IDatabasePort<MemberOf>> mockMemberRepository,
-            [Frozen] Mock<IDatabasePort<User>> mockUserRepository,
-            [Frozen] Mock<IDatabasePort<Group>> mockGroupRepository,
+            [Frozen] Mock<IUserRepository> mockUserRepository,
+            [Frozen] Mock<IGroupRepository> mockGroupRepository,
             AddMemberToGroup useCase)
         {
             // Arrange
@@ -39,11 +38,11 @@ namespace Tests.Regression.UseCases
                     GroupUniqueKey = groupKey
                 };
 
-            mockUserRepository.Setup(r => r.RetrieveAsync(It.IsAny<User>()))
+            mockUserRepository.Setup(r => r.FindByPhoneAsync(It.IsAny<string>()))
                 .ReturnsAsync(user);
-            mockGroupRepository.Setup(r => r.RetrieveAsync(It.IsAny<Group>()))
+            mockGroupRepository.Setup(r => r.FindByUniqueKeyAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(group);
-            mockMemberRepository.Setup(r => r.CreateAsync(It.IsAny<MemberOf>()))
+            mockGroupRepository.Setup(r => r.AddMemberAsync(It.IsAny<MemberOf>()))
                 .ReturnsAsync(new MemberOf());
 
             // Act
@@ -51,7 +50,7 @@ namespace Tests.Regression.UseCases
 
             // Assert
             Assert.True(response.Succeeded);
-            mockMemberRepository.Verify(r => r.CreateAsync(It.IsAny<MemberOf>()), Times.Once);
+            mockGroupRepository.Verify(r => r.AddMemberAsync(It.IsAny<MemberOf>()), Times.Once);
         }
 
         [Theory]
@@ -99,8 +98,8 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task AddMember_WhenUserNotFound_ShouldFail(
-            [Frozen] Mock<IDatabasePort<User>> mockUserRepository,
-            [Frozen] Mock<IDatabasePort<Group>> mockGroupRepository,
+            [Frozen] Mock<IUserRepository> mockUserRepository,
+            [Frozen] Mock<IGroupRepository> mockGroupRepository,
             AddMemberToGroup useCase)
         {
             // Arrange
@@ -118,9 +117,9 @@ namespace Tests.Regression.UseCases
                     UniqueKey = request.GroupUniqueKey
                 };
 
-            mockUserRepository.Setup(r => r.RetrieveAsync(It.IsAny<User>()))
+            mockUserRepository.Setup(r => r.FindByPhoneAsync(It.IsAny<string>()))
                 .ReturnsAsync((User?)null);
-            mockGroupRepository.Setup(r => r.RetrieveAsync(It.IsAny<Group>()))
+            mockGroupRepository.Setup(r => r.FindByUniqueKeyAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(group);
 
             // Act
@@ -133,8 +132,8 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task AddMember_WhenGroupNotFound_ShouldFail(
-            [Frozen] Mock<IDatabasePort<User>> mockUserRepository,
-            [Frozen] Mock<IDatabasePort<Group>> mockGroupRepository,
+            [Frozen] Mock<IUserRepository> mockUserRepository,
+            [Frozen] Mock<IGroupRepository> mockGroupRepository,
             AddMemberToGroup useCase)
         {
             // Arrange
@@ -153,9 +152,9 @@ namespace Tests.Regression.UseCases
                     CountryCode = "US"
                 };
 
-            mockUserRepository.Setup(r => r.RetrieveAsync(It.IsAny<User>()))
+            mockUserRepository.Setup(r => r.FindByPhoneAsync(It.IsAny<string>()))
                 .ReturnsAsync(user);
-            mockGroupRepository.Setup(r => r.RetrieveAsync(It.IsAny<Group>()))
+            mockGroupRepository.Setup(r => r.FindByUniqueKeyAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Group?)null);
 
             // Act
@@ -168,8 +167,8 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task AddMember_WithCountryCodeMismatch_ShouldFail(
-            [Frozen] Mock<IDatabasePort<User>> mockUserRepository,
-            [Frozen] Mock<IDatabasePort<Group>> mockGroupRepository,
+            [Frozen] Mock<IUserRepository> mockUserRepository,
+            [Frozen] Mock<IGroupRepository> mockGroupRepository,
             AddMemberToGroup useCase)
         {
             // Arrange
@@ -193,9 +192,9 @@ namespace Tests.Regression.UseCases
                     UniqueKey = request.GroupUniqueKey
                 };
 
-            mockUserRepository.Setup(r => r.RetrieveAsync(It.IsAny<User>()))
+            mockUserRepository.Setup(r => r.FindByPhoneAsync(It.IsAny<string>()))
                 .ReturnsAsync(user);
-            mockGroupRepository.Setup(r => r.RetrieveAsync(It.IsAny<Group>()))
+            mockGroupRepository.Setup(r => r.FindByUniqueKeyAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(group);
 
             // Act
@@ -208,9 +207,8 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task AddMember_WhenRepositoryReturnsNull_ShouldFail(
-            [Frozen] Mock<IDatabasePort<MemberOf>> mockMemberRepository,
-            [Frozen] Mock<IDatabasePort<User>> mockUserRepository,
-            [Frozen] Mock<IDatabasePort<Group>> mockGroupRepository,
+            [Frozen] Mock<IUserRepository> mockUserRepository,
+            [Frozen] Mock<IGroupRepository> mockGroupRepository,
             AddMemberToGroup useCase)
         {
             // Arrange
@@ -234,11 +232,11 @@ namespace Tests.Regression.UseCases
                     UniqueKey = request.GroupUniqueKey
                 };
 
-            mockUserRepository.Setup(r => r.RetrieveAsync(It.IsAny<User>()))
+            mockUserRepository.Setup(r => r.FindByPhoneAsync(It.IsAny<string>()))
                 .ReturnsAsync(user);
-            mockGroupRepository.Setup(r => r.RetrieveAsync(It.IsAny<Group>()))
+            mockGroupRepository.Setup(r => r.FindByUniqueKeyAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(group);
-            mockMemberRepository.Setup(r => r.CreateAsync(It.IsAny<MemberOf>()))
+            mockGroupRepository.Setup(r => r.AddMemberAsync(It.IsAny<MemberOf>()))
                 .ReturnsAsync((MemberOf?)null);
 
             // Act
@@ -251,9 +249,8 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task AddMember_WhenRepositoryThrows_ShouldFail(
-            [Frozen] Mock<IDatabasePort<MemberOf>> mockMemberRepository,
-            [Frozen] Mock<IDatabasePort<User>> mockUserRepository,
-            [Frozen] Mock<IDatabasePort<Group>> mockGroupRepository,
+            [Frozen] Mock<IUserRepository> mockUserRepository,
+            [Frozen] Mock<IGroupRepository> mockGroupRepository,
             AddMemberToGroup useCase)
         {
             // Arrange
@@ -266,22 +263,22 @@ namespace Tests.Regression.UseCases
                 };
 
             var user =
-            new User
-            {
-                Phone = "+1 (602) 333-4567",
-                CountryCode = "US"
-            };
+                new User
+                {
+                    Phone = "+1 (602) 333-4567",
+                    CountryCode = "US"
+                };
             var group =
                 new Group
                 {
                     UniqueKey = request.GroupUniqueKey
                 };
 
-            mockUserRepository.Setup(r => r.RetrieveAsync(It.IsAny<User>()))
+            mockUserRepository.Setup(r => r.FindByPhoneAsync(It.IsAny<string>()))
                 .ReturnsAsync(user);
-            mockGroupRepository.Setup(r => r.RetrieveAsync(It.IsAny<Group>()))
+            mockGroupRepository.Setup(r => r.FindByUniqueKeyAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(group);
-            mockMemberRepository.Setup(r => r.CreateAsync(It.IsAny<MemberOf>()))
+            mockGroupRepository.Setup(r => r.AddMemberAsync(It.IsAny<MemberOf>()))
                 .ThrowsAsync(new InvalidOperationException("Database error"));
 
             // Act & Assert

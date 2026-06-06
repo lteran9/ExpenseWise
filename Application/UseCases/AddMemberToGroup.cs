@@ -10,16 +10,14 @@ namespace Application.UseCases
 {
     public class AddMemberToGroup : BaseRequestHandler<AddMemberToGroupRequest, AddMemberToGroupResponse>
     {
-        private readonly IDatabasePort<User> _userRepository;
-        private readonly IDatabasePort<Group> _groupRepository;
-        private readonly IDatabasePort<MemberOf> _memberOfRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IGroupRepository _groupRepository;
         private readonly AbstractValidator<AddMemberToGroupRequest> _validator;
 
-        public AddMemberToGroup(IDatabasePort<MemberOf> repository, IDatabasePort<User> userRepository, IDatabasePort<Group> groupRepository)
+        public AddMemberToGroup(IUserRepository userRepository, IGroupRepository groupRepository)
         {
             _userRepository = userRepository;
             _groupRepository = groupRepository;
-            _memberOfRepository = repository;
             _validator = new AddMemberRequestValidator();
         }
 
@@ -29,10 +27,10 @@ namespace Application.UseCases
             if (validationResult.IsValid)
             {
                 // Get user
-                var user = await _userRepository.RetrieveAsync(new User() { Phone = request.Phone });
+                var user = await _userRepository.FindByPhoneAsync(request.Phone);
 
                 // Get group
-                var group = await _groupRepository.RetrieveAsync(new Group() { UniqueKey = request.GroupUniqueKey });
+                var group = await _groupRepository.FindByUniqueKeyAsync(request.GroupUniqueKey);
 
                 if (user != null && group != null)
                 {
@@ -46,7 +44,7 @@ namespace Application.UseCases
                                Group = group
                            };
 
-                        var response = await _memberOfRepository.CreateAsync(membership);
+                        var response = await _groupRepository.AddMemberAsync(membership);
                         if (response != null)
                         {
                             return Successful(

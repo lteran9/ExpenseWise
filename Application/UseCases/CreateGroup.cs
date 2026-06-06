@@ -10,14 +10,12 @@ namespace Application.UseCases
 {
     public class CreateGroup : BaseRequestHandler<CreateGroupRequest, CreateGroupResponse>
     {
-        private readonly IDatabasePort<Group> _groupRepository;
-        private readonly IDatabasePort<MemberOf> _memberOfRepository;
+        private readonly IGroupRepository _groupRepository;
         private readonly AbstractValidator<CreateGroupRequest> _validator;
 
-        public CreateGroup(IDatabasePort<Group> groupRepository, IDatabasePort<MemberOf> memberOfRepository)
+        public CreateGroup(IGroupRepository groupRepository)
         {
             _groupRepository = groupRepository;
-            _memberOfRepository = memberOfRepository;
             _validator = new CreateGroupRequestValidator();
         }
 
@@ -45,7 +43,7 @@ namespace Application.UseCases
                            User = new User() { Id = group.Owner.Id }
                        };
 
-                    var memberOfResponse = await _memberOfRepository.CreateAsync(memberOf);
+                    var memberOfResponse = await _groupRepository.AddMemberAsync(memberOf);
                     if (memberOfResponse != null)
                     {
                         return Successful(

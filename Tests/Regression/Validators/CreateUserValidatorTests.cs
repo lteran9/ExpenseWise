@@ -13,7 +13,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_NameNotEmpty(
-           [Frozen] Mock<IDatabasePort<User>> mockRepository,
+           [Frozen] Mock<IUserRepository> mockRepository,
            CreateUser useCase)
         {
             // Arrange
@@ -36,7 +36,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_EmailNotEmpty(
-           [Frozen] Mock<IDatabasePort<User>> mockRepository,
+           [Frozen] Mock<IUserRepository> mockRepository,
            CreateUser useCase)
         {
             // Arrange
@@ -59,7 +59,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_PhoneNotEmpty(
-           [Frozen] Mock<IDatabasePort<User>> mockRepository,
+           [Frozen] Mock<IUserRepository> mockRepository,
            CreateUser useCase)
         {
             // Arrange

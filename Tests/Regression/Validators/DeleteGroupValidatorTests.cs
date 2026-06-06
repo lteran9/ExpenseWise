@@ -13,7 +13,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_GroupIsValid(
-           [Frozen] Mock<IDatabasePort<Group>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            DeleteGroup useCase)
         {
             // Arrange
@@ -35,7 +35,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_RequestingUserIsValid(
-           [Frozen] Mock<IDatabasePort<Group>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            DeleteGroup useCase)
         {
             // Arrange

@@ -13,8 +13,8 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_EmailNotEmpty(
-            [Frozen] Mock<IDatabasePort<User>> userRepository,
-            [Frozen] Mock<IDatabasePort<Password>> passwordRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
+            [Frozen] Mock<IPasswordRepository> passwordRepository,
             AuthenticateUser useCase
         )
         {
@@ -37,8 +37,8 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_EmailIsValid(
-            [Frozen] Mock<IDatabasePort<User>> userRepository,
-            [Frozen] Mock<IDatabasePort<Password>> passwordRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
+            [Frozen] Mock<IPasswordRepository> passwordRepository,
             AuthenticateUser useCase
         )
         {
@@ -61,8 +61,8 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_PasswordNotEmpty(
-            [Frozen] Mock<IDatabasePort<User>> userRepository,
-            [Frozen] Mock<IDatabasePort<Password>> passwordRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
+            [Frozen] Mock<IPasswordRepository> passwordRepository,
             AuthenticateUser useCase
         )
         {

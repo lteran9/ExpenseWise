@@ -12,11 +12,12 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task DeleteGroupMoq(
-           [Frozen] Mock<IDatabasePort<Group>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            DeleteGroup useCase)
         {
             // Arrange
-            mockRepository.Setup(x => x.RetrieveAsync(It.IsAny<Group>())).ReturnsAsync(new Group() { Id = 1000, Owner = new User() { Id = 1000 } });
+            mockRepository.Setup(x => x.FindByIdAsync(It.IsAny<int>())).ReturnsAsync(new Group() { Id = 1000, Owner = new User() { Id = 1000 } });
+            mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Group>())).ReturnsAsync(new Group() { Id = 1000 });
             var deleteGroup =
                new DeleteGroupRequest()
                {

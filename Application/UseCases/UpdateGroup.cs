@@ -10,10 +10,10 @@ namespace Application.UseCases
 {
     public sealed class UpdateGroup : BaseRequestHandler<UpdateGroupRequest, UpdateGroupResponse>
     {
-        private readonly IDatabasePort<Group> _repository;
+        private readonly IGroupRepository _repository;
         private readonly AbstractValidator<UpdateGroupRequest> _validator;
 
-        public UpdateGroup(IDatabasePort<Group> repository)
+        public UpdateGroup(IGroupRepository repository)
         {
             _repository = repository;
             _validator = new UpdateGroupRequestValidator();

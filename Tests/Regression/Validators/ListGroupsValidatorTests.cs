@@ -13,8 +13,8 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_UserGuidIsPresent(
-            [Frozen] Mock<IDatabasePort<User>> mockUserRepo,
-            [Frozen] Mock<IDatabasePort<Group>> mockGroupRepo,
+            [Frozen] Mock<IUserRepository> mockUserRepo,
+            [Frozen] Mock<IGroupRepository> mockGroupRepo,
             ListGroups useCase
         )
         {

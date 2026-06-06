@@ -9,10 +9,10 @@ namespace Application.UseCases
 {
     public class RetrieveGroup : BaseRequestHandler<RetrieveGroupRequest, RetrieveGroupResponse>
     {
-        private readonly IDatabasePort<Group> _repository;
+        private readonly IGroupRepository _repository;
         private readonly RetrieveGroupRequestValidator _validator;
 
-        public RetrieveGroup(IDatabasePort<Group> repository)
+        public RetrieveGroup(IGroupRepository repository)
         {
             _repository = repository;
             _validator = new RetrieveGroupRequestValidator();
@@ -29,7 +29,7 @@ namespace Application.UseCases
                        UniqueKey = request.UniqueKey
                    };
 
-                var response = await _repository.RetrieveAsync(group);
+                var response = await _repository.FindByUniqueKeyAsync(group.UniqueKey);
                 if (response != null)
                 {
                     return Successful(

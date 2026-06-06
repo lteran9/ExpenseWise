@@ -12,11 +12,11 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task DeleteMemberMoq(
-           [Frozen] Mock<IDatabasePort<MemberOf>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            DeleteMember useCase)
         {
             // Arrange
-            mockRepository.Setup(x => x.RetrieveAsync(It.IsAny<MemberOf>())).ReturnsAsync(new MemberOf() { Id = 1000 });
+            mockRepository.Setup(x => x.RemoveMemberAsync(It.IsAny<MemberOf>())).ReturnsAsync(new MemberOf() { Id = 1000 });
             var deleteMember =
                new DeleteMemberRequest()
                {

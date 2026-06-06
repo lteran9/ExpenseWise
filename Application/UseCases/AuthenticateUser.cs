@@ -10,11 +10,11 @@ namespace Application.UseCases
 {
     public class AuthenticateUser : BaseRequestHandler<AuthenticateUserRequest, AuthenticateUserResponse>
     {
-        private readonly IDatabasePort<User> _userRepository;
-        private readonly IDatabasePort<Password> _passwordRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IPasswordRepository _passwordRepository;
         private readonly AbstractValidator<AuthenticateUserRequest> _validator;
 
-        public AuthenticateUser(IDatabasePort<User> userRepository, IDatabasePort<Password> passwordRepository)
+        public AuthenticateUser(IUserRepository userRepository, IPasswordRepository passwordRepository)
         {
             _userRepository = userRepository;
             _passwordRepository = passwordRepository;
@@ -26,19 +26,11 @@ namespace Application.UseCases
             var validationResult = _validator.Validate(request);
             if (validationResult.IsValid)
             {
-                var user = await _userRepository.RetrieveAsync(
-                   new User()
-                   {
-                       Email = request.Email
-                   });
+                var user = await _userRepository.FindByEmailAsync(request.Email);
 
                 if (user != null)
                 {
-                    var password = await _passwordRepository.RetrieveAsync(
-                       new Password()
-                       {
-                           UserId = user.Id
-                       });
+                    var password = await _passwordRepository.FindByUserIdAsync(user.Id);
 
                     if (password != null)
                     {

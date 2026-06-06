@@ -13,7 +13,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_NameNotEmpty(
-           [Frozen] Mock<IDatabasePort<Group>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            CreateGroup useCase)
         {
             // Arrange
@@ -35,7 +35,7 @@ namespace Tests.Regression.Validators
         [Theory]
         [AutoMoq]
         public async Task Validate_OwnerIdPresent(
-           [Frozen] Mock<IDatabasePort<Group>> mockRepository,
+           [Frozen] Mock<IGroupRepository> mockRepository,
            CreateGroup useCase)
         {
             // Arrange

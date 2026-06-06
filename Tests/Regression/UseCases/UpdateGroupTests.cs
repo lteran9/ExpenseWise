@@ -12,7 +12,7 @@ namespace Tests.Regression.UseCases
         [Theory]
         [AutoMoq]
         public async Task UpdateUserMoq(
-                   [Frozen] Mock<IDatabasePort<Group>> mockRepository,
+                   [Frozen] Mock<IGroupRepository> mockRepository,
                    UpdateGroup useCase)
         {
             // Arrange
