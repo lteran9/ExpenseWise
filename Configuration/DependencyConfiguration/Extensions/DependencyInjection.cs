@@ -22,44 +22,25 @@ namespace ExpenseWise.DependencyConfiguration
 
         public static IServiceCollection ConfigureDependencies(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<RepositoryAdapter>();
-            serviceCollection.AddSingleton<QueryAdapter>();
 
             #region Database Ports
 
-            serviceCollection.AddScoped<IDatabasePort<User>>(x =>
-            {
-                return x.GetService<RepositoryAdapter>()!;
-            });
-            serviceCollection.AddScoped<IDatabasePort<Group>>(x =>
-            {
-                return x.GetService<RepositoryAdapter>()!;
-            });
-            serviceCollection.AddScoped<IDatabasePort<MemberOf>>(x =>
-            {
-                return x.GetService<RepositoryAdapter>()!;
-            });
-            serviceCollection.AddScoped<IDatabasePort<Expense>>(x =>
-            {
-                return x.GetService<RepositoryAdapter>()!;
-            });
-            serviceCollection.AddScoped<IDatabasePort<Password>>(x =>
-            {
-                return x.GetService<RepositoryAdapter>()!;
-            });
-            serviceCollection.AddScoped<IDatabasePort<Split>>(x =>
-            {
-                return x.GetService<RepositoryAdapter>()!;
-            });
+            var repositoryAdapter = new RepositoryAdapter();
+
+            serviceCollection.AddSingleton<IDatabasePort<User>>(repositoryAdapter);
+            serviceCollection.AddSingleton<IDatabasePort<Group>>(repositoryAdapter);
+            serviceCollection.AddSingleton<IDatabasePort<MemberOf>>(repositoryAdapter);
+            serviceCollection.AddSingleton<IDatabasePort<Expense>>(repositoryAdapter);
+            serviceCollection.AddSingleton<IDatabasePort<Password>>(repositoryAdapter);
+            serviceCollection.AddSingleton<IDatabasePort<Split>>(repositoryAdapter);
 
             #endregion
 
             #region Query Ports
 
-            serviceCollection.AddScoped<IQueryPort<Group>>(x =>
-            {
-                return x.GetService<QueryAdapter>()!;
-            });
+            var queryAdapter = new QueryAdapter();
+
+            serviceCollection.AddSingleton<IQueryPort<Group>>(queryAdapter);
 
             #endregion
 
