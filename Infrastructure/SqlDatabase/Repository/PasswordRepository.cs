@@ -8,10 +8,21 @@ namespace Infrastructure.SqlDatabase
     public class PasswordRepository : IPasswordRepository
     {
         private readonly RepositoryAdapter _adapter = new RepositoryAdapter();
+        private readonly Func<CoreContext> _contextFactory;
+
+        public PasswordRepository()
+            : this(() => new CoreContext())
+        {
+        }
+
+        public PasswordRepository(Func<CoreContext> contextFactory)
+        {
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+        }
 
         public async Task<Password?> FindByUserIdAsync(int userId)
         {
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var dbEntity = await context.Passwords.FirstOrDefaultAsync(x => x.UserId == userId);
                 if (dbEntity != null)
@@ -27,7 +38,7 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(password);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 // Default values
                 if (dbEntity.UpdatedAt == DateTime.MinValue) dbEntity.UpdatedAt = DateTime.Now;
@@ -42,11 +53,20 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(password);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
-                var update = context.Update(dbEntity);
+                var existing = await context.Passwords.FirstOrDefaultAsync(x => x.UserId == dbEntity.UserId);
+                if (existing == null)
+                {
+                    return null;
+                }
+
+                existing.Cipher = dbEntity.Cipher;
+                existing.Encrypted = dbEntity.Encrypted;
+                existing.UpdatedAt = DateTime.Now;
+
                 await context.SaveChangesAsync();
-                return _adapter.MapDatabaseToEntity(update.Entity);
+                return _adapter.MapDatabaseToEntity(existing);
             }
         }
     }

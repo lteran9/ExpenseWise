@@ -8,12 +8,23 @@ namespace Infrastructure.SqlDatabase
     public class GroupRepository : IGroupRepository
     {
         private readonly RepositoryAdapter _adapter = new RepositoryAdapter();
+        private readonly Func<CoreContext> _contextFactory;
+
+        public GroupRepository()
+            : this(() => new CoreContext())
+        {
+        }
+
+        public GroupRepository(Func<CoreContext> contextFactory)
+        {
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+        }
 
         public async Task<Group?> CreateAsync(Group group)
         {
             var dbEntity = _adapter.MapEntityToDatabase(group);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 // Default values
                 if (dbEntity.CreatedAt == DateTime.MinValue) dbEntity.CreatedAt = DateTime.Now;
@@ -30,7 +41,7 @@ namespace Infrastructure.SqlDatabase
 
         public async Task<Group?> FindByIdAsync(int id)
         {
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var dbEntity = await context.Groups.FindAsync(id);
                 if (dbEntity != null && dbEntity.Active)
@@ -44,7 +55,7 @@ namespace Infrastructure.SqlDatabase
 
         public async Task<Group?> FindByUniqueKeyAsync(Guid uniqueKey)
         {
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var dbEntity = await context.Groups
                     .Include(g => g.Owner)
@@ -62,7 +73,7 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(group);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var update = context.Update(dbEntity);
                 await context.SaveChangesAsync();
@@ -84,7 +95,7 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(member);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var insert = context.Add(dbEntity);
                 await context.SaveChangesAsync();
@@ -96,9 +107,18 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(member);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
-                var delete = context.Remove(dbEntity);
+                var stored = dbEntity.Id > 0
+                    ? await context.MemberOf.FindAsync(dbEntity.Id)
+                    : await context.MemberOf.FirstOrDefaultAsync(x => x.UserId == dbEntity.UserId && x.GroupId == dbEntity.GroupId);
+
+                if (stored == null)
+                {
+                    return null;
+                }
+
+                var delete = context.Remove(stored);
                 await context.SaveChangesAsync();
                 return _adapter.MapDatabaseToEntity(delete.Entity);
             }

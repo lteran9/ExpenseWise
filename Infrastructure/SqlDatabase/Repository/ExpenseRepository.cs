@@ -9,12 +9,23 @@ namespace Infrastructure.SqlDatabase
     public class ExpenseRepository : IExpenseRepository
     {
         private readonly RepositoryAdapter _adapter = new RepositoryAdapter();
+        private readonly Func<CoreContext> _contextFactory;
+
+        public ExpenseRepository()
+            : this(() => new CoreContext())
+        {
+        }
+
+        public ExpenseRepository(Func<CoreContext> contextFactory)
+        {
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+        }
 
         public async Task<Expense?> CreateAsync(Expense expense)
         {
             var dbEntity = _adapter.MapEntityToDatabase(expense);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 // Default values
                 if (dbEntity.CreatedAt == DateTime.MinValue) dbEntity.CreatedAt = DateTime.Now;
@@ -29,7 +40,7 @@ namespace Infrastructure.SqlDatabase
 
         public async Task<Expense?> UpdateAsync(Expense expense)
         {
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var dbEntity = _adapter.MapEntityToDatabase(expense);
                 var update = context.Update(dbEntity);
@@ -40,7 +51,7 @@ namespace Infrastructure.SqlDatabase
 
         public async Task<Expense?> DeleteAsync(Expense expense)
         {
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var dbEntity = _adapter.MapEntityToDatabase(expense);
                 if (dbEntity.Id > 0)
@@ -60,7 +71,7 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(split);
 
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var insert = context.Add(dbEntity);
                 await context.SaveChangesAsync();
@@ -70,7 +81,7 @@ namespace Infrastructure.SqlDatabase
 
         public async Task<Split?> RemoveSplitAsync(Split split)
         {
-            using (var context = new CoreContext())
+            using (var context = _contextFactory())
             {
                 var dbEntity = _adapter.MapEntityToDatabase(split);
                 if (dbEntity.Id > 0)
