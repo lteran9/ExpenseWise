@@ -113,5 +113,19 @@ namespace Infrastructure.SqlDatabase
 
             return null;
         }
+
+        public async Task<List<Expense>?> GetGroupExpenses(int groupId)
+        {
+            if (groupId > 0)
+            {
+                using (var context = _contextFactory())
+                {
+                    var split = await context.Splits.Include(i => i.Expense).Where(x => x.GroupId == groupId).ToListAsync();
+                    return split.Select(x => _adapter.MapDatabaseToEntity(x.Expense!)).ToList();
+                }
+            }
+
+            return null;
+        }
     }
 }

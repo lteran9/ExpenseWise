@@ -6,6 +6,7 @@ namespace Application.UseCases.Ports
 {
     public interface IExpenseRepository
     {
+        Task<List<Expense>?> GetGroupExpenses(int groupId);
         Task<Expense?> CreateAsync(Expense expense);
         Task<Expense?> UpdateAsync(Expense expense);
         Task<Expense?> DeleteAsync(Expense expense);
