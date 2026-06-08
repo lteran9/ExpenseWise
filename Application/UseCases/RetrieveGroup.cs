@@ -64,6 +64,9 @@ namespace Application.UseCases
 
         public string Name { get; set; }
 
+        public decimal Expensed { get; set; }
+        public decimal Outstanding { get; set; }
+
         public Guid OwnerId { get; set; }
         public Guid UniqueKey { get; set; }
 

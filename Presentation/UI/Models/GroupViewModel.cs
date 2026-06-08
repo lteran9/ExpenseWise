@@ -8,6 +8,9 @@ namespace UI.Models
 
         public string Name { get; set; }
 
+        public decimal Expensed { get; set; }
+        public decimal Outstanding { get; set; }
+
         public Guid OwnerId { get; set; }
         public Guid UniqueKey { get; set; }
 
@@ -15,11 +18,13 @@ namespace UI.Models
         public DateTime? EndDate { get; set; }
 
         public List<UserViewModel> Members { get; set; }
+        public List<ExpenseViewModel> Expenses { get; set; }
 
         public GroupViewModel()
         {
             Name = string.Empty;
             Members = new List<UserViewModel>();
+            Expenses = new List<ExpenseViewModel>();
         }
     }
 }
