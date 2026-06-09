@@ -1,4 +1,5 @@
 ﻿using ExpenseWise.DependencyConfiguration;
+using UI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services
     .RegisterUseCases()
    //.ConfigureExpenseWiseApi()
    .AddHttpContextAccessor()
+   .AddScoped<UserInfoActionFilter>()
    .ConfigureSession();
 
 var app = builder.Build();
