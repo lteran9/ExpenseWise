@@ -127,6 +127,9 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(member);
 
+            var tempUser = dbEntity.User;
+            var tempGroup = dbEntity.Group;
+
             // Prevent EF Core from trying to insert/update related User and Group entities
             // when we only want to persist the membership join row.
             dbEntity.User = null;
@@ -139,6 +142,9 @@ namespace Infrastructure.SqlDatabase
             {
                 var insert = context.Add(dbEntity);
                 await context.SaveChangesAsync();
+
+                insert.Entity.User = tempUser;
+                insert.Entity.Group = tempGroup;
 
                 return _adapter.MapDatabaseToEntity(insert.Entity);
             }

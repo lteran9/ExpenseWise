@@ -94,7 +94,7 @@ namespace Tests.Infrastructure.SqlDatabase
             var added = await repository.AddMemberAsync(member);
 
             Assert.NotNull(added);
-            Assert.Equal(1, added!.User.Id);
+            Assert.Equal(1, added.User.Id);
             Assert.Equal(2, added.Group.Id);
 
             await using var verifyContext = new CoreContext(options);
