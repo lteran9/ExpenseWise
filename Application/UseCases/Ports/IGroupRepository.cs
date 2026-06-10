@@ -7,6 +7,7 @@ namespace Application.UseCases.Ports
     public interface IGroupRepository
     {
         Task<Group?> FindByIdAsync(int id);
+        Task<List<Group>?> ListAsync(Guid userKey);
         Task<Group?> FindByUniqueKeyAsync(Guid uniqueKey);
         Task<Group?> CreateAsync(Group group);
         Task<Group?> UpdateAsync(Group group);

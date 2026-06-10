@@ -1,6 +1,7 @@
 @model IEnumerable<GroupViewModel>
 @{
    ViewData["Title"] = "Expense Groups";
+   var currentUser = ViewData["CurrentUser"] as CurrentUserViewModel;
 }
 
 <h1 class="display-4 text-center">@ViewData["Title"]</h1>
@@ -9,33 +10,49 @@
 {
    @foreach (var group in Model)
    {
+      var isOwner = group.OwnerId == currentUser!.Id;
       <div class="card mb-4">
          <div class="card-body">
-            <div class="vstack gap-3">
+            <div class="hstack gap-3">
                <h2 class="display-5">@group.Name</h2>
-               <div class="hstack gap-3">
-                  <a asp-action="Edit" asp-route-key="@group.UniqueKey" class="btn btn-secondary flex-fill">Edit</a>
-                  <div class="vr"></div>
-                  <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-secondary flex-fill">Invite</a>
-                  <div class="vr"></div>
-                  <a asp-action="Create" asp-controller="Expense" asp-route-group="@group.UniqueKey"
-                     class="btn btn-secondary flex-fill">Expense</a>
-               </div>
-               <fieldset>
-                  <legend>Members: @(group.Members.Count)</legend>
-                  @if (group.Members.Count > 0)
+               <div class="hstack gap-3 ms-auto">
+                  @if (isOwner)
                   {
-                     <ul class="list-group">
-                        @foreach (var user in group.Members)
-                        {
-                           <li class="list-group-item">@(user.Name)@(group.OwnerId == user.Id ? "*" : "")</li>
-                        }
-                     </ul>
+                     <a asp-action="Edit" asp-route-key="@group.UniqueKey" class="btn btn-outline-secondary">
+                        <i class="bi bi-gear"></i>
+                     </a>
                   }
-               </fieldset>
-               <span>Spent: $@group.Expensed</span>
-               <span>Outstanding Balance: $@group.Outstanding</span>
+                  <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-outline-secondary">
+                     <i class="bi bi-person-add"></i>
+                  </a>
+                  <a asp-action="Create" asp-controller="Expense" asp-route-group="@group.UniqueKey" class="btn btn-outline-secondary">
+                     <i class="bi bi-bag-plus"></i>
+                  </a>
+               </div>
             </div>
+            <fieldset class="mb-4">
+               <legend>Members: @(group.Members.Count)</legend>
+               @if (group.Members.Count > 0)
+               {
+                  <ul class="list-group">
+                     @foreach (var user in group.Members)
+                     {
+                        <li class="list-group-item">
+                           <div class="hstack">
+                              <span>@user.Name @Html.Raw(group.OwnerId == user.Id ? "<span class=\"badge text-bg-secondary\">Owner</span>" : "")</span>
+                              @if (user.Id == currentUser!.Id)
+                              {
+                                 <a href="#!" class="btn btn-sm btn-success ms-auto">Split</a>
+                              }
+                           </div>
+
+                        </li>
+                     }
+                  </ul>
+               }
+            </fieldset>
+            <div>Balance: <span class="badge text-bg-success">@group.Expensed.ToString("C")</span></div>
+            <div>Outstanding Balance: <span class="badge text-bg-danger">@group.Outstanding.ToString("C")</span></div>
          </div>
       </div>
    }
