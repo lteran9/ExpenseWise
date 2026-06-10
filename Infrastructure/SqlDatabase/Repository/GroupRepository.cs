@@ -20,6 +20,31 @@ namespace Infrastructure.SqlDatabase
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
         }
 
+        /// <summary>
+        /// Get all groups a user belongs to.
+        /// </summary>
+        /// <param name="userKey"></param>
+        /// <returns></returns>
+        public async Task<List<Group>?> ListAsync(Guid userKey)
+        {
+            using (var context = _contextFactory())
+            {
+                var user = await context.Users.FirstOrDefaultAsync(u => u.UniqueKey == userKey);
+                if (user != null)
+                {
+                    var groups = await context.Groups
+                                    .Include(o => o.Owner)
+                                    .Include(m => m.Membership!)
+                                    .ThenInclude(x => x.User)
+                                    .Where(g => g.Active && g.Membership!.Any(m => m.UserId == user.Id))
+                                    .ToListAsync();
+                    return groups.Select(x => _adapter.MapDatabaseToEntity(x)).ToList();
+                }
+            }
+
+            return null;
+        }
+
         public async Task<Group?> CreateAsync(Group group)
         {
             var dbEntity = _adapter.MapEntityToDatabase(group);
@@ -60,6 +85,7 @@ namespace Infrastructure.SqlDatabase
                 var dbEntity = await context.Groups
                     .Include(g => g.Owner)
                     .FirstOrDefaultAsync(x => x.UniqueKey == uniqueKey && x.Active);
+
                 if (dbEntity != null)
                 {
                     return _adapter.MapDatabaseToEntity(dbEntity);
@@ -76,6 +102,8 @@ namespace Infrastructure.SqlDatabase
             // Prevent EF Core from updating/inserting the owner navigation
             // when only the group's scalar values should change.
             dbEntity.Owner = null;
+
+            dbEntity.UpdatedAt = DateTime.Now;
 
             using (var context = _contextFactory())
             {
@@ -104,16 +132,15 @@ namespace Infrastructure.SqlDatabase
             dbEntity.User = null;
             dbEntity.Group = null;
 
+            if (dbEntity.CreatedAt == DateTime.MinValue) dbEntity.CreatedAt = DateTime.Now;
+            if (dbEntity.UpdatedAt == DateTime.MinValue) dbEntity.UpdatedAt = DateTime.Now;
+
             using (var context = _contextFactory())
             {
                 var insert = context.Add(dbEntity);
                 await context.SaveChangesAsync();
-                return new MemberOf
-                {
-                    Id = insert.Entity.Id,
-                    User = new User { Id = insert.Entity.UserId },
-                    Group = new Group { Id = insert.Entity.GroupId }
-                };
+
+                return _adapter.MapDatabaseToEntity(insert.Entity);
             }
         }
 
