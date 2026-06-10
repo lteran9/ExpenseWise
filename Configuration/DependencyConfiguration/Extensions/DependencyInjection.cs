@@ -29,20 +29,6 @@ namespace ExpenseWise.DependencyConfiguration
             serviceCollection.AddScoped<IGroupRepository, GroupRepository>();
             serviceCollection.AddScoped<IExpenseRepository, ExpenseRepository>();
             serviceCollection.AddScoped<IPasswordRepository, PasswordRepository>();
-            // serviceCollection.AddSingleton<IDatabasePort<User>>(repositoryAdapter);
-            // serviceCollection.AddSingleton<IDatabasePort<Group>>(repositoryAdapter);
-            // serviceCollection.AddSingleton<IDatabasePort<MemberOf>>(repositoryAdapter);
-            // serviceCollection.AddSingleton<IDatabasePort<Expense>>(repositoryAdapter);
-            // serviceCollection.AddSingleton<IDatabasePort<Password>>(repositoryAdapter);
-            // serviceCollection.AddSingleton<IDatabasePort<Split>>(repositoryAdapter);
-
-            #endregion
-
-            #region Query Ports
-
-            var queryAdapter = new QueryAdapter();
-
-            serviceCollection.AddSingleton<IQueryPort<Group>>(queryAdapter);
 
             #endregion
 
