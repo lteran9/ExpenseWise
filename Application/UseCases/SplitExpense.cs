@@ -1,6 +1,6 @@
 using System;
-using Application.UseCases.MediatR;
 using MediatR;
+using Application.UseCases.MediatR;
 
 namespace Application.UseCases
 {

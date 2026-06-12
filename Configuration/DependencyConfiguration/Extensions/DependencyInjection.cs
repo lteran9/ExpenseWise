@@ -1,9 +1,6 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Application.UseCases.Ports;
-using Core.Entities;
 using Infrastructure.SqlDatabase;
-using Application.UseCases;
 using OpenAPI;
 
 namespace ExpenseWise.DependencyConfiguration

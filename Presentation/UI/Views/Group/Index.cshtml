@@ -42,7 +42,7 @@
                               <span>@user.Name @Html.Raw(group.OwnerId == user.Id ? "<span class=\"badge text-bg-secondary\">Owner</span>" : "")</span>
                               @if (user.Id == currentUser!.Id)
                               {
-                                 <a href="#!" class="btn btn-sm btn-success ms-auto">Split</a>
+                                 <a asp-action="Index" asp-controller="Split" asp-route-group="@group.UniqueKey" class="btn btn-sm btn-success ms-auto">Pay</a>
                               }
                            </div>
 

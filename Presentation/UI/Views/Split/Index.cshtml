@@ -1,0 +1,50 @@
+@model SplitVieWModel
+
+@{
+    ViewData["Title"] = "Split Expenses";
+}
+
+<h1>@ViewData["Title"]</h1>
+<div class="card">
+    <div class="card-body">
+        @if (Model?.ExpenseList?.Any() == true)
+        {
+            <form action="/" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <th>Description</th>
+                            <th class="text-end">Amount</th>
+                        </thead>
+                        <tbody>
+                            @foreach (var expense in Model.ExpenseList)
+                            {
+                                <tr>
+                                    <td>@expense.Description</td>
+                                    <td class="text-end">@expense.Amount.ToString("C") / @Model.GroupMemberCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Split Amount</td>
+                                <td class="text-end">@Model.GetMyShare()</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Split</button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <p class="text-center">Unable to find expense list for group.</p>
+        }
+    </div>
+</div>
