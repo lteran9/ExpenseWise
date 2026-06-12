@@ -88,7 +88,15 @@ namespace Infrastructure.SqlDatabase
 
                 if (dbEntity != null)
                 {
-                    return _adapter.MapDatabaseToEntity(dbEntity);
+                    var dbMembers = await context.MemberOf
+                        .Where(x => x.GroupId == dbEntity.Id)
+                        .Include(x => x.User)
+                        .ToListAsync();
+
+                    var group = _adapter.MapDatabaseToEntity(dbEntity);
+                    group.Members = dbMembers.Select(x => x.User!).Select(_adapter.MapDatabaseToEntity).ToList();
+
+                    return group;
                 }
             }
 
