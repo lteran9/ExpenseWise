@@ -10,6 +10,10 @@ namespace Infrastructure.SqlDatabase
     {
         [Key, Column("id")]
         public int Id { get; set; }
+        [Column("group_id")]
+        public int GroupId { get; set; }
+        [Column("created_by")]
+        public int UserId { get; set; }
 
         [Column("settled")]
         public bool Settled { get; set; }
@@ -29,6 +33,11 @@ namespace Infrastructure.SqlDatabase
         public DateTime CreatedAt { get; set; }
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
+
+        [ForeignKey(nameof(GroupId))]
+        public GroupEntity? Group { get; set; }
+        [ForeignKey(nameof(UserId))]
+        public UserEntity? CreatedBy { get; set; }
 
         public ExpenseEntity()
         {

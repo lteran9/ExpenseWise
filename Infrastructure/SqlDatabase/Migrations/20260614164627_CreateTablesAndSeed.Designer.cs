@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20260613165058_CreateTablesAndSeed")]
+    [Migration("20260614164627_CreateTablesAndSeed")]
     partial class CreateTablesAndSeed
     {
         /// <inheritdoc />
@@ -47,6 +47,10 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("description");
 
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int")
+                        .HasColumnName("group_id");
+
                     b.Property<bool>("Settled")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("settled");
@@ -59,10 +63,18 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("UniqueKey")
                         .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("expenses");
                 });
@@ -300,6 +312,25 @@ namespace SqlDatabase.Migrations
                         .IsUnique();
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("Infrastructure.SqlDatabase.ExpenseEntity", b =>
+                {
+                    b.HasOne("Infrastructure.SqlDatabase.GroupEntity", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Group");
                 });
 
             modelBuilder.Entity("Infrastructure.SqlDatabase.GroupEntity", b =>

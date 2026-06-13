@@ -28,13 +28,27 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
+                var group = await _groupRepository.FindByUniqueKeyAsync(request.GroupKey);
+                if (group == null)
+                {
+                    return Invalid("Unable to find a group for given key.");
+                }
+
+                var user = await _userRepository.FindByUniqueKeyAsync(request.UserKey);
+                if (user == null)
+                {
+                    return Invalid("Unable to find a user for given key.");
+                }
+
                 var expense =
-                    new Expense()
-                    {
-                        Description = request.Description,
-                        Currency = request.Currency,
-                        Amount = request.Amount
-                    };
+                       new Expense()
+                       {
+                           Description = request.Description,
+                           Currency = request.Currency,
+                           Amount = request.Amount,
+                           BelongsTo = group,
+                           CreatedBy = user
+                       };
 
                 var expenseResponse = await _expenseRepository.CreateAsync(expense);
                 if (expenseResponse != null)
@@ -45,6 +59,7 @@ namespace Application.UseCases
                             Id = expenseResponse.Id
                         });
                 }
+
 
                 return Failed(default);
             }

@@ -10,9 +10,9 @@ namespace UI.Controllers
     public class SplitController : BaseController
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GroupController> _logger;
+        private readonly ILogger<SplitController> _logger;
 
-        public SplitController(IMediator mediator, ILogger<GroupController> logger)
+        public SplitController(IMediator mediator, ILogger<SplitController> logger)
         {
             _mediator = mediator;
             _logger = logger;

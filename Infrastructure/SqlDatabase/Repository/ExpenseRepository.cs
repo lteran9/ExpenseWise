@@ -25,6 +25,11 @@ namespace Infrastructure.SqlDatabase
         {
             var dbEntity = _adapter.MapEntityToDatabase(expense);
 
+            // Prevent EF Core from trying to persist related Group/User
+            // entities when creating an expense row.
+            dbEntity.Group = null;
+            dbEntity.CreatedBy = null;
+
             using (var context = _contextFactory())
             {
                 // Default values
@@ -84,15 +89,16 @@ namespace Infrastructure.SqlDatabase
             {
                 var insert = context.Add(dbEntity);
                 await context.SaveChangesAsync();
-                return new Split
-                {
-                    Id = insert.Entity.Id,
-                    Paid = insert.Entity.Paid,
-                    PaidOn = insert.Entity.PaidOn,
-                    User = new User { Id = insert.Entity.UserId },
-                    Group = new Group { Id = insert.Entity.GroupId },
-                    Expense = new Expense { Id = insert.Entity.ExpenseId }
-                };
+                return
+                    new Split
+                    {
+                        Id = insert.Entity.Id,
+                        Paid = insert.Entity.Paid,
+                        PaidOn = insert.Entity.PaidOn,
+                        User = new User { Id = insert.Entity.UserId },
+                        Group = new Group { Id = insert.Entity.GroupId },
+                        Expense = new Expense { Id = insert.Entity.ExpenseId }
+                    };
             }
         }
 
@@ -123,8 +129,8 @@ namespace Infrastructure.SqlDatabase
             {
                 using (var context = _contextFactory())
                 {
-                    var split = await context.Splits.Include(i => i.Expense).Where(x => x.GroupId == groupId).ToListAsync();
-                    return split.Select(x => _adapter.MapDatabaseToEntity(x.Expense!)).ToList();
+                    var expenses = await context.Expenses.Where(x => x.GroupId == groupId).ToListAsync();
+                    return expenses.Select(x => _adapter.MapDatabaseToEntity(x)).ToList();
                 }
             }
 
