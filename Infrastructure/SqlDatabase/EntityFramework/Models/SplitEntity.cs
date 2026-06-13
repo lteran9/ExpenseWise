@@ -1,10 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-    [Table("splits")]
+    [Table("splits"), Index(nameof(UserId), nameof(GroupId), nameof(ExpenseId), IsUnique = true)]
     public class SplitEntity
     {
         [Key, Column("id")]

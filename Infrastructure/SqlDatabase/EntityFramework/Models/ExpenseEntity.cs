@@ -1,10 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlDatabase
 {
-    [Table("expenses")]
+    [Table("expenses"), Index(nameof(UniqueKey), IsUnique = true)]
     public class ExpenseEntity
     {
         [Key, Column("id")]

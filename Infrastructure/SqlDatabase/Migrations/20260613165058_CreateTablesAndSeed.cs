@@ -176,6 +176,12 @@ namespace SqlDatabase.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_expenses_unique_key",
+                table: "expenses",
+                column: "unique_key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_groups_owner_id",
                 table: "groups",
                 column: "owner_id");
@@ -214,9 +220,10 @@ namespace SqlDatabase.Migrations
                 column: "group_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_splits_user_id",
+                name: "IX_splits_user_id_group_id_expense_id",
                 table: "splits",
-                column: "user_id");
+                columns: new[] { "user_id", "group_id", "expense_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_users_email",

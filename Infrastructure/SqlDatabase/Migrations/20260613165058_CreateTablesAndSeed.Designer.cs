@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20260606150516_CreateTablesAndSeed")]
+    [Migration("20260613165058_CreateTablesAndSeed")]
     partial class CreateTablesAndSeed
     {
         /// <inheritdoc />
@@ -60,6 +60,9 @@ namespace SqlDatabase.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UniqueKey")
+                        .IsUnique();
 
                     b.ToTable("expenses");
                 });
@@ -226,7 +229,8 @@ namespace SqlDatabase.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "GroupId", "ExpenseId")
+                        .IsUnique();
 
                     b.ToTable("splits");
                 });

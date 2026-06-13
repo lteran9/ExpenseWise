@@ -58,6 +58,9 @@ namespace SqlDatabase.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UniqueKey")
+                        .IsUnique();
+
                     b.ToTable("expenses");
                 });
 
@@ -223,7 +226,8 @@ namespace SqlDatabase.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "GroupId", "ExpenseId")
+                        .IsUnique();
 
                     b.ToTable("splits");
                 });

@@ -39,36 +39,11 @@ namespace Application.UseCases
                 var expenseResponse = await _expenseRepository.CreateAsync(expense);
                 if (expenseResponse != null)
                 {
-                    // Retrieve existing user and group records by their unique keys so we can reference them by Id
-                    var userResponse = await _userRepository.FindByUniqueKeyAsync(request.UserKey);
-                    if (userResponse == null)
-                    {
-                        return Failed(default);
-                    }
-
-                    var groupResponse = await _groupRepository.FindByUniqueKeyAsync(request.GroupKey);
-                    if (groupResponse == null)
-                    {
-                        return Failed(default);
-                    }
-
-                    var split =
-                        new Split()
+                    return Successful(
+                        new CreateExpenseResponse()
                         {
-                            User = new User { Id = userResponse.Id },
-                            Expense = new Expense { Id = expenseResponse.Id },
-                            Group = new Group { Id = groupResponse.Id },
-                        };
-
-                    var splitResponse = await _expenseRepository.AddSplitAsync(split);
-                    if (splitResponse != null)
-                    {
-                        return Successful(
-                            new CreateExpenseResponse()
-                            {
-                                Id = expenseResponse.Id
-                            });
-                    }
+                            Id = expenseResponse.Id
+                        });
                 }
 
                 return Failed(default);

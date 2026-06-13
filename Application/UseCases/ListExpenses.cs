@@ -34,6 +34,7 @@ namespace Application.UseCases
                         return Successful(
                             new ListExpensesResponse()
                             {
+                                GroupKey = request.GroupKey,
                                 GroupMembers = group.Members.Count,
                                 Expenses = expenses
                             });
@@ -61,6 +62,8 @@ namespace Application.UseCases
     public class ListExpensesResponse
     {
         public int GroupMembers { get; set; }
+
+        public Guid GroupKey { get; set; }
 
         public List<Expense> Expenses { get; set; }
 

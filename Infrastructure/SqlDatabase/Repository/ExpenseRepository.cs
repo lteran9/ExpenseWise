@@ -77,6 +77,9 @@ namespace Infrastructure.SqlDatabase
             dbEntity.Group = null;
             dbEntity.Expense = null;
 
+            if (dbEntity.CreatedAt == DateTime.MinValue) dbEntity.CreatedAt = DateTime.Now;
+            if (dbEntity.UpdatedAt == DateTime.MinValue) dbEntity.UpdatedAt = DateTime.Now;
+
             using (var context = _contextFactory())
             {
                 var insert = context.Add(dbEntity);

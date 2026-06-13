@@ -28,8 +28,9 @@ namespace UI.Controllers
             if (response != null && expenseList?.Any() == true)
             {
                 var viewModel =
-                    new SplitVieWModel()
+                    new SplitViewModel()
                     {
+                        GroupKey = response.Result!.GroupKey,
                         GroupMemberCount = response.Result!.GroupMembers,
                         ExpenseList = expenseList.Select(ModelMapper.Instance.Map<ExpenseViewModel>)
                     };
@@ -38,6 +39,32 @@ namespace UI.Controllers
             }
 
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(SplitViewModel model)
+        {
+            var request =
+                new SplitExpenseRequest()
+                {
+                    GroupKey = model.GroupKey,
+                    UserKey = GetCurrentUser().Id
+                };
+            var response = await _mediator.Send(request);
+            if (response.Succeeded)
+            {
+                return RedirectToAction("Index", "Group");
+            }
+            else
+            {
+                if (response.ValidationMessages?.Any() == true)
+                {
+                    ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
+                }
+            }
+
+            return RedirectToAction("Index", "Split", new { group = model.GroupKey });
         }
     }
 }
