@@ -44,7 +44,9 @@ namespace Tests.Infrastructure.AutoMapper
                     Currency = currency,
                     Amount = amount,
                     Settled = true,
-                    Description = expenseName
+                    Description = expenseName,
+                    CreatedBy = null,
+                    BelongsTo = null
                 };
 
             Assert.Equivalent(expense, DatabaseMapper.Instance.Map<Expense>(dbExpense));
@@ -64,7 +66,9 @@ namespace Tests.Infrastructure.AutoMapper
                     Currency = currency,
                     Amount = amount,
                     Settled = true,
-                    Description = expenseName
+                    Description = expenseName,
+                    CreatedBy = null,
+                    BelongsTo = null
                 };
 
             var dbExpense =

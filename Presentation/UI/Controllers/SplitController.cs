@@ -10,9 +10,9 @@ namespace UI.Controllers
     public class SplitController : BaseController
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GroupController> _logger;
+        private readonly ILogger<SplitController> _logger;
 
-        public SplitController(IMediator mediator, ILogger<GroupController> logger)
+        public SplitController(IMediator mediator, ILogger<SplitController> logger)
         {
             _mediator = mediator;
             _logger = logger;
@@ -28,8 +28,9 @@ namespace UI.Controllers
             if (response != null && expenseList?.Any() == true)
             {
                 var viewModel =
-                    new SplitVieWModel()
+                    new SplitViewModel()
                     {
+                        GroupKey = response.Result!.GroupKey,
                         GroupMemberCount = response.Result!.GroupMembers,
                         ExpenseList = expenseList.Select(ModelMapper.Instance.Map<ExpenseViewModel>)
                     };
@@ -38,6 +39,32 @@ namespace UI.Controllers
             }
 
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(SplitViewModel model)
+        {
+            var request =
+                new SplitExpenseRequest()
+                {
+                    GroupKey = model.GroupKey,
+                    UserKey = GetCurrentUser().Id
+                };
+            var response = await _mediator.Send(request);
+            if (response.Succeeded)
+            {
+                return RedirectToAction("Index", "Group");
+            }
+            else
+            {
+                if (response.ValidationMessages?.Any() == true)
+                {
+                    ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
+                }
+            }
+
+            return RedirectToAction("Index", "Split", new { group = model.GroupKey });
         }
     }
 }

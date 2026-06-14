@@ -16,26 +16,6 @@ namespace SqlDatabase.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "expenses",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    settled = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    description = table.Column<string>(type: "longtext", nullable: false),
-                    currency = table.Column<string>(type: "longtext", nullable: false),
-                    amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_expenses", x => x.id);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
@@ -101,6 +81,40 @@ namespace SqlDatabase.Migrations
                     table.ForeignKey(
                         name: "FK_passwords_users_user_id",
                         column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "expenses",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    group_id = table.Column<int>(type: "int", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
+                    settled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    description = table.Column<string>(type: "longtext", nullable: false),
+                    currency = table.Column<string>(type: "longtext", nullable: false),
+                    amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    unique_key = table.Column<Guid>(type: "char(36)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expenses", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_expenses_groups_group_id",
+                        column: x => x.group_id,
+                        principalTable: "groups",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_expenses_users_created_by",
+                        column: x => x.created_by,
                         principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -176,6 +190,22 @@ namespace SqlDatabase.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_expenses_created_by",
+                table: "expenses",
+                column: "created_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expenses_group_id",
+                table: "expenses",
+                column: "group_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expenses_unique_key",
+                table: "expenses",
+                column: "unique_key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_groups_owner_id",
                 table: "groups",
                 column: "owner_id");
@@ -214,9 +244,10 @@ namespace SqlDatabase.Migrations
                 column: "group_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_splits_user_id",
+                name: "IX_splits_user_id_group_id_expense_id",
                 table: "splits",
-                column: "user_id");
+                columns: new[] { "user_id", "group_id", "expense_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_users_email",

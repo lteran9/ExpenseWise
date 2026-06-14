@@ -1,10 +1,13 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace UI.Models
 {
-    public class SplitVieWModel
+    public class SplitViewModel
     {
         public int GroupMemberCount { get; set; }
+
+        public Guid GroupKey { get; set; }
 
         public required IEnumerable<ExpenseViewModel> ExpenseList { get; set; }
 

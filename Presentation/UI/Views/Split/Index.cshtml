@@ -1,4 +1,4 @@
-@model SplitVieWModel
+@model SplitViewModel
 
 @{
     ViewData["Title"] = "Split Expenses";
@@ -9,8 +9,9 @@
     <div class="card-body">
         @if (Model?.ExpenseList?.Any() == true)
         {
-            <form action="/" method="post">
+            <form asp-action="Create" asp-controller="Split" method="post">
                 @Html.AntiForgeryToken()
+                @Html.ValidationSummary()
 
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -38,8 +39,11 @@
                     </table>
                 </div>
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Split</button>
+                    <button type="submit" class="btn btn-primary mb-3">Settle</button>
+                    <a asp-action="Index" asp-controller="Group" class="btn btn-secondary">Back</a>
                 </div>
+
+                <input type="hidden" asp-for="GroupKey" />
             </form>
         }
         else
