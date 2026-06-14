@@ -13,15 +13,13 @@ namespace Core.Entities
 
         public decimal Amount { get; set; }
 
-        public User CreatedBy { get; set; }
-        public Group BelongsTo { get; set; }
+        public User? CreatedBy { get; set; }
+        public Group? BelongsTo { get; set; }
 
         public Expense()
         {
             Description = string.Empty;
             Currency = string.Empty;
-            BelongsTo = new Group();
-            CreatedBy = new User();
         }
     }
 }
