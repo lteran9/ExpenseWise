@@ -8,6 +8,8 @@ namespace Core.Entities
 
         public bool Paid { get; set; }
 
+        public decimal Amount { get; set; }
+
         public DateTime? PaidOn { get; set; }
 
         public User User { get; set; }

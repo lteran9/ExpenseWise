@@ -4,7 +4,7 @@
     ViewData["Title"] = "Split Expenses";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1 class="display-4 text-center">@ViewData["Title"]</h1>
 <div class="card">
     <div class="card-body">
         @if (Model?.ExpenseList?.Any() == true)
@@ -18,13 +18,15 @@
                         <thead>
                             <th>Description</th>
                             <th class="text-end">Amount</th>
+                            <th class="text-end">Split</th>
                         </thead>
                         <tbody>
                             @foreach (var expense in Model.ExpenseList)
                             {
                                 <tr>
                                     <td>@expense.Description</td>
-                                    <td class="text-end">@expense.Amount.ToString("C") / @Model.GroupMemberCount</td>
+                                    <td class="text-end">@expense.Amount.ToString("C")</td>
+                                    <td class="text-end">@((expense.Amount / Model.GroupMemberCount).ToString("C"))</td>
                                 </tr>
                             }
                         </tbody>
@@ -32,14 +34,14 @@
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Split Amount</td>
+                                <td><b>Total</b></td>
                                 <td class="text-end">@Model.GetMyShare()</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary mb-3">Settle</button>
+                    <button type="submit" class="btn btn-primary mb-3">Settle Up</button>
                     <a asp-action="Index" asp-controller="Group" class="btn btn-secondary">Back</a>
                 </div>
 

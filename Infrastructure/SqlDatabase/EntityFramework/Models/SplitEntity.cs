@@ -20,6 +20,9 @@ namespace Infrastructure.SqlDatabase
         [Column("paid")]
         public bool Paid { get; set; }
 
+        [Column("amount")]
+        public decimal Amount { get; set; }
+
         [Column("paid_on")]
         public DateTime? PaidOn { get; set; }
         [Column("created_at")]

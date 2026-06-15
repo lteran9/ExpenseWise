@@ -161,6 +161,7 @@ namespace SqlDatabase.Migrations
                     group_id = table.Column<int>(type: "int", nullable: false),
                     expense_id = table.Column<int>(type: "int", nullable: false),
                     paid = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     paid_on = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
