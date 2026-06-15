@@ -11,7 +11,7 @@
    @foreach (var group in Model)
    {
       var isOwner = group.OwnerId == currentUser!.Id;
-      <div class="card mb-4">
+      <div class="card box-shadow mb-4">
          <div class="card-body">
             <div class="hstack gap-3">
                <h2 class="display-5">@group.Name</h2>
@@ -51,7 +51,7 @@
                   </ul>
                }
             </fieldset>
-            <div>Balance: <span class="badge text-bg-success">@group.Expensed.ToString("C")</span></div>
+            <div>Spent: <span class="badge text-bg-success">@group.Expensed.ToString("C")</span></div>
             <div>Outstanding Balance: <span class="badge text-bg-danger">@group.Outstanding.ToString("C")</span></div>
          </div>
       </div>
