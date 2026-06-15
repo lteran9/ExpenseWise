@@ -15,9 +15,6 @@ namespace Infrastructure.SqlDatabase
         [Column("created_by")]
         public int UserId { get; set; }
 
-        [Column("settled")]
-        public bool Settled { get; set; }
-
         [Column("description")]
         public string Description { get; set; }
         [Column("currency")]

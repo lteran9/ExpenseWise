@@ -37,6 +37,10 @@ namespace Application.UseCases
                     foreach (var group in groups)
                     {
                         var expenseList = await _expenseRepository.GetGroupExpenses(group.Id);
+                        var paymentsList = await _expenseRepository.GetSplitsAsync(group.Id);
+
+                        var expensed = expenseList?.Sum(x => x.Amount) ?? 0;
+                        var outstanding = expensed - (paymentsList?.Where(e => e.Paid == true).Sum(x => x.Amount) ?? 0);
                         response.Add(
                             new RetrieveGroupResponse()
                             {
@@ -47,8 +51,8 @@ namespace Application.UseCases
                                 OwnerId = group.Owner.UniqueKey,
                                 UniqueKey = group.UniqueKey,
                                 Members = group.Members.Select(y => new FindUserResponse() { Name = y.Name, Email = y.Email, Phone = y.Phone, UniqueKey = y.UniqueKey }).ToList(),
-                                Expensed = expenseList?.Sum(x => x.Amount) ?? 0,
-                                Outstanding = expenseList?.Where(e => e.Settled == false).Sum(x => x.Amount) ?? 0
+                                Expensed = expensed > 0 ? expensed : 0,
+                                Outstanding = outstanding > 0 ? outstanding : 0
                             }
                         );
                     }

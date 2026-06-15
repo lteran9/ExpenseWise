@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlDatabase.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    [Migration("20260614164627_CreateTablesAndSeed")]
+    [Migration("20260615043632_CreateTablesAndSeed")]
     partial class CreateTablesAndSeed
     {
         /// <inheritdoc />
@@ -206,6 +206,10 @@ namespace SqlDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")

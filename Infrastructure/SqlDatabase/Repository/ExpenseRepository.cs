@@ -136,5 +136,19 @@ namespace Infrastructure.SqlDatabase
 
             return null;
         }
+
+        public async Task<List<Split>?> GetSplitsAsync(int groupId)
+        {
+            if (groupId > 0)
+            {
+                using (var context = _contextFactory())
+                {
+                    var splits = await context.Splits.Where(x => x.GroupId == groupId).ToListAsync();
+                    return splits.Select(x => _adapter.MapDatabaseToEntity(x)).ToList();
+                }
+            }
+
+            return null;
+        }
     }
 }

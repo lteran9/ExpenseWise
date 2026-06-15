@@ -6,8 +6,6 @@ namespace Core.Entities
     {
         public int Id { get; set; }
 
-        public bool Settled { get; set; }
-
         public string Description { get; set; }
         public string Currency { get; set; }
 
@@ -15,6 +13,7 @@ namespace Core.Entities
 
         public User? CreatedBy { get; set; }
         public Group? BelongsTo { get; set; }
+        public List<Split>? Payments { get; set; }
 
         public Expense()
         {

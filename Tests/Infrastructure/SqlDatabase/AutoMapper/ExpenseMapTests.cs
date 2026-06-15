@@ -33,7 +33,6 @@ namespace Tests.Infrastructure.AutoMapper
                     Id = 1,
                     Currency = currency,
                     Amount = amount,
-                    Settled = true,
                     Description = expenseName
                 };
 
@@ -43,7 +42,6 @@ namespace Tests.Infrastructure.AutoMapper
                     Id = 1,
                     Currency = currency,
                     Amount = amount,
-                    Settled = true,
                     Description = expenseName,
                     CreatedBy = null,
                     BelongsTo = null
@@ -65,7 +63,6 @@ namespace Tests.Infrastructure.AutoMapper
                     Id = 1,
                     Currency = currency,
                     Amount = amount,
-                    Settled = true,
                     Description = expenseName,
                     CreatedBy = null,
                     BelongsTo = null
@@ -77,7 +74,6 @@ namespace Tests.Infrastructure.AutoMapper
                     Id = 1,
                     Currency = currency,
                     Amount = amount,
-                    Settled = true,
                     Description = expenseName
                 };
 

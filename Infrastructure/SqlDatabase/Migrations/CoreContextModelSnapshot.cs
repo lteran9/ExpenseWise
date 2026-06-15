@@ -204,6 +204,10 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");

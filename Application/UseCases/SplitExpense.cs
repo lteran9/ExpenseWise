@@ -51,7 +51,8 @@ namespace Application.UseCases
                                 User = user,
                                 Expense = exp,
                                 Paid = true,
-                                PaidOn = DateTime.Now
+                                PaidOn = DateTime.Now,
+                                Amount = exp.Amount / group.Members.Count
                             };
                         await _expenseRepository.AddSplitAsync(split);
                     }
