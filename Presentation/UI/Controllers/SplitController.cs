@@ -4,6 +4,7 @@ using Application.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using UI.Models;
 using UI.Configuration;
+using UI.Filters;
 
 namespace UI.Controllers
 {

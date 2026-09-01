@@ -2,33 +2,36 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-public class ImportModelStateAttribute : ActionFilterAttribute
+namespace UI.Filters
 {
-    public override void OnActionExecuting(ActionExecutingContext context)
+    public class ImportModelStateAttribute : ActionFilterAttribute
     {
-        var controller = context.Controller as Controller;
-        if (controller != null && controller.TempData.ContainsKey("DeserializedModelStateErrors"))
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var rawJson = controller.TempData["DeserializedModelStateErrors"] as string;
-
-            if (!string.IsNullOrEmpty(rawJson))
+            var controller = context.Controller as Controller;
+            if (controller != null && controller.TempData.ContainsKey("DeserializedModelStateErrors"))
             {
-                // FIX: Deserialize the raw JSON string back into the dictionary
-                var errors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(rawJson);
+                var rawJson = controller.TempData["DeserializedModelStateErrors"] as string;
 
-                if (errors != null)
+                if (!string.IsNullOrEmpty(rawJson))
                 {
-                    foreach (var error in errors)
+                    // FIX: Deserialize the raw JSON string back into the dictionary
+                    var errors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(rawJson);
+
+                    if (errors != null)
                     {
-                        foreach (var errorMessage in error.Value)
+                        foreach (var error in errors)
                         {
-                            context.ModelState.AddModelError(error.Key, errorMessage);
+                            foreach (var errorMessage in error.Value)
+                            {
+                                context.ModelState.AddModelError(error.Key, errorMessage);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        base.OnActionExecuting(context);
+            base.OnActionExecuting(context);
+        }
     }
 }
