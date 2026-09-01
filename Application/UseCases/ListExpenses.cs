@@ -29,6 +29,8 @@ namespace Application.UseCases
                 if (group != null)
                 {
                     var expenses = await _expenseRepository.GetGroupExpenses(group.Id);
+                    var payments = await _expenseRepository.GetSplitsAsync(group.Id);
+
                     if (expenses?.Any() == true)
                     {
                         return Successful(
@@ -56,6 +58,7 @@ namespace Application.UseCases
 
     public class ListExpensesRequest : IRequest<ResponseWrapper<ListExpensesResponse>>
     {
+        public Guid UserKey { get; set; }
         public Guid GroupKey { get; set; }
     }
 

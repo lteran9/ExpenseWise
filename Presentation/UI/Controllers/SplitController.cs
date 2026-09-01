@@ -18,8 +18,8 @@ namespace UI.Controllers
             _logger = logger;
         }
 
-
         [HttpGet]
+        [ImportModelState]
         public async Task<IActionResult> Index(Guid group)
         {
             var request = new ListExpensesRequest() { GroupKey = group };
@@ -42,26 +42,39 @@ namespace UI.Controllers
         }
 
         [HttpPost]
+        [ExportModelState]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SplitViewModel model)
         {
-            var request =
-                new SplitExpenseRequest()
-                {
-                    GroupKey = model.GroupKey,
-                    UserKey = GetCurrentUser().Id
-                };
-            var response = await _mediator.Send(request);
-            if (response.Succeeded)
+            try
             {
-                return RedirectToAction("Index", "Group");
-            }
-            else
-            {
-                if (response.ValidationMessages?.Any() == true)
+                var request =
+                    new SplitExpenseRequest()
+                    {
+                        GroupKey = model.GroupKey,
+                        UserKey = GetCurrentUser().Id
+                    };
+                var response = await _mediator.Send(request);
+                if (response.Succeeded)
                 {
-                    ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
+                    return RedirectToAction("Index", "Group");
                 }
+                else
+                {
+                    if (response.ValidationMessages?.Any() == true)
+                    {
+                        ModelState.AddModelError(string.Empty, response.ValidationMessages.First());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.InnerException?.Message ?? ex.Message);
+            }
+
+            if (ModelState.ErrorCount == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to take payment at this time.");
             }
 
             return RedirectToAction("Index", "Split", new { group = model.GroupKey });
