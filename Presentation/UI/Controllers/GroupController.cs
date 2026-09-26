@@ -1,6 +1,4 @@
-﻿using System;
-using Application.UseCases;
-using MediatR;
+using OpenAPI;
 using Microsoft.AspNetCore.Mvc;
 using UI.Configuration;
 using UI.Models;
@@ -9,12 +7,12 @@ namespace UI.Controllers
 {
     public class GroupController : BaseController
     {
-        private readonly IMediator _mediator;
+        private readonly IExpenseWiseClient _apiClient;
         private readonly ILogger<GroupController> _logger;
 
-        public GroupController(IMediator mediator, ILogger<GroupController> logger)
+        public GroupController(IExpenseWiseClient apiClient, ILogger<GroupController> logger)
         {
-            _mediator = mediator;
+            _apiClient = apiClient;
             _logger = logger;
         }
 
@@ -23,29 +21,17 @@ namespace UI.Controllers
         {
             try
             {
-                var request =
-                   new ListGroupsRequest()
-                   {
-                       UserId = new Guid(HttpContext.Session.GetString("User")!)
-                   };
-
-                var response = await _mediator.Send(request);
-                if (response.Succeeded)
-                {
-                    var groups = response.Result?.Groups;
-                    if (groups?.Any() == true)
-                    {
-                        return View(groups.Select(ModelMapper.Instance.Map<GroupViewModel>));
-                    }
-                }
-                else
-                {
-                    AddValidationErrorsToModelState(response);
-                }
+                var response = await _apiClient.GroupListAsync(CurrentUserId);
+                return View(response.Groups.Select(ModelMapper.Instance.Map<GroupViewModel>));
+            }
+            catch (ApiException ex)
+            {
+                AddApiErrorsToModelState(ex);
+                _logger.LogWarning("Unable to load groups from the API. Status code: {StatusCode}", ex.StatusCode);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex);
+                _logger.LogError(ex, "Unable to load groups.");
             }
 
             return View();
@@ -54,12 +40,7 @@ namespace UI.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var viewModel =
-               new GroupViewModel()
-               {
-                   OwnerId = Guid.Parse(HttpContext.Session.GetString("User")!)
-               };
-            return View(viewModel);
+            return View(new GroupViewModel());
         }
 
         [HttpPost]
@@ -68,35 +49,26 @@ namespace UI.Controllers
         {
             try
             {
-                var user =
-                   new FindUserRequest()
-                   {
-                       UniqueKey = model.OwnerId
-                   };
-                var userResponse = await _mediator.Send(user);
+                var user = await _apiClient.UserFindAsync(CurrentUserId);
+                await _apiClient.GroupCreateAsync(
+                    new CreateGroupRequest
+                    {
+                        Name = model.Name,
+                        StartDate = model.StartDate,
+                        EndDate = model.EndDate,
+                        OwnerId = user.Id
+                    });
 
-                var createGroupRequest =
-                   new CreateGroupRequest()
-                   {
-                       Name = model.Name,
-                       StartDate = model.StartDate,
-                       EndDate = model.EndDate,
-                       OwnerId = userResponse.Result!.Id
-                   };
-
-                var response = await _mediator.Send(createGroupRequest);
-                if (response.Succeeded == true)
-                {
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    AddValidationErrorsToModelState(response);
-                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (ApiException ex)
+            {
+                AddApiErrorsToModelState(ex);
+                _logger.LogWarning("Unable to create group through the API. Status code: {StatusCode}", ex.StatusCode);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex);
+                _logger.LogError(ex, "Unable to create group.");
             }
 
             if (ModelState.ErrorCount == 0)
@@ -112,29 +84,17 @@ namespace UI.Controllers
         {
             try
             {
-                var request =
-                   new RetrieveGroupRequest()
-                   {
-                       UniqueKey = key
-                   };
-
-                var response = await _mediator.Send(request);
-                if (response.Succeeded)
-                {
-                    var groupEntity = response.Result;
-                    if (groupEntity != null)
-                    {
-                        return View(ModelMapper.Instance.Map<GroupViewModel>(groupEntity));
-                    }
-                    else
-                    {
-                        _logger.LogInformation("Group entity in successful response was null.");
-                    }
-                }
+                var response = await _apiClient.GroupRetrieveAsync(key);
+                return View(ModelMapper.Instance.Map<GroupViewModel>(response));
+            }
+            catch (ApiException ex)
+            {
+                AddApiErrorsToModelState(ex);
+                _logger.LogWarning("Unable to retrieve group from the API. Status code: {StatusCode}", ex.StatusCode);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex);
+                _logger.LogError(ex, "Unable to retrieve group.");
             }
 
             return View();
@@ -146,29 +106,26 @@ namespace UI.Controllers
         {
             try
             {
-                var request =
-                    new UpdateGroupRequest()
+                await _apiClient.GroupUpdateAsync(
+                    new UpdateGroupRequest
                     {
                         UniqueKey = model.UniqueKey,
                         Name = model.Name,
                         Active = model.Active,
                         StartDate = model.StartDate ?? DateTime.MinValue,
                         EndDate = model.EndDate ?? DateTime.MinValue
-                    };
+                    });
 
-                var response = await _mediator.Send(request);
-                if (response.Succeeded)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    AddValidationErrorsToModelState(response);
-                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (ApiException ex)
+            {
+                AddApiErrorsToModelState(ex);
+                _logger.LogWarning("Unable to update group through the API. Status code: {StatusCode}", ex.StatusCode);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex);
+                _logger.LogError(ex, "Unable to update group.");
             }
 
             if (ModelState.ErrorCount == 0)
@@ -182,26 +139,22 @@ namespace UI.Controllers
         [HttpGet]
         public async Task<IActionResult> Invite(Guid key)
         {
-            var request =
-               new RetrieveGroupRequest()
-               {
-                   UniqueKey = key
-               };
-
-            var response = await _mediator.Send(request);
-            if (response.Succeeded)
+            try
             {
-                var groupEntity = response.Result;
-                if (groupEntity != null)
+                var response = await _apiClient.GroupRetrieveAsync(key);
+                return View(new GroupInviteViewModel
                 {
-                    var viewModel =
-                       new GroupInviteViewModel()
-                       {
-                           Group = ModelMapper.Instance.Map<GroupViewModel>(groupEntity)
-                       };
-
-                    return View(viewModel);
-                }
+                    Group = ModelMapper.Instance.Map<GroupViewModel>(response)
+                });
+            }
+            catch (ApiException ex)
+            {
+                AddApiErrorsToModelState(ex);
+                _logger.LogWarning("Unable to retrieve group for invite. Status code: {StatusCode}", ex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to retrieve group for invite.");
             }
 
             return View();
@@ -213,31 +166,27 @@ namespace UI.Controllers
         {
             try
             {
-                var addMemberRequest =
-                   new AddMemberToGroupRequest()
-                   {
-                       Phone = model.Phone,
-                       CountryCode = model.CountryCode,
-                       GroupUniqueKey = model.Group.UniqueKey
-                   };
-
-                var response = await _mediator.Send(addMemberRequest);
-                if (response.Succeeded)
-                {
-                    if (response.Result?.Success == true)
+                var response = await _apiClient.GroupAddMemberAsync(
+                    new AddMemberToGroupRequest
                     {
-                        // Member added to group
-                        return RedirectToAction("Index");
-                    }
-                }
-                else
+                        Phone = model.Phone,
+                        CountryCode = model.CountryCode,
+                        GroupUniqueKey = model.Group.UniqueKey
+                    });
+
+                if (response.Success)
                 {
-                    AddValidationErrorsToModelState(response);
+                    return RedirectToAction(nameof(Index));
                 }
+            }
+            catch (ApiException ex)
+            {
+                AddApiErrorsToModelState(ex);
+                _logger.LogWarning("Unable to invite group member through the API. Status code: {StatusCode}", ex.StatusCode);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex);
+                _logger.LogError(ex, "Unable to invite group member.");
             }
 
             if (ModelState.ErrorCount == 0)
@@ -247,5 +196,6 @@ namespace UI.Controllers
 
             return View(model);
         }
+
     }
 }

@@ -66,6 +66,22 @@ cd Presentation/Api
 dotnet run
 ```
 
+- **Rebuild Docker Images:**
+   - Rebuild all images and recreate the running services:
+
+```bash
+docker compose up --build -d
+```
+
+   - To rebuild and recreate only one application service:
+
+```bash
+docker compose up --build -d webapi
+docker compose up --build -d webapp
+```
+
+   - To rebuild images without starting or recreating containers, use `docker compose build` (optionally followed by a service name, such as `docker compose build webapi`).
+
 - **Project Structure (high level):**
    - `Application/` — Use cases, request validators, MediatR handlers
    - `Core/` — Domain entities and value objects
@@ -91,6 +107,7 @@ dotnet test --no-build
    - Run tests locally before submitting a PR.
 
 - **Troubleshooting:**
+   - In Docker Compose, the UI must reach the API at `http://webapi:8081/`. Do not use `localhost` for the API URL inside the UI container: that points back to the UI container itself. Compose configures this address automatically. To apply Compose configuration changes to a running UI container, recreate it with `docker compose up -d --force-recreate webapp`.
    - If migrations or DB issues occur, inspect the `Infrastructure/SqlDatabase/Migrations` folder and the container logs.
    - Use `docker compose logs <service>` to view specific service output.
 

@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Application.UseCases.Ports;
 using Infrastructure.SqlDatabase;
-using OpenAPI;
 
 namespace ExpenseWise.DependencyConfiguration
 {
@@ -27,18 +26,6 @@ namespace ExpenseWise.DependencyConfiguration
             serviceCollection.AddScoped<IExpenseRepository, ExpenseRepository>();
             serviceCollection.AddScoped<IPasswordRepository, PasswordRepository>();
 
-            #endregion
-
-            return serviceCollection;
-        }
-
-        public static IServiceCollection ConfigureExpenseWiseApi(this IServiceCollection serviceCollection)
-        {
-            #region OpenAPI Client
-            serviceCollection.AddTransient<IExpenseWiseClient>(x =>
-            {
-                return new ExpenseWiseClient(new HttpClient());
-            });
             #endregion
 
             return serviceCollection;

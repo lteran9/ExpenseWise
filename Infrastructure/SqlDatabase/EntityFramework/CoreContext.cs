@@ -25,8 +25,8 @@ namespace Infrastructure.SqlDatabase
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseMySQL("server=localhost;port=3316;database=expensewise;user=web_user;password=password");
-                //optionsBuilder.UseMySQL("server=expensewise-mysql-1;port=3306;database=expensewise;user=web_user;password=password");
+                //optionsBuilder.UseMySQL("server=localhost;port=3316;database=expensewise;user=web_user;password=password");
+                optionsBuilder.UseMySQL("server=expensewise-mysql-1;port=3306;database=expensewise;user=web_user;password=password");
             }
         }
     }

@@ -15,11 +15,14 @@ services:
       context: .
       dockerfile: Presentation/UI/Dockerfile
     image: "expensewise-ui-1:latest"
+    environment:
+      ExpenseWiseApi__BaseUrl: "http://webapi:8081/"
     ports:
       - '${UI_PORT:-8080}:8080'
     networks:
       - network
     depends_on:
+      - webapi
       - mysql
   mysql:
     image: "mysql:8.0"

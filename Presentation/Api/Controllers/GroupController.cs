@@ -88,6 +88,28 @@ namespace Api.Controllers
             }
         }
 
+        [HttpPost(nameof(Update))]
+        [ProducesResponseType(typeof(UpdateGroupResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Update([FromBody] UpdateGroupRequest request)
+        {
+            try
+            {
+                var response = await _mediator.Send(request);
+                if (response.Succeeded)
+                {
+                    return Ok(response.Result);
+                }
+
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                return Problem(detail: ex.Message);
+            }
+        }
+
         [HttpPost(nameof(AddMember))]
         [ProducesResponseType(typeof(AddMemberToGroupResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]

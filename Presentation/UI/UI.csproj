@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Configuration\DependencyConfiguration\DependencyConfiguration.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\OpenAPI\OpenAPI.csproj" />
   </ItemGroup>
 
 </Project>

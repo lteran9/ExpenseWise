@@ -1,6 +1,6 @@
 ﻿using System;
-using Application.UseCases;
 using AutoMapper;
+using OpenAPI;
 using UI.Models;
 
 namespace UI.Configuration
@@ -9,9 +9,7 @@ namespace UI.Configuration
     {
         public GroupProfile()
         {
-            CreateMap<RetrieveGroupResponse, GroupViewModel>()
-                .ForMember(x => x.OwnerId, src => src.MapFrom(s => s.OwnerId))
-                .ForMember(x => x.Members, src => src.MapFrom(s => s.Members.Select(ModelMapper.Instance.Map<UserViewModel>)));
+            CreateMap<RetrieveGroupResponse, GroupViewModel>();
         }
     }
 }

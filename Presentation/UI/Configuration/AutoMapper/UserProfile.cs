@@ -1,7 +1,7 @@
 ﻿using System;
-using Application.UseCases;
 using AutoMapper;
 using Core.Entities;
+using OpenAPI;
 using UI.Models;
 
 namespace UI.Configuration
@@ -12,7 +12,7 @@ namespace UI.Configuration
         {
             CreateMap<User, UserViewModel>()
                 .ForMember(x => x.Id, src => src.MapFrom(s => s.UniqueKey));
-            CreateMap<FindUserResponse, UserViewModel>()
+            CreateMap<OpenAPI.FindUserResponse, UserViewModel>()
                 .ForMember(x => x.Id, src => src.MapFrom(s => s.UniqueKey));
         }
     }

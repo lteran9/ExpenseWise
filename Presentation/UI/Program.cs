@@ -1,4 +1,5 @@
 ﻿using ExpenseWise.DependencyConfiguration;
+using OpenAPI;
 using UI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,11 +9,17 @@ builder.Services
    .AddControllersWithViews()
    .AddRazorRuntimeCompilation();
 
+var expenseWiseApiBaseUrl = builder.Configuration["ExpenseWiseApi:BaseUrl"]
+     ?? throw new InvalidOperationException("ExpenseWiseApi:BaseUrl must be configured.");
+builder.Services.AddHttpClient<IExpenseWiseClient, ExpenseWiseClient>(client =>
+{
+     client.BaseAddress = new Uri(expenseWiseApiBaseUrl);
+});
+
 builder.Services
     .ConfigureDependencies()
     .RegisterUseCases()
-   //.ConfigureExpenseWiseApi()
-   .AddHttpContextAccessor()
+    .AddHttpContextAccessor()
    .AddScoped<UserInfoActionFilter>()
    .ConfigureSession();
 

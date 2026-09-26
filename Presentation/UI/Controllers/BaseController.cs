@@ -1,7 +1,9 @@
 using System;
+using System.Text.Json;
 using Application.UseCases.MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using OpenAPI;
 using UI.Filters;
 using UI.Models;
 
@@ -46,6 +48,63 @@ namespace UI.Controllers
                     ModelState.AddModelError(string.Empty, message);
                 }
             }
+        }
+
+        protected void AddApiErrorsToModelState(ApiException exception)
+        {
+            if (!string.IsNullOrWhiteSpace(exception.Response))
+            {
+                try
+                {
+                    using var document = JsonDocument.Parse(exception.Response);
+                    var root = document.RootElement;
+                    if (root.ValueKind == JsonValueKind.Object)
+                    {
+                        if (TryGetProperty(root, "validationMessages", out var validationMessages) &&
+                            validationMessages.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var message in validationMessages.EnumerateArray())
+                            {
+                                if (message.ValueKind == JsonValueKind.String && message.GetString() is { } text)
+                                {
+                                    ModelState.AddModelError(string.Empty, text);
+                                }
+                            }
+                        }
+
+                        if (TryGetProperty(root, "detail", out var detail) &&
+                            detail.ValueKind == JsonValueKind.String &&
+                            detail.GetString() is { Length: > 0 } detailText)
+                        {
+                            ModelState.AddModelError(string.Empty, detailText);
+                        }
+                    }
+                }
+                catch
+                {
+                    // Fall back to a concise status message for non-JSON error bodies.
+                }
+            }
+
+            if (ModelState.ErrorCount == 0)
+            {
+                ModelState.AddModelError(string.Empty, $"The API request failed with status code {exception.StatusCode}.");
+            }
+        }
+
+        private static bool TryGetProperty(JsonElement element, string propertyName, out JsonElement value)
+        {
+            foreach (var property in element.EnumerateObject())
+            {
+                if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = property.Value;
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
         }
     }
 }
