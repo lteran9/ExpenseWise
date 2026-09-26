@@ -1,0 +1,24 @@
+# Ignore compiled outputs and build artifacts
+**/bin/**
+**/obj/**
+**/.vs/**
+**/.idea/**
+
+# Ignore secrets and environment configuration
+.env
+*.env
+*.env.*
+*.pfx
+*.pem
+*.key
+
+# Ignore test results and coverage reports
+**/TestResults/**
+**/coverage/**
+**/*.coverage
+**/*.trx
+
+# Ignore logs and temp files
+**/*.log
+**/.DS_Store
+Thumbs.db
