@@ -43,10 +43,13 @@ erDiagram
 
 A concise guide to get new developers up to speed with the codebase.
 
+For the project documentation index, architecture decisions, and operating guidance, see [`docs/`](docs/README.md).
+
 - **Quick Start:** Build and run the API, UI and DB together using Docker.
 
 ```bash
-export API_PORT=8081 UI_PORT=8080 DB_PASSWORD=secret DB_DATABASE=expensewise DB_USERNAME=expense
+export API_PORT=8081 UI_PORT=8080 DB_DATABASE=expensewise DB_USERNAME=expense
+# Set DB_PASSWORD locally; do not commit or share it.
 docker compose up --build -d
 docker compose logs -f
 ```
