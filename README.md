@@ -2,6 +2,12 @@
 
 A tool for tracking expenses and balances on a group level for varied occasions. ExpenseWise makes it easy to calculate totals by keeping an informal ledger that can be updated on an as needed basis.
 
+## Project status and completion plan
+
+The foundation is implemented, but the Docker-hosted expense-to-settlement journey is not yet verified or complete. Start with the [current-state assessment](docs/product/current-state.md), [Phase 1 specification](docs/product/README.md), and [delivery roadmap](docs/product/roadmap.md).
+
+Phase 1 targets local Docker Compose, registered participants, organizer-recorded USD expenses, equal splits among selected people, and manual repayment tracking. It does not process payments or target public hosting.
+
 ## Dependencies
 
 - [MediatR](https://github.com/jbogard/MediatR/)
@@ -46,6 +52,8 @@ A concise guide to get new developers up to speed with the codebase.
 For the project documentation index, architecture decisions, and operating guidance, see [`docs/`](docs/README.md).
 
 - **Quick Start:** Build and run the API, UI and DB together using Docker.
+
+  Current limitation: the Compose scaffold does not yet provide a verified clean installation. Application database configuration, migration/model alignment, and startup readiness need completion; see [roadmap package 1.1](docs/product/roadmap.md). The commands below describe the intended launch path, not a guarantee of a working fresh installation.
 
 ```bash
 export API_PORT=8081 UI_PORT=8080 DB_DATABASE=expensewise DB_USERNAME=expense
