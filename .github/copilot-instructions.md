@@ -2,6 +2,25 @@
 
 ExpenseWise is a .NET 10 solution for tracking and splitting expenses and balances for groups. It is structured around Clean Architecture with CQRS, MediatR, and FluentValidation.
 
+## Agent Workflow and Human Approval
+
+- Before changing files, inspect the current branch and working tree. Preserve unrelated and uncommitted human changes.
+- Implement each [roadmap package](../docs/product/roadmap.md) on its own feature branch, created before package changes begin (for example, `feature/phase-1.1-docker-foundation`). Reuse that branch when resuming the same package; do not combine separate packages on one branch.
+- Make changes outside roadmap packages on a dedicated feature branch as well. If the starting branch or uncommitted changes make the branch base unclear, ask the human before proceeding.
+- Never commit directly to `main` or `master` unless the human explicitly authorizes that action. Do not merge into or push to either branch without explicit authorization.
+- Before every commit, summarize the intended staged changes and present the exact proposed commit message, including any trailers, for human approval. Wait for explicit approval before running the commit. A request to implement a package or to commit changes is not approval of an unseen message.
+- If the proposed message or the intended commit scope changes after approval, obtain approval again. Do not amend an existing commit without explicit human authorization and approval of the resulting message.
+- When approval has not been given, leave the changes uncommitted and report the branch, validation results, and remaining work.
+
+## Engineering Principles
+
+- Follow Clean Architecture: dependencies point inward, business rules belong in Core/Application, infrastructure implements Application ports, and the composition layer wires implementations. Keep controllers and views thin and framework/database details out of Core/Application.
+- Apply SOLID pragmatically: give components focused responsibilities, depend on appropriate abstractions at boundaries, and keep contracts cohesive and substitutable. Do not add an interface or abstraction without a concrete need.
+- Apply DRY to shared knowledge and business rules: look for existing helpers and patterns before adding logic. Extract shared behavior when it prevents meaningful duplication, not merely because code looks similar.
+- Apply KISS: choose the simplest complete implementation that meets the accepted requirements. Avoid speculative extensibility, unnecessary layers, and unrelated refactoring.
+- Preserve intended behavior, add tests for changed behavior and failure paths, and verify package acceptance criteria rather than treating a successful build as proof of completion.
+- Read applicable file-specific instructions and relevant [architecture decisions](../docs/architecture/decisions/README.md) before editing. Update directly affected documentation; propose a new ADR rather than silently replacing an accepted architectural decision.
+
 ## Architecture & Project Boundaries
 
 Dependencies must point strictly inward:
