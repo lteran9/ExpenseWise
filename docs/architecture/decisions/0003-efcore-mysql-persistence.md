@@ -9,7 +9,7 @@ The SQL database infrastructure project contains an EF Core `DbContext`, relatio
 
 ## Decision
 
-Keep relational persistence in `Infrastructure/SqlDatabase`, behind ports declared in `Application/UseCases`. Use the existing EF Core/MySQL infrastructure and migration approach for changes to the relational model. Keep persistence entities and provider details out of domain and application contracts.
+Keep relational persistence in `src/Infrastructure/SqlDatabase`, behind ports declared in `src/Application/UseCases`. Use the existing EF src/Core/MySQL infrastructure and migration approach for changes to the relational model. Keep persistence entities and provider details out of domain and application contracts.
 
 ## Consequences
 

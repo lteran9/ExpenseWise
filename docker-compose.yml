@@ -2,7 +2,7 @@ services:
   webapi:
     build:
       context: .
-      dockerfile: Presentation/Api/Dockerfile
+      dockerfile: src/Presentation/Api/Dockerfile
     image: "expensewise-api-1:latest"
     environment:
       Database__Host: mysql
@@ -20,7 +20,7 @@ services:
   migrate:
     build:
       context: .
-      dockerfile: Presentation/Api/Dockerfile
+      dockerfile: src/Presentation/Api/Dockerfile
     image: "expensewise-api-1:latest"
     command: ["--migrate"]
     restart: "no"
@@ -38,7 +38,7 @@ services:
   webapp:
     build:
       context: .
-      dockerfile: Presentation/UI/Dockerfile
+      dockerfile: src/Presentation/UI/Dockerfile
     image: "expensewise-ui-1:latest"
     environment:
       ExpenseWiseApi__BaseUrl: "http://webapi:8081/"

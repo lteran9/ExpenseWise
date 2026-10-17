@@ -71,7 +71,7 @@ docker compose logs -f
 
 ```bash
 dotnet build
-cd Presentation/Api
+cd src/Presentation/Api
 dotnet run
 ```
 
@@ -92,11 +92,12 @@ docker compose up --build -d webapp
    - To rebuild images without starting or recreating containers, use `docker compose build` (optionally followed by a service name, such as `docker compose build webapi`).
 
 - **Project Structure (high level):**
-   - `Application/` — Use cases, request validators, MediatR handlers
-   - `Core/` — Domain entities and value objects
-   - `Infrastructure/` — Database adapters, EF/Dapper, generated OpenAPI client
-   - `Presentation/` — API and UI entrypoints and controllers
-   - `Tests/` — Unit and integration tests
+   - `src/Application/` — Use cases, request validators, MediatR handlers
+   - `src/Configuration/` — Dependency-injection composition and service registration
+   - `src/Core/` — Domain entities and value objects
+   - `src/Infrastructure/` — Database adapters, EF/Dapper, generated OpenAPI client
+   - `src/Presentation/` — API and UI entrypoints and controllers
+   - `src/Tests/` — Unit and integration tests
 
 - **Architecture & Patterns:**
    - CQRS/MediatR for application flows
@@ -117,10 +118,10 @@ dotnet test --no-build
 
 - **Troubleshooting:**
    - In Docker Compose, the UI must reach the API at `http://webapi:8081/`. Do not use `localhost` for the API URL inside the UI container: that points back to the UI container itself. Compose configures this address automatically. To apply Compose configuration changes to a running UI container, recreate it with `docker compose up -d --force-recreate webapp`.
-   - If migrations or DB issues occur, inspect the `Infrastructure/SqlDatabase/Migrations` folder and the container logs.
+   - If migrations or DB issues occur, inspect the `src/Infrastructure/SqlDatabase/Migrations` folder and the container logs.
    - Use `docker compose logs <service>` to view specific service output.
 
 - **References & Contacts:**
-   - API startup: [Presentation/Api/Program.cs](Presentation/Api/Program.cs)
-   - UI startup: [Presentation/UI/Program.cs](Presentation/UI/Program.cs)
-   - Application entrypoints: [Application/UseCases/UseCases.csproj](Application/UseCases/UseCases.csproj)
+   - API startup: [src/Presentation/Api/Program.cs](src/Presentation/Api/Program.cs)
+   - UI startup: [src/Presentation/UI/Program.cs](src/Presentation/UI/Program.cs)
+   - Application entrypoints: [src/Application/UseCases/UseCases.csproj](src/Application/UseCases/UseCases.csproj)

@@ -1,11 +1,11 @@
 ---
-description: "Use when creating, editing, or refactoring ASP.NET Core Web API controllers, endpoints, routes, or request/response contracts in Presentation/Api."
-applyTo: "Presentation/Api/**/*.cs"
+description: "Use when creating, editing, or refactoring ASP.NET Core Web API controllers, endpoints, routes, or request/response contracts in src/Presentation/Api."
+applyTo: "src/Presentation/Api/**/*.cs"
 ---
 
-# API Controller Guidelines (Presentation/Api)
+# API Controller Guidelines (src/Presentation/Api)
 
-Controllers in `Presentation/Api` are thin presentation adapters that delegate application logic to MediatR handlers.
+Controllers in `src/Presentation/Api` are thin presentation adapters that delegate application logic to MediatR handlers.
 
 ## 1. Controller Design Rules
 

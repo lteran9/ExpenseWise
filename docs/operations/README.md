@@ -41,7 +41,7 @@ The named `expensewise-mysql` volume keeps the database across container recreat
 
 - Inspect service output with `docker compose logs <service>`.
 - Check migration completion with `docker compose ps -a migrate` and its output with `docker compose logs migrate`.
-- Inspect schema history under `Infrastructure/SqlDatabase/Migrations`.
+- Inspect schema history under `src/Infrastructure/SqlDatabase/Migrations`.
 - Check the API's Development OpenAPI document at `/openapi/v1.json` when the API is running in Development.
 
 These instructions describe local development only; they are not a production deployment or backup procedure.

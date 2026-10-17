@@ -11,19 +11,19 @@ Ensure that all code changes, new classes, and references strictly respect Clean
 
 ## Architecture Rules
 1. **Dependency Inward Flow**:
-   - `Core/Entites` (`Core.Entities`): MUST NEVER depend on or reference any other project in the solution or third-party persistence/web frameworks.
-   - `Application/UseCases` (`Application.UseCases`): May only depend on `Core.Entities`. It MUST NEVER reference `Infrastructure` (EF Core, Dapper, SQL), `Presentation` (ASP.NET Core controllers), or UI projects.
+   - `src/Core/Entites` (`Core.Entities`): MUST NEVER depend on or reference any other project in the solution or third-party persistence/web frameworks.
+   - `src/Application/UseCases` (`Application.UseCases`): May only depend on `Core.Entities`. It MUST NEVER reference `Infrastructure` (EF Core, Dapper, SQL), `Presentation` (ASP.NET Core controllers), or UI projects.
    - `Infrastructure`: Implements ports defined in `Application.UseCases.Ports`. It must not bypass ports.
    - `Presentation`: Thin presentation layer. Must not contain direct database queries or business domain rules. All operations go through `IMediator`.
 2. **CQRS & Use Case Consistency**:
    - Handlers must inherit from `BaseRequestHandler<TRequest, TResponse>`.
    - Requests must implement `IRequest<ResponseWrapper<TResponse>>`.
-   - FluentValidation validators must be placed in `Application/UseCases/FluentValidation/`.
+   - FluentValidation validators must be placed in `src/Application/UseCases/FluentValidation/`.
 3. **Security & Data Access**:
    - Dapper queries must use parameterization (never string interpolation or concatenation).
 
 ## Review Checklist
-- Check for forbidden `using` directives (e.g. `using Microsoft.EntityFrameworkCore;` or `using Infrastructure.*` in `Application/UseCases`).
+- Check for forbidden `using` directives (e.g. `using Microsoft.EntityFrameworkCore;` or `using Infrastructure.*` in `src/Application/UseCases`).
 - Check `.csproj` references to make sure no circular or outward project references were added.
 - Check that new API endpoints delegate entirely to MediatR without embedded domain logic.
 

@@ -4,12 +4,12 @@ argument-hint: "Target use case or validator (e.g. CreateExpense or CreateExpens
 agent: "agent"
 ---
 
-Generate comprehensive unit and regression tests for `${input}` in the `Tests/Regression` project.
+Generate comprehensive unit and regression tests for `${input}` in the `src/Tests/Regression` project.
 
 Follow the repository testing patterns:
 1. Locate or create the test file under:
-   - `Tests/Regression/UseCases/${input}Tests.cs` for MediatR use cases.
-   - `Tests/Regression/Validators/${input}ValidatorTests.cs` for FluentValidation validators.
+   - `src/Tests/Regression/UseCases/${input}Tests.cs` for MediatR use cases.
+   - `src/Tests/Regression/Validators/${input}ValidatorTests.cs` for FluentValidation validators.
 2. Structure tests using:
    - `[Theory]` and `[AutoMoq]` attributes.
    - `[Frozen] Mock<IRepository>` parameters for mocking dependencies when testing use cases.

@@ -1,17 +1,17 @@
 ---
 description: "Use when creating, editing, or refactoring unit tests, regression tests, integration tests, mocks, or validators in the Tests project."
-applyTo: "Tests/**/*.cs"
+applyTo: "src/Tests/**/*.cs"
 ---
 
-# Testing Guidelines (Tests/)
+# Testing Guidelines (src/Tests/)
 
 The solution uses xUnit, AutoFixture (`AutoFixture.Xunit2`), and Moq (`AutoMoq`) for fast, decoupled unit testing.
 
 ## 1. Project Organization
 
-- **`Tests/Regression/UseCases/`**: Tests for MediatR use case handlers.
-- **`Tests/Regression/Validators/`**: Tests for FluentValidation validators.
-- **`Tests/Infrastructure/`**: Data access and AutoMapper mapping tests.
+- **`src/Tests/Regression/UseCases/`**: Tests for MediatR use case handlers.
+- **`src/Tests/Regression/Validators/`**: Tests for FluentValidation validators.
+- **`src/Tests/Infrastructure/`**: Data access and AutoMapper mapping tests.
 
 ## 2. Test Conventions
 

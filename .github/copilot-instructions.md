@@ -14,7 +14,7 @@ ExpenseWise is a .NET 10 solution for tracking and splitting expenses and balanc
 
 ## Engineering Principles
 
-- Follow Clean Architecture: dependencies point inward, business rules belong in Core/Application, infrastructure implements Application ports, and the composition layer wires implementations. Keep controllers and views thin and framework/database details out of Core/Application.
+- Follow Clean Architecture: dependencies point inward, business rules belong in the Core and Application layers, infrastructure implements Application ports, and the composition layer wires implementations. Keep controllers and views thin and framework/database details out of the Core and Application layers.
 - Apply SOLID pragmatically: give components focused responsibilities, depend on appropriate abstractions at boundaries, and keep contracts cohesive and substitutable. Do not add an interface or abstraction without a concrete need.
 - Apply DRY to shared knowledge and business rules: look for existing helpers and patterns before adding logic. Extract shared behavior when it prevents meaningful duplication, not merely because code looks similar.
 - Apply KISS: choose the simplest complete implementation that meets the accepted requirements. Avoid speculative extensibility, unnecessary layers, and unrelated refactoring.
@@ -25,18 +25,18 @@ ExpenseWise is a .NET 10 solution for tracking and splitting expenses and balanc
 
 Dependencies must point strictly inward:
 
-1. **[Core/Entites/](Core/Entites)** (`Core.Entities`): Domain models and entities (e.g., `Expense`, `Group`, `User`, `Split`). Zero external dependencies.
-2. **[Application/UseCases/](Application/UseCases)** (`Application.UseCases`): Business logic, use cases, CQRS commands/queries, FluentValidation validators, and port interfaces (`Application.UseCases.Ports`). Depends only on `Core`.
-3. **[Infrastructure/](Infrastructure)**:
-   - `Infrastructure/SqlDatabase`: EF Core MySQL context (`CoreContext`), Dapper queries, repository implementations, and AutoMapper profiles.
-   - `Infrastructure/OpenAPI`: OpenAPI specification / generated contract components.
-4. **[Configuration/DependencyConfiguration/](Configuration/DependencyConfiguration)**: Service registration and dependency injection wiring.
-5. **[Presentation/](Presentation)**:
-   - `Presentation/Api`: ASP.NET Core Web API controllers dispatching requests via MediatR (`IMediator`).
-   - `Presentation/UI`: ASP.NET Core MVC UI application with Razor views and Bootstrap.
-6. **[Tests/](Tests)**:
-   - `Tests/Regression`: Unit and regression tests for UseCases and FluentValidation validators.
-   - `Tests/Infrastructure`: Data access, repository, and AutoMapper mapping tests.
+1. **[src/Core/Entites/](../src/Core/Entites)** (`Core.Entities`): Domain models and entities (e.g., `Expense`, `Group`, `User`, `Split`). Zero external dependencies.
+2. **[src/Application/UseCases/](../src/Application/UseCases)** (`Application.UseCases`): Business logic, use cases, CQRS commands/queries, FluentValidation validators, and port interfaces (`Application.UseCases.Ports`). Depends only on `Core`.
+3. **[src/Infrastructure/](../src/Infrastructure)**:
+   - `src/Infrastructure/SqlDatabase`: EF Core MySQL context (`CoreContext`), Dapper queries, repository implementations, and AutoMapper profiles.
+   - `src/Infrastructure/OpenAPI`: OpenAPI specification / generated contract components.
+4. **[src/Configuration/DependencyConfiguration/](../src/Configuration/DependencyConfiguration)**: Service registration and dependency injection wiring.
+5. **[src/Presentation/](../src/Presentation)**:
+   - `src/Presentation/Api`: ASP.NET Core Web API controllers dispatching requests via MediatR (`IMediator`).
+   - `src/Presentation/UI`: ASP.NET Core MVC UI application with Razor views and Bootstrap.
+6. **[src/Tests/](../src/Tests)**:
+   - `src/Tests/Regression`: Unit and regression tests for UseCases and FluentValidation validators.
+   - `src/Tests/Infrastructure`: Data access, repository, and AutoMapper mapping tests.
 
 ## Technology Stack
 
@@ -62,7 +62,7 @@ dotnet test --no-build
 ## Key Conventions
 
 ### CQRS & Use Cases
-- Every usecase in `Application/UseCases` implements `BaseRequestHandler<TRequest, TResponse>`.
+- Every usecase in `src/Application/UseCases` implements `BaseRequestHandler<TRequest, TResponse>`.
 - Requests implement `IRequest<ResponseWrapper<TResponse>>`.
 - Always return a `ResponseWrapper<T>` using helper methods:
   - `Successful(response)` for success.
@@ -71,14 +71,14 @@ dotnet test --no-build
 - Instantiate or inject the corresponding `AbstractValidator<TRequest>` and validate early in `Handle(...)`.
 
 ### Controllers
-- Controllers reside in `Presentation/Api/Controllers/`.
+- Controllers reside in `src/Presentation/Api/Controllers/`.
 - Keep controllers thin: validate route parameters and dispatch to `IMediator.Send(request)`.
 - Always annotate actions with `[ProducesResponseType]` for documentation.
 - Handle exceptions and wrap responses consistently using `ResponseWrapper<T>`.
 
 ### Testing
-- Place usecase logic tests in `Tests/Regression/UseCases/`.
-- Place validator tests in `Tests/Regression/Validators/`.
+- Place usecase logic tests in `src/Tests/Regression/UseCases/`.
+- Place validator tests in `src/Tests/Regression/Validators/`.
 - Use `[Theory]` with `[AutoMoq]` for injecting mocks and SUT (System Under Test).
 - Follow the Arrange-Act-Assert (AAA) pattern and naming format `MethodName_Condition_ExpectedResult`.
 - Pass `CancellationToken.None` in unit tests when calling `Handle(...)`.
