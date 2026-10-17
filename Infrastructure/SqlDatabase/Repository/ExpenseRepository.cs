@@ -11,11 +11,6 @@ namespace Infrastructure.SqlDatabase
         private readonly RepositoryAdapter _adapter = new RepositoryAdapter();
         private readonly Func<CoreContext> _contextFactory;
 
-        public ExpenseRepository()
-            : this(() => new CoreContext())
-        {
-        }
-
         public ExpenseRepository(Func<CoreContext> contextFactory)
         {
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));

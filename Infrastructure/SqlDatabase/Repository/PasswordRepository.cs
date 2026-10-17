@@ -10,11 +10,6 @@ namespace Infrastructure.SqlDatabase
         private readonly RepositoryAdapter _adapter = new RepositoryAdapter();
         private readonly Func<CoreContext> _contextFactory;
 
-        public PasswordRepository()
-            : this(() => new CoreContext())
-        {
-        }
-
         public PasswordRepository(Func<CoreContext> contextFactory)
         {
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
