@@ -29,39 +29,48 @@ namespace OpenAPI
     {
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(string description, string currency, double? amount, System.Guid? userKey, System.Guid? groupKey);
+        System.Threading.Tasks.Task<ExpenseListResponse> ExpenseListAsync(System.Guid? groupKey);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(string description, string currency, double? amount, System.Guid? userKey, System.Guid? groupKey, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ExpenseListResponse> ExpenseListAsync(System.Guid? groupKey, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync(PayExpenseRequest body);
+        System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(CreateExpenseInput body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync(PayExpenseRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(CreateExpenseInput body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync(UpdateExpenseRequest body);
+        System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync(UpdateExpenseRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync(System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -74,48 +83,48 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync(System.Guid? userId);
+        System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync(System.Guid? userId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupRequest body);
+        System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupInput body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupInput body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddMemberToGroupRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddMemberToGroupRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(DeleteGroupRequest body);
+        System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupInput body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(DeleteGroupRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupInput body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddGroupMemberInput body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddGroupMemberInput body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(ArchiveGroupInput body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(ArchiveGroupInput body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -128,12 +137,12 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindUserResponse> UserFindAsync(System.Guid? uniqueKey);
+        System.Threading.Tasks.Task<FindUserResponse> UserFindAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindUserResponse> UserFindAsync(System.Guid? uniqueKey, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FindUserResponse> UserFindAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -155,21 +164,19 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserRequest body);
+        System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserInput body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserInput body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeleteUserResponse> UserDeleteAsync(DeleteUserRequest body);
+        System.Threading.Tasks.Task UserDeleteAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeleteUserResponse> UserDeleteAsync(DeleteUserRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task UserDeleteAsync(System.Threading.CancellationToken cancellationToken);
 
     }
 
@@ -223,15 +230,15 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(string description, string currency, double? amount, System.Guid? userKey, System.Guid? groupKey)
+        public virtual System.Threading.Tasks.Task<ExpenseListResponse> ExpenseListAsync(System.Guid? groupKey)
         {
-            return ExpenseCreateAsync(description, currency, amount, userKey, groupKey, System.Threading.CancellationToken.None);
+            return ExpenseListAsync(groupKey, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(string description, string currency, double? amount, System.Guid? userKey, System.Guid? groupKey, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ExpenseListResponse> ExpenseListAsync(System.Guid? groupKey, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -239,7 +246,127 @@ namespace OpenAPI
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "Expense/List"
+                    urlBuilder_.Append("Expense/List");
+                    urlBuilder_.Append('?');
+                    if (groupKey != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("groupKey")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(groupKey, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ExpenseListResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<object>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(CreateExpenseInput body)
+        {
+            return ExpenseCreateAsync(body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(CreateExpenseInput body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -247,28 +374,6 @@ namespace OpenAPI
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "Expense/Create"
                     urlBuilder_.Append("Expense/Create");
-                    urlBuilder_.Append('?');
-                    if (description != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Description")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(description, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (currency != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Currency")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(currency, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (amount != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Amount")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(amount, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (userKey != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("UserKey")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(userKey, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (groupKey != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("GroupKey")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(groupKey, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -313,6 +418,16 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -344,7 +459,7 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseRequest body)
+        public virtual System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body)
         {
             return ExpenseSplitAsync(body, System.Threading.CancellationToken.None);
         }
@@ -352,7 +467,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -418,6 +533,16 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -449,29 +574,23 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync(PayExpenseRequest body)
+        public virtual System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync()
         {
-            return ExpensePayAsync(body, System.Threading.CancellationToken.None);
+            return ExpensePayAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync(PayExpenseRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PayExpenseResponse> ExpensePayAsync(System.Threading.CancellationToken cancellationToken)
         {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -523,6 +642,16 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -554,29 +683,23 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync(UpdateExpenseRequest body)
+        public virtual System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync()
         {
-            return ExpenseUpdateAsync(body, System.Threading.CancellationToken.None);
+            return ExpenseUpdateAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync(UpdateExpenseRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<UpdateExpenseResponse> ExpenseUpdateAsync(System.Threading.CancellationToken cancellationToken)
         {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -626,6 +749,16 @@ namespace OpenAPI
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -685,7 +818,7 @@ namespace OpenAPI
                     urlBuilder_.Append('?');
                     if (uniqueKey != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("UniqueKey")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(uniqueKey, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("uniqueKey")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(uniqueKey, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -732,6 +865,36 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -763,15 +926,15 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync(System.Guid? userId)
+        public virtual System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync()
         {
-            return GroupListAsync(userId, System.Threading.CancellationToken.None);
+            return GroupListAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync(System.Guid? userId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ListGroupsResponse> GroupListAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -786,12 +949,6 @@ namespace OpenAPI
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "Group/List"
                     urlBuilder_.Append("Group/List");
-                    urlBuilder_.Append('?');
-                    if (userId != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("UserId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -836,6 +993,16 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -867,7 +1034,7 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupRequest body)
+        public virtual System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupInput body)
         {
             return GroupCreateAsync(body, System.Threading.CancellationToken.None);
         }
@@ -875,7 +1042,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CreateGroupResponse> GroupCreateAsync(CreateGroupInput body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -941,6 +1108,16 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -972,7 +1149,7 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupRequest body)
+        public virtual System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupInput body)
         {
             return GroupUpdateAsync(body, System.Threading.CancellationToken.None);
         }
@@ -980,7 +1157,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<UpdateGroupResponse> GroupUpdateAsync(UpdateGroupInput body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -1046,6 +1223,36 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1077,7 +1284,7 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddMemberToGroupRequest body)
+        public virtual System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddGroupMemberInput body)
         {
             return GroupAddMemberAsync(body, System.Threading.CancellationToken.None);
         }
@@ -1085,7 +1292,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddMemberToGroupRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AddMemberToGroupResponse> GroupAddMemberAsync(AddGroupMemberInput body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -1151,6 +1358,36 @@ namespace OpenAPI
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1182,7 +1419,7 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(DeleteGroupRequest body)
+        public virtual System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(ArchiveGroupInput body)
         {
             return GroupDeleteAsync(body, System.Threading.CancellationToken.None);
         }
@@ -1190,7 +1427,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(DeleteGroupRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<DeleteGroupResponse> GroupDeleteAsync(ArchiveGroupInput body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -1254,6 +1491,36 @@ namespace OpenAPI
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -1359,15 +1626,15 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FindUserResponse> UserFindAsync(System.Guid? uniqueKey)
+        public virtual System.Threading.Tasks.Task<FindUserResponse> UserFindAsync()
         {
-            return UserFindAsync(uniqueKey, System.Threading.CancellationToken.None);
+            return UserFindAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FindUserResponse> UserFindAsync(System.Guid? uniqueKey, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FindUserResponse> UserFindAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1382,12 +1649,6 @@ namespace OpenAPI
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "User/Find"
                     urlBuilder_.Append("User/Find");
-                    urlBuilder_.Append('?');
-                    if (uniqueKey != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("UniqueKey")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(uniqueKey, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -1430,6 +1691,16 @@ namespace OpenAPI
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new ApiException<ValidationErrorResponse>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -1673,7 +1944,7 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserRequest body)
+        public virtual System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserInput body)
         {
             return UserUpdateAsync(body, System.Threading.CancellationToken.None);
         }
@@ -1681,7 +1952,7 @@ namespace OpenAPI
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<UpdateUserResponse> UserUpdateAsync(UpdateUserInput body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -1747,6 +2018,16 @@ namespace OpenAPI
                             throw new ApiException<ValidationErrorResponse>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 500)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1776,33 +2057,23 @@ namespace OpenAPI
             }
         }
 
-        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DeleteUserResponse> UserDeleteAsync(DeleteUserRequest body)
+        public virtual System.Threading.Tasks.Task UserDeleteAsync()
         {
-            return UserDeleteAsync(body, System.Threading.CancellationToken.None);
+            return UserDeleteAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DeleteUserResponse> UserDeleteAsync(DeleteUserRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UserDeleteAsync(System.Threading.CancellationToken cancellationToken)
         {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
@@ -1832,34 +2103,31 @@ namespace OpenAPI
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
+                        if (status_ == 401)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<DeleteUserResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            return objectResponse_.Object;
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 400)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ValidationErrorResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ValidationErrorResponse>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
+                        if (status_ == 409)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<object>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<object>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+
+                        if (status_ == 200 || status_ == 204)
+                        {
+
+                            return;
                         }
                         else
                         {
@@ -2011,7 +2279,7 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class AddMemberToGroupRequest
+    public partial class AddGroupMemberInput
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("phone")]
@@ -2031,6 +2299,15 @@ namespace OpenAPI
 
         [System.Text.Json.Serialization.JsonPropertyName("success")]
         public bool Success { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ArchiveGroupInput
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
+        public System.Guid GroupKey { get; set; }
 
     }
 
@@ -2056,6 +2333,30 @@ namespace OpenAPI
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public System.Guid Id { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("accessToken")]
+        public string AccessToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("expiresAtUtc")]
+        public System.DateTime ExpiresAtUtc { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CreateExpenseInput
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("currency")]
+        public string Currency { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amount")]
+        public decimal Amount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
+        public System.Guid GroupKey { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -2068,11 +2369,8 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class CreateGroupRequest
+    public partial class CreateGroupInput
     {
-
-        [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
-        public int OwnerId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string Name { get; set; }
@@ -2134,18 +2432,6 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class DeleteGroupRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("groupId")]
-        public int GroupId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("requestingUserId")]
-        public int RequestingUserId { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class DeleteGroupResponse
     {
 
@@ -2155,20 +2441,39 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class DeleteUserRequest
+    public partial class ExpenseListItemResponse
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         public int Id { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("description")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Description { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("currency")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Currency { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amount")]
+        public decimal Amount { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class DeleteUserResponse
+    public partial class ExpenseListResponse
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("success")]
-        public bool Success { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid GroupKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("groupMembers")]
+        public int GroupMembers { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("expenses")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.Collections.Generic.ICollection<ExpenseListItemResponse> Expenses { get; set; } = new System.Collections.ObjectModel.Collection<ExpenseListItemResponse>();
 
     }
 
@@ -2203,14 +2508,29 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class PayExpenseRequest
+    public partial class PayExpenseResponse
     {
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class PayExpenseResponse
+    public partial class ProblemDetails
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        public string Title { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        public int? Status { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("detail")]
+        public string Detail { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("instance")]
+        public string Instance { get; set; }
 
     }
 
@@ -2225,10 +2545,10 @@ namespace OpenAPI
         public string Name { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("expensed")]
-        public double Expensed { get; set; }
+        public decimal Expensed { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("outstanding")]
-        public double Outstanding { get; set; }
+        public decimal Outstanding { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
         public System.Guid OwnerId { get; set; }
@@ -2248,11 +2568,8 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class SplitExpenseRequest
+    public partial class SplitExpenseInput
     {
-
-        [System.Text.Json.Serialization.JsonPropertyName("userKey")]
-        public System.Guid UserKey { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
         public System.Guid GroupKey { get; set; }
@@ -2269,29 +2586,23 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class UpdateExpenseRequest
-    {
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class UpdateExpenseResponse
     {
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class UpdateGroupRequest
+    public partial class UpdateGroupInput
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("uniqueKey")]
+        public System.Guid UniqueKey { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("active")]
         public bool Active { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string Name { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("uniqueKey")]
-        public System.Guid UniqueKey { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("startDate")]
         public System.DateTime StartDate { get; set; }
@@ -2311,7 +2622,7 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class UpdateUserRequest
+    public partial class UpdateUserInput
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
@@ -2325,9 +2636,6 @@ namespace OpenAPI
 
         [System.Text.Json.Serialization.JsonPropertyName("countryCode")]
         public string CountryCode { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("uniqueKey")]
-        public System.Guid UniqueKey { get; set; }
 
     }
 

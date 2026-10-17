@@ -42,6 +42,41 @@ namespace Tests.Infrastructure.SqlDatabase
         }
 
         [Fact]
+        public async Task GivenNewGroup_WhenCreatedWithOwner_ThenOwnerMembershipIsPersistedAtomically()
+        {
+            var options = CreateInMemoryOptions(nameof(GivenNewGroup_WhenCreatedWithOwner_ThenOwnerMembershipIsPersistedAtomically));
+            var ownerKey = Guid.NewGuid();
+            await using (var context = new CoreContext(options))
+            {
+                context.Users.Add(new UserEntity
+                {
+                    Id = 7,
+                    UniqueKey = ownerKey,
+                    FirstName = "Group",
+                    LastName = "Owner",
+                    Email = "owner@example.test",
+                    Phone = "6023334567",
+                    CountryCode = "+1"
+                });
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new GroupRepository(() => new CoreContext(options));
+            var created = await repository.CreateWithOwnerMembershipAsync(new Group
+            {
+                Name = "Atomic Group",
+                Owner = new User { UniqueKey = ownerKey }
+            });
+
+            Assert.NotNull(created);
+            await using var verifyContext = new CoreContext(options);
+            var storedGroup = await verifyContext.Groups.SingleAsync();
+            var storedMembership = await verifyContext.MemberOf.SingleAsync();
+            Assert.Equal(storedGroup.Id, storedMembership.GroupId);
+            Assert.Equal(7, storedMembership.UserId);
+        }
+
+        [Fact]
         public async Task GivenGroupWithOwner_WhenFindByUniqueKeyAsync_ThenReturnsGroupAndOwner()
         {
             var options = CreateInMemoryOptions(nameof(GivenGroupWithOwner_WhenFindByUniqueKeyAsync_ThenReturnsGroupAndOwner));
@@ -100,6 +135,33 @@ namespace Tests.Infrastructure.SqlDatabase
             await using var verifyContext = new CoreContext(options);
             var stored = await verifyContext.MemberOf.FirstOrDefaultAsync(x => x.UserId == 1 && x.GroupId == 2);
             Assert.NotNull(stored);
+        }
+
+        [Fact]
+        public async Task GivenExistingMembership_WhenAddingAgain_ThenReturnsNoMembership()
+        {
+            var options = CreateInMemoryOptions(nameof(GivenExistingMembership_WhenAddingAgain_ThenReturnsNoMembership));
+            await using (var context = new CoreContext(options))
+            {
+                context.MemberOf.Add(new MemberOfEntity
+                {
+                    UserId = 1,
+                    GroupId = 2,
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new GroupRepository(() => new CoreContext(options));
+            var result = await repository.AddMemberAsync(new MemberOf
+            {
+                User = new User { Id = 1 },
+                Group = new Group { Id = 2 }
+            });
+
+            Assert.Null(result);
         }
 
         [Fact]

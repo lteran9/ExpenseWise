@@ -34,7 +34,12 @@ namespace Application.UseCases
                     return Invalid("Unable to find a group for given key.");
                 }
 
-                var user = await _userRepository.FindByUniqueKeyAsync(request.UserKey);
+                if (group.Owner.UniqueKey != request.ActorKey)
+                {
+                    return Invalid("Only the group organizer can record expenses.");
+                }
+
+                var user = await _userRepository.FindByUniqueKeyAsync(request.ActorKey);
                 if (user == null)
                 {
                     return Invalid("Unable to find a user for given key.");
@@ -74,7 +79,7 @@ namespace Application.UseCases
         public string Currency { get; set; }
         public decimal Amount { get; set; }
 
-        public Guid UserKey { get; set; }
+        public Guid ActorKey { get; set; }
         public Guid GroupKey { get; set; }
 
         public CreateExpenseRequest()

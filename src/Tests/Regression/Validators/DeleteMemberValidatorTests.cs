@@ -12,13 +12,16 @@ namespace Tests.Regression.Validators
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         [Theory]
         [AutoMoq]
-        public async Task DeleteMember_Has_UserId(
+        public async Task DeleteMember_RequiresGroupMemberAndActorKeys(
            [Frozen] Mock<IGroupRepository> mockRepository,
            DeleteMember useCase)
         {
             // Arrange
-            var deleteMember =
-               new DeleteMemberRequest();
+            var deleteMember = new DeleteMemberRequest
+            {
+                GroupKey = Guid.NewGuid(),
+                MemberKey = Guid.NewGuid()
+            };
 
             // Act
             var response = await useCase.Handle(deleteMember, new CancellationToken());
@@ -26,7 +29,7 @@ namespace Tests.Regression.Validators
             // Assert
             Assert.False(response.Succeeded);
             Assert.NotNull(response.ValidationMessages);
-            Assert.NotEmpty(response.ValidationMessages);
+            Assert.Contains("An authenticated user is required.", response.ValidationMessages);
         }
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
     }

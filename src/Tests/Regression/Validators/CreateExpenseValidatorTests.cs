@@ -15,6 +15,8 @@ namespace Tests.Regression.Validators
         [AutoMoq]
         public async Task Validate_WithValidInput_ShouldSucceed(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             // Arrange
@@ -27,9 +29,10 @@ namespace Tests.Regression.Validators
                     Description = "Valid expense",
                     Currency = "USD",
                     Amount = 100.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             // Act
             var response = await useCase.Handle(request, CancellationToken.None);
@@ -178,6 +181,8 @@ namespace Tests.Regression.Validators
         [AutoMoq]
         public async Task Validate_WithMinimalValidAmount_ShouldSucceed(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
@@ -189,9 +194,10 @@ namespace Tests.Regression.Validators
                     Description = "Valid",
                     Currency = "USD",
                     Amount = 0.01M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             var response = await useCase.Handle(request, CancellationToken.None);
 
@@ -199,5 +205,21 @@ namespace Tests.Regression.Validators
         }
 
         #endregion
+
+        private static void AuthorizeOrganizer(
+            Mock<IGroupRepository> groupRepository,
+            Mock<IUserRepository> userRepository,
+            CreateExpenseRequest request)
+        {
+            groupRepository.Setup(repository => repository.FindByUniqueKeyAsync(request.GroupKey))
+                .ReturnsAsync(new Group
+                {
+                    Id = 1,
+                    UniqueKey = request.GroupKey,
+                    Owner = new User { UniqueKey = request.ActorKey }
+                });
+            userRepository.Setup(repository => repository.FindByUniqueKeyAsync(request.ActorKey))
+                .ReturnsAsync(new User { UniqueKey = request.ActorKey });
+        }
     }
 }

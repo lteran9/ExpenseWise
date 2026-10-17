@@ -24,44 +24,25 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var group =
-                    new Group()
-                    {
-                        Owner = new User() { Id = request.OwnerId },
-                        Name = request.Name,
-                        StartDate = request.StartDate,
-                        EndDate = request.EndDate
-                    };
-
-                var groupResponse = await _groupRepository.CreateAsync(group);
-                if (groupResponse != null)
+                var group = new Group
                 {
-                    var memberOf =
-                        new MemberOf()
-                        {
-                            Group = new Group() { Id = groupResponse.Id },
-                            User = new User() { Id = group.Owner.Id }
-                        };
+                    Owner = new User { UniqueKey = request.ActorKey },
+                    Name = request.Name,
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate
+                };
 
-                    var memberOfResponse = await _groupRepository.AddMemberAsync(memberOf);
-                    if (memberOfResponse != null)
-                    {
-                        return Successful(
-                            new CreateGroupResponse()
-                            {
-                                Id = groupResponse.Id,
-                                UniqueKey = groupResponse.UniqueKey
-                            });
-                    }
-                    else
-                    {
-                        return Failed(default);
-                    }
-                }
-                else
+                var groupResponse = await _groupRepository.CreateWithOwnerMembershipAsync(group);
+                if (groupResponse == null)
                 {
-                    return Failed(default);
+                    return Invalid("Unable to create group for the authenticated user.");
                 }
+
+                return Successful(new CreateGroupResponse
+                {
+                    Id = groupResponse.Id,
+                    UniqueKey = groupResponse.UniqueKey
+                });
             }
 
             return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
@@ -70,7 +51,7 @@ namespace Application.UseCases
 
     public class CreateGroupRequest : IRequest<ResponseWrapper<CreateGroupResponse>>
     {
-        public int OwnerId { get; set; }
+        public Guid ActorKey { get; set; }
 
         public string Name { get; set; }
 

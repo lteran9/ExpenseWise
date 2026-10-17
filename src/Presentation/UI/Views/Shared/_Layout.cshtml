@@ -32,11 +32,20 @@
                   <li class="nav-item">
                      <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                   </li>
+                  @if (currentUser?.IsAuthenticated ?? false)
+                  {
+                     <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Group" asp-action="Index">Groups</a>
+                     </li>
+                  }
                </ul>
                <div class="navbar-nav">
                   @if (currentUser?.IsAuthenticated ?? false)
                   {
-                     <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="LogOut">Log Out</a>
+                     <form asp-controller="Auth" asp-action="LogOut" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nav-link text-dark btn btn-link">Log Out</button>
+                     </form>
                   }
                   else
                   {

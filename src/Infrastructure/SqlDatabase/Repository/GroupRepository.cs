@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Core.Entities;
 using Application.UseCases.Ports;
+using MySql.Data.MySqlClient;
 
 namespace Infrastructure.SqlDatabase
 {
@@ -13,6 +14,51 @@ namespace Infrastructure.SqlDatabase
         public GroupRepository(Func<CoreContext> contextFactory)
         {
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+        }
+
+        public async Task<Group?> CreateWithOwnerMembershipAsync(Group group)
+        {
+            using var context = _contextFactory();
+            var owner = await context.Users
+                .FirstOrDefaultAsync(user => user.UniqueKey == group.Owner.UniqueKey);
+            if (owner == null)
+            {
+                return null;
+            }
+
+            var dbEntity = _adapter.MapEntityToDatabase(group);
+            dbEntity.OwnerId = owner.Id;
+            dbEntity.Owner = null;
+            dbEntity.Membership =
+            [
+                new MemberOfEntity
+                {
+                    UserId = owner.Id,
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }
+            ];
+            dbEntity.CreatedAt = DateTime.UtcNow;
+            dbEntity.UpdatedAt = dbEntity.CreatedAt;
+            if (dbEntity.UniqueKey == Guid.Empty)
+            {
+                dbEntity.UniqueKey = Guid.NewGuid();
+            }
+
+            context.Groups.Add(dbEntity);
+            await context.SaveChangesAsync();
+
+            return new Group
+            {
+                Id = dbEntity.Id,
+                UniqueKey = dbEntity.UniqueKey,
+                Name = dbEntity.Name,
+                Active = dbEntity.Active,
+                StartDate = dbEntity.StartDate,
+                EndDate = dbEntity.EndDate,
+                Owner = new User { Id = owner.Id, UniqueKey = owner.UniqueKey }
+            };
         }
 
         /// <summary>
@@ -31,7 +77,7 @@ namespace Infrastructure.SqlDatabase
                                     .Include(o => o.Owner)
                                     .Include(m => m.Membership!)
                                     .ThenInclude(x => x.User)
-                                    .Where(g => g.Active && g.Membership!.Any(m => m.UserId == user.Id))
+                                    .Where(g => g.Active && g.Membership!.Any(m => m.Active && m.UserId == user.Id))
                                     .ToListAsync();
                     return groups.Select(x => _adapter.MapDatabaseToEntity(x)).ToList();
                 }
@@ -84,7 +130,7 @@ namespace Infrastructure.SqlDatabase
                 if (dbEntity != null)
                 {
                     var dbMembers = await context.MemberOf
-                        .Where(x => x.GroupId == dbEntity.Id)
+                        .Where(x => x.GroupId == dbEntity.Id && x.Active)
                         .Include(x => x.User)
                         .ToListAsync();
 
@@ -143,8 +189,20 @@ namespace Infrastructure.SqlDatabase
 
             using (var context = _contextFactory())
             {
+                if (await context.MemberOf.AnyAsync(x => x.UserId == dbEntity.UserId && x.GroupId == dbEntity.GroupId))
+                {
+                    return null;
+                }
+
                 var insert = context.Add(dbEntity);
-                await context.SaveChangesAsync();
+                try
+                {
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateException exception) when (exception.InnerException is MySqlException { Number: 1062 })
+                {
+                    return null;
+                }
 
                 insert.Entity.User = tempUser;
                 insert.Entity.Group = tempGroup;

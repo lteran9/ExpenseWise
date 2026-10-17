@@ -24,7 +24,13 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var response = await _repository.DeleteAsync(new User() { Id = request.Id });
+                var user = await _repository.FindByUniqueKeyAsync(request.ActorKey);
+                if (user == null)
+                {
+                    return Invalid("User not found.");
+                }
+
+                var response = await _repository.DeleteAsync(new User() { Id = user.Id });
                 if (response != null)
                 {
                     return Successful(
@@ -43,7 +49,7 @@ namespace Application.UseCases
 
     public class DeleteUserRequest : IRequest<ResponseWrapper<DeleteUserResponse>>
     {
-        public int Id { get; set; }
+        public Guid ActorKey { get; set; }
     }
 
     public class DeleteUserResponse

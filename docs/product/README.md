@@ -1,6 +1,6 @@
 # Product scope and definition of done
 
-Status: Phase 1 boundaries confirmed with the project owner on 2026-10-16; detailed rules below are a proposed specification, not implemented behavior.
+Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and repayment rules remain proposed until their packages are reviewed.
 
 - [Current-state assessment](current-state.md): what exists and the evidence behind the gaps.
 - [Delivery roadmap](roadmap.md): ordered work packages and release gates.
@@ -43,11 +43,7 @@ The organizer is the group owner. Recording an expense for somebody else must di
 
 These steps must be possible in the browser, without Swagger, manual SQL, or editing application code.
 
-## Proposed detailed rules
-
-These defaults make Phase 1 finite and testable. Review them before implementing the affected work package; a change should update this specification and its acceptance tests.
-
-### Accounts, groups, and permissions
+## Confirmed detailed rules for Phase 1.2
 
 - Registration, sign-in, and sign-out work with friendly errors. Existing phone/country-code lookup can be reused for adding registered members; this is not an email/SMS invitation service.
 - An authenticated identity is established and checked on the server. A user key in a form or URL is not proof of identity.
@@ -58,6 +54,10 @@ These defaults make Phase 1 finite and testable. Review them before implementing
 - Removing members with financial history and deleting accounts with financial history are not supported in Phase 1; reject these actions explicitly. Group archival must retain the ledger.
 
 Local/trusted deployment limits the deployment target; it does not remove the need for per-user access checks.
+
+## Proposed detailed rules for later packages
+
+Review these defaults before implementing the affected package; any changes should update this specification and its acceptance tests.
 
 ### Expenses and shares
 

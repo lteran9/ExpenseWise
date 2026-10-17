@@ -8,7 +8,7 @@ namespace Application.UseCases
     {
         public override Task<ResponseWrapper<PayExpenseResponse>> Handle(PayExpenseRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(Invalid("Manual repayments are not available yet."));
         }
     }
 

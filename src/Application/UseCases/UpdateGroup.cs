@@ -30,6 +30,11 @@ namespace Application.UseCases
                     return Invalid("Group not found.");
                 }
 
+                if (existingGroup.Owner.UniqueKey != request.ActorKey)
+                {
+                    return Invalid("Only the group organizer can update group settings.");
+                }
+
                 existingGroup.Name = request.Name;
                 existingGroup.Active = request.Active;
                 existingGroup.StartDate = request.StartDate;
@@ -61,6 +66,7 @@ namespace Application.UseCases
         public string Name { get; set; }
 
         public Guid UniqueKey { get; set; }
+        public Guid ActorKey { get; set; }
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

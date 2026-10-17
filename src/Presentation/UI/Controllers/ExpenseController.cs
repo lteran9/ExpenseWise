@@ -1,20 +1,21 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using UI.Models;
-using Application.UseCases;
-using MediatR;
 using UI.Configuration;
+using OpenAPI;
 
 namespace UI.Controllers
 {
+    [Authorize]
     public class ExpenseController : BaseController
     {
-        private readonly IMediator _mediator;
+        private readonly IExpenseWiseClient _apiClient;
         private readonly ILogger<ExpenseController> _logger;
 
-        public ExpenseController(IMediator mediator, ILogger<ExpenseController> logger)
+        public ExpenseController(IExpenseWiseClient apiClient, ILogger<ExpenseController> logger)
         {
-            _mediator = mediator;
+            _apiClient = apiClient;
             _logger = logger;
         }
 
@@ -26,38 +27,40 @@ namespace UI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ExpenseViewModel model)
+        public async Task<IActionResult> Create(ExpenseViewModel model, CancellationToken cancellationToken)
         {
             try
             {
-                Guid.TryParse(HttpContext.Session.GetString("User"), out var userKey);
+                var userKey = CurrentUserId;
 
                 if (userKey != Guid.Empty)
                 {
-                    var request =
-                        new CreateExpenseRequest()
-                        {
-                            Amount = model.Amount,
-                            Currency = model.Currency,
-                            Description = model.Description,
-                            GroupKey = model.GroupKey,
-                            UserKey = userKey
-                        };
+                    await _apiClient.ExpenseCreateAsync(new CreateExpenseInput
+                    {
+                        Amount = model.Amount,
+                        Currency = model.Currency,
+                        Description = model.Description,
+                        GroupKey = model.GroupKey
+                    }, cancellationToken);
 
-                    var response = await _mediator.Send(request);
-                    if (response.Succeeded)
-                    {
-                        return RedirectToAction("Index", "Group");
-                    }
-                    else
-                    {
-                        AddValidationErrorsToModelState(response);
-                    }
+                    return RedirectToAction("Index", "Group");
                 }
+
+                return Challenge();
+            }
+            catch (ApiException ex)
+            {
+                AddApiErrorsToModelState(ex);
+                _logger.LogWarning("Unable to create expense through the API. Status code: {StatusCode}", ex.StatusCode);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "The API could not be reached while creating an expense.");
+                ModelState.AddModelError(string.Empty, "Expense creation is temporarily unavailable. Please try again.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex);
+                _logger.LogError(ex, "Unable to create the expense.");
             }
 
             if (ModelState.ErrorCount == 0)

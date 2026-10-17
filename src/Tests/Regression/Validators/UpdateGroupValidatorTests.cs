@@ -35,6 +35,25 @@ namespace Tests.Regression.Validators
 
         [Theory]
         [AutoMoq]
+        public async Task Validate_ActorKeyIsRequired(
+            [Frozen] Mock<IGroupRepository> mock,
+            UpdateGroup useCase)
+        {
+            var response = await useCase.Handle(new UpdateGroupRequest
+            {
+                UniqueKey = Guid.NewGuid(),
+                Name = "Valid Group",
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(1)
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("An authenticated user is required.", response.ValidationMessages!);
+            mock.Verify(repository => repository.FindByUniqueKeyAsync(It.IsAny<Guid>()), Times.Never);
+        }
+
+        [Theory]
+        [AutoMoq]
         public async Task Validate_NameIsPresent(
             [Frozen] Mock<IGroupRepository> mock,
             UpdateGroup useCase
@@ -44,7 +63,8 @@ namespace Tests.Regression.Validators
             var request =
                 new UpdateGroupRequest()
                 {
-                    UniqueKey = Guid.NewGuid()
+                    UniqueKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid()
                 };
 
             // Act
@@ -68,6 +88,7 @@ namespace Tests.Regression.Validators
                 new UpdateGroupRequest()
                 {
                     UniqueKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     Name = "IO"
                 };
 
@@ -92,6 +113,7 @@ namespace Tests.Regression.Validators
                 new UpdateGroupRequest()
                 {
                     UniqueKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     Name = "Upcoming Trip",
                     StartDate = DateTime.Now.AddDays(10),
                     EndDate = DateTime.Now

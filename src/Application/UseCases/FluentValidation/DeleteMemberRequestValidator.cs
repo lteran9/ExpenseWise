@@ -7,9 +7,15 @@ namespace Application.UseCases.FluentValidation
     {
         public DeleteMemberRequestValidator()
         {
-            RuleFor(x => x.Id)
-               .GreaterThan(0)
-               .WithMessage("Please provide a user id.");
+            RuleFor(x => x.GroupKey)
+                .NotEqual(Guid.Empty)
+                .WithMessage("Please provide a group key.");
+            RuleFor(x => x.MemberKey)
+                .NotEqual(Guid.Empty)
+                .WithMessage("Please provide a member key.");
+            RuleFor(x => x.ActorKey)
+                .NotEqual(Guid.Empty)
+                .WithMessage("An authenticated user is required.");
         }
     }
 }

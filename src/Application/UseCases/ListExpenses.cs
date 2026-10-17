@@ -28,23 +28,18 @@ namespace Application.UseCases
                 var group = await _groupRepository.FindByUniqueKeyAsync(request.GroupKey);
                 if (group != null)
                 {
-                    var expenses = await _expenseRepository.GetGroupExpenses(group.Id);
-                    var payments = await _expenseRepository.GetSplitsAsync(group.Id);
+                    if (!group.Members.Any(member => member.UniqueKey == request.ActorKey))
+                    {
+                        return Invalid("Group not found.");
+                    }
 
-                    if (expenses?.Any() == true)
+                    var expenses = await _expenseRepository.GetGroupExpenses(group.Id);
+                    return Successful(new ListExpensesResponse
                     {
-                        return Successful(
-                            new ListExpensesResponse()
-                            {
-                                GroupKey = request.GroupKey,
-                                GroupMembers = group.Members.Count,
-                                Expenses = expenses
-                            });
-                    }
-                    else
-                    {
-                        return Invalid("Unable to find expenses for the given group.");
-                    }
+                        GroupKey = request.GroupKey,
+                        GroupMembers = group.Members.Count,
+                        Expenses = expenses ?? []
+                    });
                 }
                 else
                 {
@@ -58,7 +53,7 @@ namespace Application.UseCases
 
     public class ListExpensesRequest : IRequest<ResponseWrapper<ListExpensesResponse>>
     {
-        public Guid UserKey { get; set; }
+        public Guid ActorKey { get; set; }
         public Guid GroupKey { get; set; }
     }
 

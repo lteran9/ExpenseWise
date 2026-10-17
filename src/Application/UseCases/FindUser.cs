@@ -27,7 +27,7 @@ namespace Application.UseCases
                 var user =
                    new User()
                    {
-                       UniqueKey = request.UniqueKey
+                       UniqueKey = request.ActorKey
                    };
 
                 var response = await _repository.FindByUniqueKeyAsync(user.UniqueKey);
@@ -55,7 +55,7 @@ namespace Application.UseCases
 
     public record FindUserRequest : IRequest<ResponseWrapper<FindUserResponse>>
     {
-        public Guid UniqueKey { get; set; }
+        public Guid ActorKey { get; set; }
     }
 
     public record FindUserResponse

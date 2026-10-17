@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 using Core.Entities;
 using Application.UseCases.Ports;
 
@@ -31,7 +32,15 @@ namespace Infrastructure.SqlDatabase
                 dbEntity.Phone = StripPhoneOfCharacters(dbEntity.Phone);
 
                 var insert = context.Add(dbEntity);
-                await context.SaveChangesAsync();
+                try
+                {
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateException exception) when (exception.InnerException is MySqlException { Number: 1062 })
+                {
+                    return null;
+                }
+
                 return _adapter.MapDatabaseToEntity(insert.Entity);
             }
         }
@@ -59,6 +68,22 @@ namespace Infrastructure.SqlDatabase
                 var strippedPhone = NormalizeSearchPhone(phone);
                 var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == strippedPhone || x.Phone.EndsWith(strippedPhone));
                 // Only return active users
+                if (dbEntity?.Active == true)
+                {
+                    dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
+                    return _adapter.MapDatabaseToEntity(dbEntity);
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<User?> FindByCanonicalPhoneAsync(string phone)
+        {
+            using (var context = _contextFactory())
+            {
+                var strippedPhone = StripPhoneOfCharacters(phone);
+                var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == strippedPhone);
                 if (dbEntity?.Active == true)
                 {
                     dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);

@@ -8,7 +8,7 @@ namespace Application.UseCases
     {
         public override Task<ResponseWrapper<UpdateExpenseResponse>> Handle(UpdateExpenseRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(Invalid("Expense editing is not available yet."));
         }
     }
 

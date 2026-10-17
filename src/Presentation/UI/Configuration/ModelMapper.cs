@@ -15,7 +15,6 @@ namespace UI.Configuration
                 {
                     cfg.AddProfile(Activator.CreateInstance(typeof(GroupProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(UserProfile)) as Profile);
-                    cfg.AddProfile(Activator.CreateInstance(typeof(ExpenseProfile)) as Profile);
                 }, NullLoggerFactory.Instance).CreateMapper();
         }
     }

@@ -32,6 +32,11 @@ namespace Application.UseCases
                 var response = await _repository.FindByUniqueKeyAsync(group.UniqueKey);
                 if (response != null)
                 {
+                    if (!response.Members.Any(member => member.UniqueKey == request.ActorKey))
+                    {
+                        return Invalid("Group not found.");
+                    }
+
                     return Successful(
                         new RetrieveGroupResponse()
                         {
@@ -40,7 +45,14 @@ namespace Application.UseCases
                             StartDate = response.StartDate ?? DateTime.MinValue,
                             EndDate = response.EndDate ?? DateTime.MinValue,
                             OwnerId = response.Owner.UniqueKey,
-                            UniqueKey = response.UniqueKey
+                            UniqueKey = response.UniqueKey,
+                            Members = response.Members.Select(member => new FindUserResponse
+                            {
+                                Name = member.Name,
+                                Email = member.Email,
+                                Phone = member.Phone,
+                                UniqueKey = member.UniqueKey
+                            }).ToList()
                         });
                 }
                 else
@@ -56,6 +68,7 @@ namespace Application.UseCases
     public record RetrieveGroupRequest : IRequest<ResponseWrapper<RetrieveGroupResponse>>
     {
         public Guid UniqueKey { get; set; }
+        public Guid ActorKey { get; set; }
     }
 
     public record RetrieveGroupResponse

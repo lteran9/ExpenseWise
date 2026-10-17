@@ -10,6 +10,9 @@ namespace Application.UseCases.FluentValidation
             RuleFor(x => x.GroupKey)
                .NotEqual(Guid.Empty)
                .WithMessage("Please provide a group to query with.");
+            RuleFor(x => x.ActorKey)
+               .NotEqual(Guid.Empty)
+               .WithMessage("An authenticated user is required.");
         }
     }
 }

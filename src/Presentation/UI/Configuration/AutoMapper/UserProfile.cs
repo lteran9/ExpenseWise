@@ -1,19 +1,14 @@
-﻿using System;
 using AutoMapper;
-using Core.Entities;
 using OpenAPI;
 using UI.Models;
 
-namespace UI.Configuration
+namespace UI.Configuration;
+
+public sealed class UserProfile : Profile
 {
-    public class UserProfile : Profile
+    public UserProfile()
     {
-        public UserProfile()
-        {
-            CreateMap<User, UserViewModel>()
-                .ForMember(x => x.Id, src => src.MapFrom(s => s.UniqueKey));
-            CreateMap<OpenAPI.FindUserResponse, UserViewModel>()
-                .ForMember(x => x.Id, src => src.MapFrom(s => s.UniqueKey));
-        }
+        CreateMap<FindUserResponse, UserViewModel>()
+            .ForMember(viewModel => viewModel.Id, options => options.MapFrom(user => user.UniqueKey));
     }
 }

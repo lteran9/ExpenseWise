@@ -7,12 +7,12 @@ namespace Application.UseCases.FluentValidation
     {
         public DeleteGroupRequestValidator()
         {
-            RuleFor(x => x.GroupId)
-               .GreaterThan(0)
-               .WithMessage("Please provide a group id.");
-            RuleFor(x => x.RequestingUserId)
-               .NotEmpty()
-               .WithMessage("Please provide a user id.");
+            RuleFor(x => x.GroupKey)
+               .NotEqual(Guid.Empty)
+               .WithMessage("Please provide a group key.");
+            RuleFor(x => x.ActorKey)
+               .NotEqual(Guid.Empty)
+               .WithMessage("An authenticated user is required.");
         }
     }
 }

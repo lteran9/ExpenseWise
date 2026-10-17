@@ -5,6 +5,8 @@ namespace UI.Models
 {
     public class SplitViewModel
     {
+        public bool HasLoadedExpenses { get; set; }
+
         public int GroupMemberCount { get; set; }
 
         public Guid GroupKey { get; set; }

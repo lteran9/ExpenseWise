@@ -104,6 +104,34 @@ namespace Tests.Infrastructure.SqlDatabase
         }
 
         [Fact]
+        public async Task GivenUserWithSharedPhoneSuffix_WhenFindByCanonicalPhoneAsync_ThenRequiresExactPhoneMatch()
+        {
+            var options = CreateInMemoryOptions(nameof(GivenUserWithSharedPhoneSuffix_WhenFindByCanonicalPhoneAsync_ThenRequiresExactPhoneMatch));
+
+            await using (var context = new CoreContext(options))
+            {
+                context.Users.Add(new UserEntity
+                {
+                    Id = 1,
+                    FirstName = "Test",
+                    LastName = "Tester",
+                    Email = "sample@test.com",
+                    Phone = "523125551234",
+                    UniqueKey = Guid.NewGuid(),
+                    Active = true
+                });
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new UserRepository(() => new CoreContext(options));
+            var matchingUser = await repository.FindByCanonicalPhoneAsync("523125551234");
+            var nonMatchingUser = await repository.FindByCanonicalPhoneAsync("13125551234");
+
+            Assert.NotNull(matchingUser);
+            Assert.Null(nonMatchingUser);
+        }
+
+        [Fact]
         public async Task GivenActiveUserExists_WhenDeleteAsync_ThenSoftDeletesUser()
         {
             var options = CreateInMemoryOptions(nameof(GivenActiveUserExists_WhenDeleteAsync_ThenSoftDeletesUser));

@@ -10,6 +10,7 @@ services:
       Database__Name: "${DB_DATABASE:?DB_DATABASE must be set}"
       Database__Username: "${DB_USERNAME:?DB_USERNAME must be set}"
       Database__Password: "${DB_PASSWORD:?DB_PASSWORD must be set}"
+      Authentication__SigningKey: "${JWT_SIGNING_KEY:?JWT_SIGNING_KEY must be set}"
     ports:
       - '${API_PORT:-8081}:8081'
     networks:

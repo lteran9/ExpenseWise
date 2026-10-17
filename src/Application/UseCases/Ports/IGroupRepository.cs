@@ -10,6 +10,7 @@ namespace Application.UseCases.Ports
         Task<List<Group>?> ListAsync(Guid userKey);
         Task<Group?> FindByUniqueKeyAsync(Guid uniqueKey);
         Task<Group?> CreateAsync(Group group);
+        Task<Group?> CreateWithOwnerMembershipAsync(Group group);
         Task<Group?> UpdateAsync(Group group);
         Task<Group?> DeleteAsync(Group group);
         Task<MemberOf?> AddMemberAsync(MemberOf member);

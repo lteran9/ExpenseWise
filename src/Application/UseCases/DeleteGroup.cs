@@ -24,8 +24,8 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var group = await _repository.FindByIdAsync(request.GroupId);
-                if (group != null && group.Owner.Id == request.RequestingUserId)
+                var group = await _repository.FindByUniqueKeyAsync(request.GroupKey);
+                if (group != null && group.Owner.UniqueKey == request.ActorKey)
                 {
                     var response = await _repository.DeleteAsync(group);
                     if (response != null)
@@ -43,7 +43,7 @@ namespace Application.UseCases
                 }
                 else
                 {
-                    return Invalid("Only the group owner can request a delete.");
+                    return Invalid("Only the group organizer can archive this group.");
                 }
             }
 
@@ -53,8 +53,8 @@ namespace Application.UseCases
 
     public class DeleteGroupRequest : IRequest<ResponseWrapper<DeleteGroupResponse>>
     {
-        public int GroupId { get; set; }
-        public int RequestingUserId { get; set; }
+        public Guid GroupKey { get; set; }
+        public Guid ActorKey { get; set; }
     }
 
     public class DeleteGroupResponse

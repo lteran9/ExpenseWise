@@ -11,9 +11,9 @@ namespace Application.UseCases.FluentValidation
                 .NotEqual(Guid.Empty)
                 .WithMessage("Please provide a group key.");
 
-            RuleFor(x => x.UserKey)
+            RuleFor(x => x.ActorKey)
                 .NotEqual(Guid.Empty)
-                .WithMessage("Please provide a user key.");
+                .WithMessage("An authenticated user is required.");
         }
     }
 }

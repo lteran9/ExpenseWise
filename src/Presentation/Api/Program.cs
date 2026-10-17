@@ -2,6 +2,10 @@
 using ExpenseWise.DependencyConfiguration;
 using Infrastructure.SqlDatabase;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Api.Authentication;
+using System.IdentityModel.Tokens.Jwt;
 
 var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
 var builderArgs = args.Where(argument => argument != "--migrate").ToArray();
@@ -16,6 +20,11 @@ builder.Services.AddOpenApi(options =>
     options.AddSchemaTransformer((schema, context, cancellationToken) =>
     {
         schema.AdditionalPropertiesAllowed = false;
+        if (context.JsonTypeInfo.Type == typeof(decimal))
+        {
+            schema.Format = "decimal";
+        }
+
         return Task.CompletedTask;
     });
 });
@@ -23,6 +32,31 @@ builder.Services.AddOpenApi(options =>
 builder.Services
    .ConfigureDependencies(builder.Configuration)
    .RegisterUseCases();
+
+if (!migrateOnly)
+{
+    var signingKey = AccessTokenIssuer.GetSigningKey(builder.Configuration);
+    builder.Services
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.MapInboundClaims = false;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = AccessTokenIssuer.Issuer,
+                ValidateAudience = true,
+                ValidAudience = AccessTokenIssuer.Audience,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = signingKey,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromSeconds(30),
+                NameClaimType = JwtRegisteredClaimNames.Sub
+            };
+        });
+    builder.Services.AddAuthorization();
+    builder.Services.AddSingleton<AccessTokenIssuer>();
+}
 
 var app = builder.Build();
 
@@ -47,6 +81,7 @@ if (app.Environment.IsDevelopment())
 // TODO: Only enable HTTPS redirection when not in local environment
 // app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

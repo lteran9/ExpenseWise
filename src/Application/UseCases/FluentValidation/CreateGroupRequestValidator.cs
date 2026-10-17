@@ -7,9 +7,9 @@ namespace Application.UseCases.FluentValidation
     {
         public CreateGroupRequestValidator()
         {
-            RuleFor(x => x.OwnerId)
-               .GreaterThan(0)
-               .WithMessage("Please provide a group owner.");
+            RuleFor(x => x.ActorKey)
+               .NotEqual(Guid.Empty)
+               .WithMessage("An authenticated user is required.");
             RuleFor(x => x.Name)
                .NotEmpty()
                .WithMessage("Please provide a name.");
