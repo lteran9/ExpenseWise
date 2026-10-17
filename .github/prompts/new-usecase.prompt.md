@@ -8,7 +8,7 @@ Scaffold a complete new CQRS use case vertical slice for ExpenseWise named `${in
 
 Follow the repository's conventions:
 
-1. **Handler & Models in `Application/UseCases/${input}.cs`**:
+1. **Handler & Models in `src/Application/UseCases/${input}.cs`**:
    - Class `${input}` inherits from `BaseRequestHandler<${input}Request, ${input}Response>`.
    - Inject repository ports from `Application.UseCases.Ports`.
    - Instantiate the validator `${input}RequestValidator`.
@@ -16,7 +16,7 @@ Follow the repository's conventions:
    - Response class `${input}Response`.
    - Use `Successful(...)`, `Invalid(...)`, or `Failed(...)` methods of `BaseRequestHandler`.
 
-2. **Validator in `Application/UseCases/FluentValidation/${input}RequestValidator.cs`**:
+2. **Validator in `src/Application/UseCases/FluentValidation/${input}RequestValidator.cs`**:
    - Class `${input}RequestValidator` inherits from `AbstractValidator<${input}Request>`.
    - Add validation rules for required fields, lengths, or numeric ranges.
 

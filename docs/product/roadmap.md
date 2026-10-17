@@ -28,7 +28,7 @@ Implement one numbered package at a time and attach evidence to its exit gate. R
 
 ### Implementation boundaries
 
-- Keep business rules in Core/Application and persistence behind Application ports; wire configuration and infrastructure in the composition layer.
+- Keep business rules in the Core and Application layers and persistence behind Application ports; wire configuration and infrastructure in the composition layer.
 - Add only the domain/storage changes needed for payer, immutable allocations, repayments, and the agreed correction policy. Reuse existing entities where their meaning remains valid; do not preserve the paid-split experiment at the cost of incorrect accounting.
 - All Phase 1 UI operations should use API contracts. Update OpenAPI metadata/contracts and regenerate the client, rather than maintaining two application execution paths.
 - Use migrations that preserve existing data. Determine whether historical paid splits can be mapped reliably; if not, require an explicit owner-approved reconciliation plan. Never silently invent repayment recipients or wipe a database.

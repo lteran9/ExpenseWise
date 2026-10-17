@@ -11,7 +11,7 @@ To regenerate it:
    dotnet tool restore
    dotnet tool run nswag openapi2csclient \
      /input:http://localhost:5153/openapi/v1.json \
-     /output:Infrastructure/OpenAPI/ExpenseWiseApiClient.generated.cs \
+     /output:src/Infrastructure/OpenAPI/ExpenseWiseApiClient.generated.cs \
      /namespace:OpenAPI \
      /classname:ExpenseWiseClient \
      /GenerateClientInterfaces:true \

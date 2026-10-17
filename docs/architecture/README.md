@@ -4,30 +4,30 @@ ExpenseWise is a .NET 10 solution organized around inward dependencies and separ
 
 ```mermaid
 flowchart LR
-    UI["Presentation/UI"] --> DI["Configuration/DependencyConfiguration"]
-    API["Presentation/Api"] --> DI
-    DI --> App["Application/UseCases"]
-    DI --> Infra["Infrastructure/SqlDatabase"]
-    App --> Core["Core/Entites"]
+    UI["src/Presentation/UI"] --> DI["src/Configuration/DependencyConfiguration"]
+    API["src/Presentation/Api"] --> DI
+    DI --> App["src/Application/UseCases"]
+    DI --> Infra["src/Infrastructure/SqlDatabase"]
+    App --> Core["src/Core/Entites"]
     Infra --> Core
     Infra --> App
-    UI --> Client["Infrastructure/OpenAPI"]
+    UI --> Client["src/Infrastructure/OpenAPI"]
     Client -->|HTTP| API
 ```
 
-`Configuration/DependencyConfiguration` is the composition layer that wires use cases and persistence adapters. The UI calls the API through the generated OpenAPI client; both application entry points register application use cases.
+`src/Configuration/DependencyConfiguration` is the composition layer that wires use cases and persistence adapters. The UI calls the API through the generated OpenAPI client; both application entry points register application use cases.
 
 ## Project responsibilities
 
 | Project | Responsibility |
 | --- | --- |
-| `Core/Entites` | Domain entities and value objects; keep domain types independent of frameworks and infrastructure. |
-| `Application/UseCases` | MediatR requests/handlers, validation, response wrappers, and repository ports. |
-| `Infrastructure/SqlDatabase` | SQL persistence adapters, EF Core context/migrations, queries, and entity mappings. |
-| `Infrastructure/OpenAPI` | Generated API client and its configuration. |
-| `Configuration/DependencyConfiguration` | Dependency-injection composition and implementation bindings. |
-| `Presentation/Api` | HTTP controllers, API contracts, and API startup. |
-| `Presentation/UI` | MVC application, views, and API-client integration. |
+| `src/Core/Entites` | Domain entities and value objects; keep domain types independent of frameworks and infrastructure. |
+| `src/Application/UseCases` | MediatR requests/handlers, validation, response wrappers, and repository ports. |
+| `src/Infrastructure/SqlDatabase` | SQL persistence adapters, EF Core context/migrations, queries, and entity mappings. |
+| `src/Infrastructure/OpenAPI` | Generated API client and its configuration. |
+| `src/Configuration/DependencyConfiguration` | Dependency-injection composition and implementation bindings. |
+| `src/Presentation/Api` | HTTP controllers, API contracts, and API startup. |
+| `src/Presentation/UI` | MVC application, views, and API-client integration. |
 | `Tests` | Regression/use-case and infrastructure test suites. |
 
 ## Change guidance

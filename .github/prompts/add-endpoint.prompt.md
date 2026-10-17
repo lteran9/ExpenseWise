@@ -1,5 +1,5 @@
 ---
-description: "Add a new API controller endpoint connected to a MediatR use case in Presentation/Api."
+description: "Add a new API controller endpoint connected to a MediatR use case in src/Presentation/Api."
 argument-hint: "Endpoint details (e.g. SettleUp in ExpenseController)"
 agent: "agent"
 ---
@@ -7,7 +7,7 @@ agent: "agent"
 Add a new API action endpoint for ExpenseWise according to the specified request: `${input}`.
 
 Follow the controller conventions:
-1. Locate the appropriate controller in `Presentation/Api/Controllers/`.
+1. Locate the appropriate controller in `src/Presentation/Api/Controllers/`.
 2. Follow the standard action structure:
    - Route and HTTP verb attributes (e.g. `[HttpPost(nameof(ActionName))]`).
    - OpenAPI metadata: `[ProducesResponseType(typeof(ResponseDto), StatusCodes.Status200OK)]`, `[ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]`, `[ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]`.

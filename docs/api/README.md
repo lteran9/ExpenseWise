@@ -1,6 +1,6 @@
     # API
 
-The HTTP API is the `Presentation/Api` ASP.NET Core application. Controllers are the transport boundary: they bind HTTP input, dispatch request objects through MediatR, and translate use-case results into HTTP responses.
+The HTTP API is the `src/Presentation/Api` ASP.NET Core application. Controllers are the transport boundary: they bind HTTP input, dispatch request objects through MediatR, and translate use-case results into HTTP responses.
 
 ## Current routes
 
@@ -26,7 +26,7 @@ Error translation is not fully uniform across the controllers. Inspect the relev
 
 ## Change guidance
 
-- Keep controllers thin; put business rules in `Application/UseCases`.
+- Keep controllers thin; put business rules in `src/Application/UseCases`.
 - Keep HTTP contracts and status-code metadata aligned with the action's actual behavior.
 - When adding or changing a route, update this route summary and verify the generated OpenAPI output in Development.
 - Do not document real user data, credentials, internal hostnames, or private deployment URLs.

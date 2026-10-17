@@ -5,14 +5,14 @@ WORKDIR /src
 COPY . .
 
 # Navigate to presentation layer
-WORKDIR /src/Presentation/Api
+WORKDIR /src/src/Presentation/UI
 
 # Restore as distinct layers
-RUN dotnet restore "./Api.csproj"
+RUN dotnet restore "./UI.csproj"
 # Build project
-RUN dotnet build "./Api.csproj" -c release -o /app/build --no-restore
+RUN dotnet build "./UI.csproj" -c release -o /app/build --no-restore
 # Publish project
-RUN dotnet publish "./Api.csproj" -c release -o /app/publish --no-restore
+RUN dotnet publish "./UI.csproj" -c release -o /app/publish --no-restore
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
@@ -21,11 +21,11 @@ WORKDIR /app
 # Copy published output from build stage
 COPY --from=build /app/publish .
 
-# Expose port 8081 (default for ASP.NET Core in containers)
-EXPOSE 8081
+# Expose port 8080 for the UI
+EXPOSE 8080
 
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Development
-ENV HTTP_PORTS=8081
+ENV HTTP_PORTS=8080
 
-ENTRYPOINT ["dotnet", "Api.dll"]
+ENTRYPOINT ["dotnet", "UI.dll"]

@@ -9,7 +9,7 @@ Application operations are represented as request types and handled through Medi
 
 ## Decision
 
-Represent each application operation as a request and handler in `Application/UseCases`. Handlers follow the existing `BaseRequestHandler<TRequest, TResponse>` and `ResponseWrapper<T>` conventions. Validate input early with FluentValidation where a validator exists, and express persistence requirements through application ports.
+Represent each application operation as a request and handler in `src/Application/UseCases`. Handlers follow the existing `BaseRequestHandler<TRequest, TResponse>` and `ResponseWrapper<T>` conventions. Validate input early with FluentValidation where a validator exists, and express persistence requirements through application ports.
 
 The wrapper distinguishes successful results, validation messages, and execution failures. Presentation layers translate these outcomes to transport-specific responses; they should not duplicate business logic.
 
