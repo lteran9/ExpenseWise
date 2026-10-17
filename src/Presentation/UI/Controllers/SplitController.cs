@@ -29,6 +29,7 @@ namespace UI.Controllers
                 var response = await _apiClient.ExpenseListAsync(group, cancellationToken);
                 return View(new SplitViewModel
                 {
+                    HasLoadedExpenses = true,
                     GroupKey = response.GroupKey,
                     GroupMemberCount = response.GroupMembers,
                     ExpenseList = response.Expenses.Select(expense => new ExpenseViewModel

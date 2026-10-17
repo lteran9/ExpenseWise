@@ -8,11 +8,12 @@
 <hr />
 <div class="card box-shadow">
     <div class="card-body">
+        @Html.ValidationSummary()
+
         @if (Model?.ExpenseList?.Any() == true)
         {
             <form asp-action="Create" asp-controller="Split" method="post">
                 @Html.AntiForgeryToken()
-                @Html.ValidationSummary()
 
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -49,9 +50,13 @@
                 <input type="hidden" asp-for="GroupKey" />
             </form>
         }
+        else if (Model?.HasLoadedExpenses == true)
+        {
+            <p class="text-center">No expenses found for this group.</p>
+        }
         else
         {
-            <p class="text-center">Unable to find expense list for group.</p>
+            <p class="text-center">Unable to load expenses for this group.</p>
         }
     </div>
 </div>
