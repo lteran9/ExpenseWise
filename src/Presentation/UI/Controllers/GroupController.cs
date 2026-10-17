@@ -1,10 +1,12 @@
 using OpenAPI;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using UI.Configuration;
 using UI.Models;
 
 namespace UI.Controllers
 {
+    [Authorize]
     public class GroupController : BaseController
     {
         private readonly IExpenseWiseClient _apiClient;
@@ -21,8 +23,8 @@ namespace UI.Controllers
         {
             try
             {
-                var response = await _apiClient.GroupListAsync(CurrentUserId);
-                return View(response.Groups.Select(ModelMapper.Instance.Map<GroupViewModel>));
+                var response = await _apiClient.GroupListAsync();
+                return View(response.Groups.Select(ModelMapper.Instance.Map<GroupViewModel>).ToList());
             }
             catch (ApiException ex)
             {
@@ -32,9 +34,10 @@ namespace UI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to load groups.");
+                ModelState.AddModelError(string.Empty, "Unable to load groups right now. Please try again.");
             }
 
-            return View();
+            return View(new List<GroupViewModel>());
         }
 
         [HttpGet]
@@ -49,14 +52,12 @@ namespace UI.Controllers
         {
             try
             {
-                var user = await _apiClient.UserFindAsync(CurrentUserId);
                 await _apiClient.GroupCreateAsync(
-                    new CreateGroupRequest
+                    new CreateGroupInput
                     {
                         Name = model.Name,
                         StartDate = model.StartDate,
-                        EndDate = model.EndDate,
-                        OwnerId = user.Id
+                        EndDate = model.EndDate
                     });
 
                 return RedirectToAction(nameof(Index));
@@ -85,6 +86,11 @@ namespace UI.Controllers
             try
             {
                 var response = await _apiClient.GroupRetrieveAsync(key);
+                if (response.OwnerId != CurrentUserId)
+                {
+                    return Forbid();
+                }
+
                 return View(ModelMapper.Instance.Map<GroupViewModel>(response));
             }
             catch (ApiException ex)
@@ -107,7 +113,7 @@ namespace UI.Controllers
             try
             {
                 await _apiClient.GroupUpdateAsync(
-                    new UpdateGroupRequest
+                    new UpdateGroupInput
                     {
                         UniqueKey = model.UniqueKey,
                         Name = model.Name,
@@ -142,6 +148,11 @@ namespace UI.Controllers
             try
             {
                 var response = await _apiClient.GroupRetrieveAsync(key);
+                if (response.OwnerId != CurrentUserId)
+                {
+                    return Forbid();
+                }
+
                 return View(new GroupInviteViewModel
                 {
                     Group = ModelMapper.Instance.Map<GroupViewModel>(response)
@@ -167,7 +178,7 @@ namespace UI.Controllers
             try
             {
                 var response = await _apiClient.GroupAddMemberAsync(
-                    new AddMemberToGroupRequest
+                    new AddGroupMemberInput
                     {
                         Phone = model.Phone,
                         CountryCode = model.CountryCode,

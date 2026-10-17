@@ -28,45 +28,37 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var groups = await _groupRepository.ListAsync(request.UserId);
-                if (groups?.Any() == true)
-                {
-                    var response = new List<RetrieveGroupResponse>();
+                var groups = await _groupRepository.ListAsync(request.ActorKey);
+                var response = new List<RetrieveGroupResponse>();
 
-                    // Get expense list
-                    foreach (var group in groups)
+                foreach (var group in groups ?? new List<Group>())
+                {
+                    var expenseList = await _expenseRepository.GetGroupExpenses(group.Id);
+                    var paymentsList = await _expenseRepository.GetSplitsAsync(group.Id);
+
+                    var expensed = expenseList?.Sum(x => x.Amount) ?? 0;
+                    var outstanding = expensed - (paymentsList?.Where(e => e.Paid).Sum(x => x.Amount) ?? 0);
+                    response.Add(new RetrieveGroupResponse
                     {
-                        var expenseList = await _expenseRepository.GetGroupExpenses(group.Id);
-                        var paymentsList = await _expenseRepository.GetSplitsAsync(group.Id);
-
-                        var expensed = expenseList?.Sum(x => x.Amount) ?? 0;
-                        var outstanding = expensed - (paymentsList?.Where(e => e.Paid == true).Sum(x => x.Amount) ?? 0);
-                        response.Add(
-                            new RetrieveGroupResponse()
-                            {
-                                Active = group.Active,
-                                Name = group.Name,
-                                StartDate = group.StartDate ?? DateTime.MinValue,
-                                EndDate = group.EndDate ?? DateTime.MinValue,
-                                OwnerId = group.Owner.UniqueKey,
-                                UniqueKey = group.UniqueKey,
-                                Members = group.Members.Select(y => new FindUserResponse() { Name = y.Name, Email = y.Email, Phone = y.Phone, UniqueKey = y.UniqueKey }).ToList(),
-                                Expensed = expensed > 0 ? expensed : 0,
-                                Outstanding = outstanding > 0 ? outstanding : 0
-                            }
-                        );
-                    }
-
-                    return Successful(
-                        new ListGroupsResponse()
+                        Active = group.Active,
+                        Name = group.Name,
+                        StartDate = group.StartDate ?? DateTime.MinValue,
+                        EndDate = group.EndDate ?? DateTime.MinValue,
+                        OwnerId = group.Owner.UniqueKey,
+                        UniqueKey = group.UniqueKey,
+                        Members = group.Members.Select(member => new FindUserResponse
                         {
-                            Groups = response
-                        });
+                            Name = member.Name,
+                            Email = member.Email,
+                            Phone = member.Phone,
+                            UniqueKey = member.UniqueKey
+                        }).ToList(),
+                        Expensed = Math.Max(expensed, 0),
+                        Outstanding = Math.Max(outstanding, 0)
+                    });
                 }
-                else
-                {
-                    return Invalid("User does not own any groups.");
-                }
+
+                return Successful(new ListGroupsResponse { Groups = response });
             }
 
             return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
@@ -75,7 +67,7 @@ namespace Application.UseCases
 
     public record ListGroupsRequest : IRequest<ResponseWrapper<ListGroupsResponse>>
     {
-        public Guid UserId { get; set; }
+        public Guid ActorKey { get; set; }
     }
 
     public record ListGroupsResponse

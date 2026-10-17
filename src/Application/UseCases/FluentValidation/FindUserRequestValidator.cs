@@ -7,9 +7,9 @@ namespace Application.UseCases.FluentValidation
     {
         public FindUserRequestValidator()
         {
-            RuleFor(x => x.UniqueKey)
+            RuleFor(x => x.ActorKey)
                .NotEqual(Guid.Empty)
-               .WithMessage("Please provide a user id to query with.");
+               .WithMessage("An authenticated user is required.");
         }
     }
 }

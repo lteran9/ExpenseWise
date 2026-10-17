@@ -6,6 +6,7 @@
 
 <h1 class="display-4 text-center">@ViewData["Title"]</h1>
 <hr />
+<div asp-validation-summary="All" class="text-danger"></div>
 @if (Model?.Any() == true)
 {
    @foreach (var group in Model)
@@ -21,13 +22,13 @@
                      <a asp-action="Edit" asp-route-key="@group.UniqueKey" class="btn btn-outline-secondary">
                         <i class="bi bi-gear"></i>
                      </a>
+                     <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-outline-secondary" aria-label="Add a member">
+                        <i class="bi bi-person-add"></i>
+                     </a>
+                     <a asp-action="Create" asp-controller="Expense" asp-route-group="@group.UniqueKey" class="btn btn-outline-secondary" aria-label="Record an expense">
+                        <i class="bi bi-bag-plus"></i>
+                     </a>
                   }
-                  <a asp-action="Invite" asp-route-key="@group.UniqueKey" class="btn btn-outline-secondary">
-                     <i class="bi bi-person-add"></i>
-                  </a>
-                  <a asp-action="Create" asp-controller="Expense" asp-route-group="@group.UniqueKey" class="btn btn-outline-secondary">
-                     <i class="bi bi-bag-plus"></i>
-                  </a>
                </div>
             </div>
             <fieldset class="mb-4">
@@ -39,11 +40,7 @@
                      {
                         <li class="list-group-item">
                            <div class="hstack">
-                              <span>@user.Name @Html.Raw(group.OwnerId == user.Id ? "<span class=\"badge text-bg-secondary\">Owner</span>" : "")</span>
-                              @if (user.Id == currentUser!.Id)
-                              {
-                                 <a asp-action="Index" asp-controller="Split" asp-route-group="@group.UniqueKey" class="btn btn-sm btn-success ms-auto">Pay</a>
-                              }
+                              <span>@user.Name @Html.Raw(group.OwnerId == user.Id ? "<span class=\"badge text-bg-secondary\">Organizer</span>" : "")</span>
                            </div>
 
                         </li>
@@ -60,7 +57,7 @@
 else
 {
    <div class="alert alert-info">
-      No groups to display.
+      You are not a member of any groups yet. Create one to get started.
    </div>
 }
 

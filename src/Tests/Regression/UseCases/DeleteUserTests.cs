@@ -16,11 +16,14 @@ namespace Tests.Regression.UseCases
            DeleteUser useCase)
         {
             // Arrange
+            var actorKey = Guid.NewGuid();
+            mockRepository.Setup(x => x.FindByUniqueKeyAsync(actorKey))
+                .ReturnsAsync(new User { Id = 1000, UniqueKey = actorKey });
             mockRepository.Setup(x => x.DeleteAsync(It.IsAny<User>())).ReturnsAsync(new User() { Id = 1000 });
             var deleteUser =
                new DeleteUserRequest()
                {
-                   Id = 1000
+                   ActorKey = actorKey
                };
 
             // Act
@@ -30,6 +33,7 @@ namespace Tests.Regression.UseCases
             Assert.True(response.Succeeded);
             Assert.True(response.Result != null);
             Assert.True(response.Result.Success);
+            mockRepository.Verify(x => x.DeleteAsync(It.Is<User>(user => user.Id == 1000)), Times.Once);
         }
     }
 }

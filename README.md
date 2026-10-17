@@ -55,7 +55,8 @@ For the project documentation index, architecture decisions, and operating guida
 
 ```bash
 cp -n .env.example .env
-# Replace DB_PASSWORD in .env with a private local value.
+# Replace DB_PASSWORD and JWT_SIGNING_KEY in .env with private local values.
+# Generate a signing key with: openssl rand -base64 48
 docker compose up --build -d
 docker compose logs -f
 ```
@@ -72,7 +73,7 @@ docker compose logs -f
 ```bash
 dotnet build
 cd src/Presentation/Api
-dotnet run
+Authentication__SigningKey='<private-random-value-of-at-least-32-bytes>' dotnet run
 ```
 
 - **Rebuild Docker Images:**

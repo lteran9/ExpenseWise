@@ -23,7 +23,7 @@ namespace Tests.Regression.UseCases
                     Description = "",
                     Currency = "USD",
                     Amount = 100.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
 
@@ -38,6 +38,23 @@ namespace Tests.Regression.UseCases
 
         [Theory]
         [AutoMoq]
+        public async Task CreateExpense_WithEmptyActorKey_ShouldFail(
+            CreateExpense useCase)
+        {
+            var response = await useCase.Handle(new CreateExpenseRequest
+            {
+                Description = "Test expense",
+                Currency = "USD",
+                Amount = 10.00M,
+                GroupKey = Guid.NewGuid()
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("An authenticated user is required.", response.ValidationMessages!);
+        }
+
+        [Theory]
+        [AutoMoq]
         public async Task CreateExpense_WithEmptyCurrency_ShouldFail(
             CreateExpense useCase)
         {
@@ -47,7 +64,7 @@ namespace Tests.Regression.UseCases
                     Description = "Test expense",
                     Currency = "",
                     Amount = 100.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
 
@@ -69,7 +86,7 @@ namespace Tests.Regression.UseCases
                     Description = "Test expense",
                     Currency = "USD",
                     Amount = 0,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
 
@@ -91,7 +108,7 @@ namespace Tests.Regression.UseCases
                     Description = "Test expense",
                     Currency = "USD",
                     Amount = -50.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
 
@@ -110,6 +127,8 @@ namespace Tests.Regression.UseCases
         [AutoMoq]
         public async Task CreateExpense_WhenRepositoryReturnsNull_ShouldFail(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             // Arrange
@@ -122,9 +141,10 @@ namespace Tests.Regression.UseCases
                     Description = "Test expense",
                     Currency = "USD",
                     Amount = 100.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             // Act
             var response = await useCase.Handle(request, CancellationToken.None);
@@ -137,6 +157,8 @@ namespace Tests.Regression.UseCases
         [AutoMoq]
         public async Task CreateExpense_WhenRepositoryThrows_ShouldFail(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
@@ -148,9 +170,10 @@ namespace Tests.Regression.UseCases
                     Description = "Test expense",
                     Currency = "USD",
                     Amount = 100.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => useCase.Handle(request, CancellationToken.None));
@@ -164,6 +187,8 @@ namespace Tests.Regression.UseCases
         [AutoMoq]
         public async Task CreateExpense_WithValidRequest_MapsDataCorrectly(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             // Arrange
@@ -176,9 +201,10 @@ namespace Tests.Regression.UseCases
                     Description = "Coffee",
                     Currency = "EUR",
                     Amount = 5.50M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             // Act
             await useCase.Handle(request, CancellationToken.None);
@@ -200,6 +226,8 @@ namespace Tests.Regression.UseCases
         [AutoMoq]
         public async Task CreateExpense_WithLargeAmount_ShouldSucceed(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             var request =
@@ -208,9 +236,10 @@ namespace Tests.Regression.UseCases
                     Description = "Large expense",
                     Currency = "USD",
                     Amount = 999999.99M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = 1 });
@@ -224,6 +253,8 @@ namespace Tests.Regression.UseCases
         [AutoMoq]
         public async Task CreateExpense_WithSmallAmount_ShouldSucceed(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             var request =
@@ -232,9 +263,10 @@ namespace Tests.Regression.UseCases
                     Description = "Small expense",
                     Currency = "USD",
                     Amount = 0.01M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = 1 });
@@ -248,6 +280,8 @@ namespace Tests.Regression.UseCases
         [AutoMoq]
         public async Task CreateExpense_WithVeryLongDescription_ShouldSucceed(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             var longDescription = new string('A', 1000);
@@ -257,9 +291,10 @@ namespace Tests.Regression.UseCases
                     Description = longDescription,
                     Currency = "USD",
                     Amount = 100.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             mockRepository.Setup(r => r.CreateAsync(It.IsAny<Expense>()))
                 .ReturnsAsync(new Expense { Id = 1 });
@@ -277,6 +312,8 @@ namespace Tests.Regression.UseCases
         [AutoMoq]
         public async Task CreateExpense_WithValidRequest_ReturnsCorrectId(
             [Frozen] Mock<IExpenseRepository> mockRepository,
+            [Frozen] Mock<IGroupRepository> groupRepository,
+            [Frozen] Mock<IUserRepository> userRepository,
             CreateExpense useCase)
         {
             // Arrange
@@ -290,9 +327,10 @@ namespace Tests.Regression.UseCases
                     Description = "Test",
                     Currency = "USD",
                     Amount = 100.00M,
-                    UserKey = Guid.NewGuid(),
+                    ActorKey = Guid.NewGuid(),
                     GroupKey = Guid.NewGuid()
                 };
+            AuthorizeOrganizer(groupRepository, userRepository, request);
 
             // Act
             var response = await useCase.Handle(request, CancellationToken.None);
@@ -304,5 +342,55 @@ namespace Tests.Regression.UseCases
         }
 
         #endregion
+
+        [Fact]
+        public async Task CreateExpense_WhenActorIsNotOrganizer_DoesNotCreateExpense()
+        {
+            var actorKey = Guid.NewGuid();
+            var groupKey = Guid.NewGuid();
+            var expenseRepository = new Mock<IExpenseRepository>();
+            var userRepository = new Mock<IUserRepository>();
+            var groupRepository = new Mock<IGroupRepository>();
+            groupRepository.Setup(repository => repository.FindByUniqueKeyAsync(groupKey))
+                .ReturnsAsync(new Group
+                {
+                    UniqueKey = groupKey,
+                    Owner = new User { UniqueKey = Guid.NewGuid() }
+                });
+            userRepository.Setup(repository => repository.FindByUniqueKeyAsync(actorKey))
+                .ReturnsAsync(new User { UniqueKey = actorKey });
+            var useCase = new CreateExpense(
+                expenseRepository.Object,
+                userRepository.Object,
+                groupRepository.Object);
+
+            var response = await useCase.Handle(new CreateExpenseRequest
+            {
+                Description = "Unauthorized expense",
+                Currency = "USD",
+                Amount = 10,
+                ActorKey = actorKey,
+                GroupKey = groupKey
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            expenseRepository.Verify(repository => repository.CreateAsync(It.IsAny<Expense>()), Times.Never);
+        }
+
+        private static void AuthorizeOrganizer(
+            Mock<IGroupRepository> groupRepository,
+            Mock<IUserRepository> userRepository,
+            CreateExpenseRequest request)
+        {
+            groupRepository.Setup(repository => repository.FindByUniqueKeyAsync(request.GroupKey))
+                .ReturnsAsync(new Group
+                {
+                    Id = 1,
+                    UniqueKey = request.GroupKey,
+                    Owner = new User { UniqueKey = request.ActorKey }
+                });
+            userRepository.Setup(repository => repository.FindByUniqueKeyAsync(request.ActorKey))
+                .ReturnsAsync(new User { UniqueKey = request.ActorKey });
+        }
     }
 }

@@ -26,6 +26,16 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
+                if (await _userRepository.FindByEmailAsync(request.Email) != null)
+                {
+                    return Invalid("The email address provided is already in use.");
+                }
+
+                if (await _userRepository.FindByPhoneAsync(request.Phone) != null)
+                {
+                    return Invalid("The phone number provided is already in use.");
+                }
+
                 // Step 1: Create Password Ciper and Hash
                 var encrypted = Password.Hash(request.Password, out byte[] cipher);
 
@@ -68,7 +78,7 @@ namespace Application.UseCases
                 }
                 else
                 {
-                    return Failed(default);
+                    return Invalid("The email address or phone number provided is already in use.");
                 }
             }
 

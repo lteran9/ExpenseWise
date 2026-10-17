@@ -4,6 +4,7 @@ These ADRs capture decisions visible in the current repository so that contribut
 
 | ADR | Decision | Status |
 | --- | --- | --- |
+| [0004: Signed bearer tokens for API identity](0004-signed-api-bearer-tokens.md) | Derive protected API actor identity from short-lived signed tokens. | Accepted |
 | [0001: Layered architecture with inward dependencies](0001-layered-architecture.md) | Separate domain, application, infrastructure, composition, and presentation concerns. | Accepted |
 | [0002: MediatR use-case boundary](0002-mediatr-use-case-boundary.md) | Represent application operations as request/handler pairs with validation and wrapped results. | Accepted |
 | [0003: Relational persistence with EF Core and MySQL](0003-efcore-mysql-persistence.md) | Keep SQL access behind application ports and implement it in infrastructure. | Accepted |

@@ -17,6 +17,8 @@ namespace Tests.Regression.UseCases
            CreateUser useCase)
         {
             // Arrange
+            mockRepository.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
+            mockRepository.Setup(x => x.FindByPhoneAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
             mockRepository.Setup(x => x.CreateAsync(It.IsAny<User>())).ReturnsAsync(new User() { Id = 1000 });
             mockPasswordRepository.Setup(x => x.CreateAsync(It.IsAny<Password>())).ReturnsAsync(new Password());
             var createUser =
@@ -36,6 +38,31 @@ namespace Tests.Regression.UseCases
             Assert.True(response.Succeeded);
             Assert.True(response.Result != null);
             Assert.True(response.Result.Id > 0);
+        }
+
+        [Fact]
+        public async Task CreateUser_WhenEmailAlreadyExists_ReturnsFriendlyValidationError()
+        {
+            var userRepository = new Mock<IUserRepository>();
+            userRepository.Setup(repository => repository.FindByEmailAsync("existing@example.com"))
+                .ReturnsAsync(new User { Email = "existing@example.com" });
+            var useCase = new CreateUser(
+                userRepository.Object,
+                Mock.Of<IPasswordRepository>());
+
+            var response = await useCase.Handle(new CreateUserRequest
+            {
+                Name = "Test User",
+                Email = "existing@example.com",
+                Phone = "6023334567",
+                CountryCode = "+1",
+                Password = "ValidPass123!",
+                ConfirmPassword = "ValidPass123!"
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("email address", response.ValidationMessages!.Single());
+            userRepository.Verify(repository => repository.CreateAsync(It.IsAny<User>()), Times.Never);
         }
     }
 }

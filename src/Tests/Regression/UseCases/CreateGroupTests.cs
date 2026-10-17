@@ -16,12 +16,12 @@ namespace Tests.Regression.UseCases
            CreateGroup useCase)
         {
             // Arrange
-            mockRepository.Setup(x => x.CreateAsync(It.IsAny<Group>())).ReturnsAsync(new Group() { Id = 1 });
-            mockRepository.Setup(x => x.AddMemberAsync(It.IsAny<MemberOf>())).ReturnsAsync(new MemberOf() { Id = 1 });
+            mockRepository.Setup(x => x.CreateWithOwnerMembershipAsync(It.IsAny<Group>()))
+                .ReturnsAsync(new Group() { Id = 1, UniqueKey = Guid.NewGuid() });
             var createGroup =
                new CreateGroupRequest()
                {
-                   OwnerId = 1000,
+                   ActorKey = Guid.NewGuid(),
                    Name = "Initial Test Group"
                };
 
@@ -32,6 +32,9 @@ namespace Tests.Regression.UseCases
             Assert.True(response.Succeeded);
             Assert.True(response.Result != null);
             Assert.True(response.Result.Id > 0);
+            mockRepository.Verify(x => x.CreateWithOwnerMembershipAsync(
+                It.Is<Group>(group => group.Owner.UniqueKey == createGroup.ActorKey)), Times.Once);
+            mockRepository.Verify(x => x.AddMemberAsync(It.IsAny<MemberOf>()), Times.Never);
         }
     }
 }

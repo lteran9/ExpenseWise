@@ -7,9 +7,9 @@ namespace Application.UseCases.FluentValidation
     {
         public DeleteUserRequestValidator()
         {
-            RuleFor(x => x.Id)
-               .GreaterThan(0)
-               .WithMessage("Please provide a user id.");
+            RuleFor(x => x.ActorKey)
+               .NotEqual(Guid.Empty)
+               .WithMessage("An authenticated user is required.");
         }
     }
 }

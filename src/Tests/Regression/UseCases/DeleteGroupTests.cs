@@ -16,13 +16,16 @@ namespace Tests.Regression.UseCases
            DeleteGroup useCase)
         {
             // Arrange
-            mockRepository.Setup(x => x.FindByIdAsync(It.IsAny<int>())).ReturnsAsync(new Group() { Id = 1000, Owner = new User() { Id = 1000 } });
-            mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Group>())).ReturnsAsync(new Group() { Id = 1000 });
+            var groupKey = Guid.NewGuid();
+            var actorKey = Guid.NewGuid();
+            mockRepository.Setup(x => x.FindByUniqueKeyAsync(groupKey))
+                .ReturnsAsync(new Group { UniqueKey = groupKey, Owner = new User { UniqueKey = actorKey } });
+            mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Group>())).ReturnsAsync(new Group { Id = 1000 });
             var deleteGroup =
                new DeleteGroupRequest()
                {
-                   GroupId = 1000,
-                   RequestingUserId = 1000
+                   GroupKey = groupKey,
+                   ActorKey = actorKey
                };
 
             // Act
@@ -32,6 +35,22 @@ namespace Tests.Regression.UseCases
             Assert.True(response.Succeeded);
             Assert.True(response.Result != null);
             Assert.True(response.Result.Success);
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WithEmptyActorKey_ReturnsValidationFailure()
+        {
+            var repository = new Mock<IGroupRepository>();
+            var useCase = new DeleteGroup(repository.Object);
+
+            var response = await useCase.Handle(new DeleteGroupRequest
+            {
+                GroupKey = Guid.NewGuid()
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("An authenticated user is required.", response.ValidationMessages!);
+            repository.Verify(value => value.FindByUniqueKeyAsync(It.IsAny<Guid>()), Times.Never);
         }
     }
 }

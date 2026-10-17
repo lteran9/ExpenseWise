@@ -12,7 +12,7 @@ namespace Tests.Regression.Validators
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         [Theory]
         [AutoMoq]
-        public async Task DeleteUser_Has_UserId(
+        public async Task DeleteUser_RequiresActorKey(
            [Frozen] Mock<IUserRepository> mockRepository,
            DeleteUser useCase)
         {
@@ -26,7 +26,7 @@ namespace Tests.Regression.Validators
             // Assert
             Assert.False(response.Succeeded);
             Assert.NotNull(response.ValidationMessages);
-            Assert.NotEmpty(response.ValidationMessages);
+            Assert.Contains("An authenticated user is required.", response.ValidationMessages);
         }
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
     }

@@ -9,6 +9,7 @@
    <div class="card-body">
       <form asp-action="SignIn" method="post">
          @Html.AntiForgeryToken()
+         <input type="hidden" name="returnUrl" value="@Context.Request.Query["ReturnUrl"]" />
          @Html.ValidationSummary()
 
          <div class="mb-3">

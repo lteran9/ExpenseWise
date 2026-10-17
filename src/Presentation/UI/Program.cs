@@ -1,6 +1,7 @@
-﻿using ExpenseWise.DependencyConfiguration;
 using OpenAPI;
 using UI.Filters;
+using UI.Configuration;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,14 +15,31 @@ var expenseWiseApiBaseUrl = builder.Configuration["ExpenseWiseApi:BaseUrl"]
 builder.Services.AddHttpClient<IExpenseWiseClient, ExpenseWiseClient>(client =>
 {
      client.BaseAddress = new Uri(expenseWiseApiBaseUrl);
+}).AddHttpMessageHandler<ApiTokenHandler>();
+
+builder.Services
+    .AddHttpContextAccessor()
+    .AddTransient<ApiTokenHandler>()
+    .AddScoped<UserInfoActionFilter>();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
 builder.Services
-    .ConfigureDependencies(builder.Configuration)
-    .RegisterUseCases()
-    .AddHttpContextAccessor()
-   .AddScoped<UserInfoActionFilter>()
-   .ConfigureSession();
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/SignIn";
+        options.AccessDeniedPath = "/Home/Index";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.SlidingExpiration = false;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+    });
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -35,12 +53,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
-
-app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

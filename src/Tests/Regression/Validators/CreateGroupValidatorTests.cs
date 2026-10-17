@@ -20,7 +20,7 @@ namespace Tests.Regression.Validators
             var createGroup =
                new CreateGroupRequest()
                {
-                   OwnerId = 1000
+                   ActorKey = Guid.NewGuid()
                };
 
             // Act
@@ -34,7 +34,7 @@ namespace Tests.Regression.Validators
 
         [Theory]
         [AutoMoq]
-        public async Task Validate_OwnerIdPresent(
+        public async Task Validate_ActorKeyRequired(
            [Frozen] Mock<IGroupRepository> mockRepository,
            CreateGroup useCase)
         {
@@ -51,7 +51,7 @@ namespace Tests.Regression.Validators
             // Assert
             Assert.False(response.Succeeded);
             Assert.NotNull(response.ValidationMessages);
-            Assert.NotEmpty(response.ValidationMessages);
+            Assert.Contains("An authenticated user is required.", response.ValidationMessages);
         }
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
     }

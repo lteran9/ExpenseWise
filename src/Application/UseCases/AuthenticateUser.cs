@@ -61,5 +61,7 @@ namespace Application.UseCases
     public record AuthenticateUserResponse
     {
         public required Guid Id { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
+        public DateTime ExpiresAtUtc { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var existingUser = await _repository.FindByUniqueKeyAsync(request.UniqueKey);
+                var existingUser = await _repository.FindByUniqueKeyAsync(request.ActorKey);
                 if (existingUser == null)
                 {
                     return Invalid("User not found.");
@@ -62,7 +62,7 @@ namespace Application.UseCases
         public string Phone { get; set; }
         public string CountryCode { get; set; }
 
-        public Guid UniqueKey { get; set; }
+        public Guid ActorKey { get; set; }
 
         public UpdateUserRequest()
         {

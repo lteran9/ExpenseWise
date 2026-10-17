@@ -34,30 +34,34 @@ namespace Application.UseCases
 
                 if (user != null && group != null)
                 {
-                    // Shallow validation?
-                    if (user.CountryCode == request.CountryCode)
+                    if (group.Owner.UniqueKey != request.ActorKey)
                     {
-                        var membership =
-                            new MemberOf()
-                            {
-                                User = user,
-                                Group = group
-                            };
-
-                        var response = await _groupRepository.AddMemberAsync(membership);
-                        if (response != null)
-                        {
-                            return Successful(
-                                new AddMemberToGroupResponse()
-                                {
-                                    Success = true
-                                });
-                        }
-                        else
-                        {
-                            return Failed(default);
-                        }
+                        return Invalid("Only the group organizer can add members.");
                     }
+
+                    if (user.CountryCode != request.CountryCode)
+                    {
+                        return Invalid("Unable to add user to group.");
+                    }
+
+                    if (group.Members.Any(member => member.UniqueKey == user.UniqueKey))
+                    {
+                        return Invalid("This user is already a member of the group.");
+                    }
+
+                    var membership = new MemberOf
+                    {
+                        User = user,
+                        Group = group
+                    };
+
+                    var response = await _groupRepository.AddMemberAsync(membership);
+                    if (response != null)
+                    {
+                        return Successful(new AddMemberToGroupResponse { Success = true });
+                    }
+
+                    return Invalid("This user is already a member of the group.");
                 }
                 else
                 {
@@ -75,6 +79,7 @@ namespace Application.UseCases
         public string CountryCode { get; set; }
 
         public Guid GroupUniqueKey { get; set; }
+        public Guid ActorKey { get; set; }
 
         public AddMemberToGroupRequest()
         {

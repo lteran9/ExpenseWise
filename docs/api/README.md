@@ -8,10 +8,12 @@ Controller routes use the controller name followed by the action name (for examp
 
 | Controller | Actions |
 | --- | --- |
-| `HealthController` | `GET /Health` |
-| `UserController` | `GET /User/Find`, `POST /User/Create`, `POST /User/Authenticate`, `PUT /User/Update`, `DELETE /User/Delete` |
-| `GroupController` | `GET /Group/Retrieve`, `GET /Group/List`, `POST /Group/Create`, `POST /Group/Update`, `POST /Group/AddMember`, `DELETE /Group/Delete` |
-| `ExpenseController` | `POST /Expense/Create`, `POST /Expense/Split`, `POST /Expense/Pay`, `PUT /Expense/Update` |
+| `HealthController` | `GET /Health` (public) |
+| `UserController` | `POST /User/Create` and `POST /User/Authenticate` (public); `GET /User/Find` and `PUT /User/Update` (bearer required); `DELETE /User/Delete` (bearer required, currently rejected) |
+| `GroupController` | All actions require a bearer token. List scope comes from the authenticated user; reads require membership; group updates, membership changes, and archival require the organizer. |
+| `ExpenseController` | All actions require a bearer token. `GET /Expense/List?groupKey=...` returns expenses to group members; expense creation is organizer-only; the legacy split action is limited to the authenticated group member. Payment and update handlers remain unavailable. |
+
+`POST /User/Authenticate` returns a signed 20-minute bearer token. Send it as `Authorization: Bearer <token>` for protected routes. A request-supplied user key is not an identity: the server derives the actor from the validated token. The token signing key is configured with `Authentication__SigningKey`; see [local operations](../operations/README.md).
 
 Use the controller and contract types as the source of truth for binding details and response schemas. The API's OpenAPI document and Swagger UI are mapped in the Development environment.
 
@@ -22,11 +24,12 @@ Use the controller and contract types as the source of truth for binding details
 3. A use case validates and handles the request, returning a `ResponseWrapper<T>`.
 4. The controller maps a successful result to an HTTP success response and validation failures to a client error response.
 
-Error translation is not fully uniform across the controllers. Inspect the relevant action before relying on a particular response envelope or error detail.
+Validation error translation is not fully uniform across the controllers. Inspect the relevant action before relying on a particular response envelope.
 
 ## Change guidance
 
 - Keep controllers thin; put business rules in `src/Application/UseCases`.
 - Keep HTTP contracts and status-code metadata aligned with the action's actual behavior.
 - When adding or changing a route, update this route summary and verify the generated OpenAPI output in Development.
+- The UI calls use cases only through the generated OpenAPI client; keep UI project references limited to the OpenAPI client and UI infrastructure.
 - Do not document real user data, credentials, internal hostnames, or private deployment URLs.

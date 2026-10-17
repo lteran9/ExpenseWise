@@ -24,7 +24,28 @@ namespace Application.UseCases
             var validationResult = await _validator.ValidateAsync(request);
             if (validationResult.IsValid)
             {
-                var response = await _repository.RemoveMemberAsync(new MemberOf() { Id = request.Id });
+                var group = await _repository.FindByUniqueKeyAsync(request.GroupKey);
+                if (group == null)
+                {
+                    return Invalid("Unable to find a group for the given key.");
+                }
+
+                if (group.Owner.UniqueKey != request.ActorKey)
+                {
+                    return Invalid("Only the group organizer can remove group members.");
+                }
+
+                var member = group.Members.FirstOrDefault(user => user.UniqueKey == request.MemberKey);
+                if (member == null)
+                {
+                    return Invalid("Member not found in the group.");
+                }
+
+                var response = await _repository.RemoveMemberAsync(new MemberOf
+                {
+                    Group = group,
+                    User = member
+                });
                 if (response != null)
                 {
                     return Successful(
@@ -46,7 +67,9 @@ namespace Application.UseCases
 
     public class DeleteMemberRequest : IRequest<ResponseWrapper<DeleteMemberResponse>>
     {
-        public int Id { get; set; }
+        public Guid GroupKey { get; set; }
+        public Guid MemberKey { get; set; }
+        public Guid ActorKey { get; set; }
     }
 
     public class DeleteMemberResponse

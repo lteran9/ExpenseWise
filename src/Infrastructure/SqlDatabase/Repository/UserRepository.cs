@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 using Core.Entities;
 using Application.UseCases.Ports;
 
@@ -31,7 +32,15 @@ namespace Infrastructure.SqlDatabase
                 dbEntity.Phone = StripPhoneOfCharacters(dbEntity.Phone);
 
                 var insert = context.Add(dbEntity);
-                await context.SaveChangesAsync();
+                try
+                {
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateException exception) when (exception.InnerException is MySqlException { Number: 1062 })
+                {
+                    return null;
+                }
+
                 return _adapter.MapDatabaseToEntity(insert.Entity);
             }
         }

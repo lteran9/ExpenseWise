@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Application.UseCases;
 using Api.Contracts;
+using Api.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers
 {
@@ -12,21 +14,25 @@ namespace Api.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<UserController> _logger;
+        private readonly AccessTokenIssuer _tokenIssuer;
 
-        public UserController(IMediator mediator, ILogger<UserController> logger)
+        public UserController(IMediator mediator, ILogger<UserController> logger, AccessTokenIssuer tokenIssuer)
         {
             _mediator = mediator;
             _logger = logger;
+            _tokenIssuer = tokenIssuer;
         }
 
         [HttpGet(nameof(Find))]
         [ProducesResponseType(typeof(FindUserResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Find([FromQuery] FindUserRequest request)
+        public async Task<IActionResult> Find()
         {
             try
             {
+                var request = new FindUserRequest { ActorKey = AuthenticatedUserKey };
                 return WrapResponse(await _mediator.Send(request));
             }
             catch (Exception ex)
@@ -38,6 +44,7 @@ namespace Api.Controllers
         }
 
         [HttpPost(nameof(Create))]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(CreateUserResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
@@ -56,6 +63,7 @@ namespace Api.Controllers
         }
 
         [HttpPost(nameof(Authenticate))]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(AuthenticateUserResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
@@ -63,7 +71,15 @@ namespace Api.Controllers
         {
             try
             {
-                return WrapResponse(await _mediator.Send(request));
+                var response = await _mediator.Send(request);
+                if (response.Succeeded && response.Result != null)
+                {
+                    var (token, expiresAtUtc) = _tokenIssuer.Issue(response.Result.Id);
+                    response.Result.AccessToken = token;
+                    response.Result.ExpiresAtUtc = expiresAtUtc;
+                }
+
+                return WrapResponse(response);
             }
             catch (Exception ex)
             {
@@ -100,11 +116,20 @@ namespace Api.Controllers
         [HttpPut(nameof(Update))]
         [ProducesResponseType(typeof(UpdateUserResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
+        public async Task<IActionResult> Update([FromBody] UpdateUserInput input)
         {
             try
             {
+                var request = new UpdateUserRequest
+                {
+                    ActorKey = AuthenticatedUserKey,
+                    Name = input.Name,
+                    Email = input.Email,
+                    Phone = input.Phone,
+                    CountryCode = input.CountryCode
+                };
                 return WrapResponse(await _mediator.Send(request));
             }
             catch (Exception ex)
@@ -116,21 +141,12 @@ namespace Api.Controllers
         }
 
         [HttpDelete(nameof(Delete))]
-        [ProducesResponseType(typeof(DeleteUserResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete([FromBody] DeleteUserRequest request)
+        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult Delete()
         {
-            try
-            {
-                return WrapResponse(await _mediator.Send(request));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unable to delete user.");
-            }
-
-            return Problem();
+            _logger.LogInformation("Account deletion was rejected because it is not supported in Phase 1.");
+            return Conflict(new { message = "Account deletion is not supported in Phase 1." });
         }
     }
 }

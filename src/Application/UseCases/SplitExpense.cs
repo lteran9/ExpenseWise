@@ -33,10 +33,15 @@ namespace Application.UseCases
                     return Failed(default);
                 }
 
-                var user = await _userRepository.FindByUniqueKeyAsync(request.UserKey);
+                var user = await _userRepository.FindByUniqueKeyAsync(request.ActorKey);
                 if (user == null)
                 {
                     return Failed(default);
+                }
+
+                if (!group.Members.Any(member => member.UniqueKey == user.UniqueKey))
+                {
+                    return Invalid("Only group members can record their own split payments.");
                 }
 
                 var expenses = await _expenseRepository.GetGroupExpenses(group.Id);
@@ -71,7 +76,7 @@ namespace Application.UseCases
 
     public class SplitExpenseRequest : IRequest<ResponseWrapper<SplitExpenseResponse>>
     {
-        public Guid UserKey { get; set; }
+        public Guid ActorKey { get; set; }
         public Guid GroupKey { get; set; }
     }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Text.Json;
-using Application.UseCases.MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using OpenAPI;
@@ -36,20 +35,6 @@ namespace UI.Controllers
         /// </summary>
         protected Guid CurrentUserId => GetCurrentUser().Id;
 
-        /// <summary>
-        /// Common method to add validation errors to model state.
-        /// </summary>
-        protected void AddValidationErrorsToModelState<T>(ResponseWrapper<T> response) where T : class
-        {
-            if (response.ValidationMessages?.Any() == true)
-            {
-                foreach (var message in response.ValidationMessages)
-                {
-                    ModelState.AddModelError(string.Empty, message);
-                }
-            }
-        }
-
         protected void AddApiErrorsToModelState(ApiException exception)
         {
             if (!string.IsNullOrWhiteSpace(exception.Response))
@@ -58,6 +43,17 @@ namespace UI.Controllers
                 {
                     using var document = JsonDocument.Parse(exception.Response);
                     var root = document.RootElement;
+                    if (root.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var message in root.EnumerateArray())
+                        {
+                            if (message.ValueKind == JsonValueKind.String && message.GetString() is { } text)
+                            {
+                                ModelState.AddModelError(string.Empty, text);
+                            }
+                        }
+                    }
+
                     if (root.ValueKind == JsonValueKind.Object)
                     {
                         if (TryGetProperty(root, "validationMessages", out var validationMessages) &&

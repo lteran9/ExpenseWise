@@ -26,6 +26,16 @@ Implement one numbered package at a time and attach evidence to its exit gate. R
 - `docker compose config --quiet`, `dotnet build ExpenseWise.sln` (0 errors), and `dotnet test --no-build` (94 passed) succeeded. The build reported existing NuGet vulnerability warnings.
 - Removed the isolated test containers and volume after verification. The normal Compose named volume remains configured for local use.
 
+### Package 1.2 verification (2026-10-17)
+
+- Built the final API/UI images and started an isolated Compose project with a fresh MySQL volume. MySQL became healthy, the migration service exited successfully, and the API OpenAPI endpoint and UI root returned HTTP 200.
+- Exercised the API with four disposable accounts: registration/sign-in, organizer group creation, two member additions, duplicate membership rejection, member-scoped group lists, outsider read denial, and organizer-only write rejection (HTTP 401/403 as expected).
+- Exercised the browser UI through registration, cookie-backed sign-in, group creation, invitation, logout, sign-in again, expense creation, expense listing on the split screen, and the legacy split action; observed the corresponding authenticated API calls and persisted group summary.
+- Verified the generated OpenAPI group inputs contain no caller-supplied actor/owner identity fields.
+- Added and tested required `ActorKey` validation for authenticated application requests; anonymous account registration/sign-in remain actor-free.
+- Audited all UI C# and project references: no MediatR/use-case/repository/domain access remains; the UI references the generated OpenAPI client and calls use cases only over HTTP.
+- `dotnet build ExpenseWise.sln` succeeded with 0 warnings/errors; `dotnet test --no-build` passed 113 tests (72 Regression, 41 Infrastructure). Removed the isolated Compose containers and test volume afterward.
+
 ### Implementation boundaries
 
 - Keep business rules in the Core and Application layers and persistence behind Application ports; wire configuration and infrastructure in the composition layer.

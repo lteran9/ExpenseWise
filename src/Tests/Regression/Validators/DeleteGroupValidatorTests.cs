@@ -20,7 +20,7 @@ namespace Tests.Regression.Validators
             var createGroup =
                new DeleteGroupRequest()
                {
-                   RequestingUserId = 1000
+                   ActorKey = Guid.NewGuid()
                };
 
             // Act
@@ -42,7 +42,7 @@ namespace Tests.Regression.Validators
             var createGroup =
                new DeleteGroupRequest()
                {
-                   GroupId = 1000
+                   GroupKey = Guid.NewGuid()
                };
 
             // Act

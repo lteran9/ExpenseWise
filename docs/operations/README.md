@@ -18,11 +18,13 @@ The GitHub Actions workflow also restores, builds, and tests with the .NET 10 SD
 
 ## Docker Compose
 
-Compose defines the API, MVC UI, MySQL database, and a one-shot migration service. The default host ports are API `8081`, UI `8080`, and MySQL `3306`; the API and UI ports and forwarded database port can be overridden with `API_PORT`, `UI_PORT`, and `FORWARD_DB_PORT`. Database initialization requires `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD`. Copy `.env.example` to `.env` and set a private local password before starting the stack. The ignored `.env` file is not committed.
+Compose defines the API, MVC UI, MySQL database, and a one-shot migration service. The default host ports are API `8081`, UI `8080`, and MySQL `3306`; the API and UI ports and forwarded database port can be overridden with `API_PORT`, `UI_PORT`, and `FORWARD_DB_PORT`. Database initialization requires `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD`. The API also requires `JWT_SIGNING_KEY`, a private random value of at least 32 UTF-8 bytes. Copy `.env.example` to `.env`, replace both placeholders with private local values, and never commit `.env`. Generate a signing key with `openssl rand -base64 48`.
 
 The API receives database host, port, database, username, and password through its composition-layer settings. Compose uses the internal `mysql` service DNS name; do not set the API's database host to `localhost`. The migration service waits for MySQL's healthcheck, applies all pending EF migrations, and must complete successfully before the API starts. Migration errors cause startup to fail rather than serving against an unknown schema.
 
-For running the API or UI directly with `dotnet run`, provide the same settings through `Database__Host`, `Database__Port`, `Database__Name`, `Database__Username`, and `Database__Password`. Do not put passwords in tracked settings files.
+For running the API or UI directly with `dotnet run`, provide the same database settings through `Database__Host`, `Database__Port`, `Database__Name`, `Database__Username`, and `Database__Password`. The API additionally requires `Authentication__SigningKey` with the same minimum length. Do not put passwords or signing keys in tracked settings files.
+
+The API issues a signed bearer token from `POST /User/Authenticate`; tokens expire after 20 minutes. The MVC UI keeps the API token in its server-side session and protects browser routes with an HTTP-only authentication cookie. Sign in again after expiry. The signing key must be identical across API instances that validate the same tokens and must remain private. This local configuration is not a recommendation for public deployment.
 
 From the repository root, run:
 
