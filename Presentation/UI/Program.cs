@@ -17,7 +17,7 @@ builder.Services.AddHttpClient<IExpenseWiseClient, ExpenseWiseClient>(client =>
 });
 
 builder.Services
-    .ConfigureDependencies()
+    .ConfigureDependencies(builder.Configuration)
     .RegisterUseCases()
     .AddHttpContextAccessor()
    .AddScoped<UserInfoActionFilter>()

@@ -1,7 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 using ExpenseWise.DependencyConfiguration;
+using Infrastructure.SqlDatabase;
+using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
+var builderArgs = args.Where(argument => argument != "--migrate").ToArray();
+var builder = WebApplication.CreateBuilder(builderArgs);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -17,10 +21,18 @@ builder.Services.AddOpenApi(options =>
 });
 // Configure Dependencies
 builder.Services
-   .ConfigureDependencies()
+   .ConfigureDependencies(builder.Configuration)
    .RegisterUseCases();
 
 var app = builder.Build();
+
+if (migrateOnly)
+{
+    var contextFactory = app.Services.GetRequiredService<IDbContextFactory<CoreContext>>();
+    await using var context = await contextFactory.CreateDbContextAsync();
+    await context.Database.MigrateAsync();
+    return;
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -51,22 +51,20 @@ A concise guide to get new developers up to speed with the codebase.
 
 For the project documentation index, architecture decisions, and operating guidance, see [`docs/`](docs/README.md).
 
-- **Quick Start:** Build and run the API, UI and DB together using Docker.
-
-  Current limitation: the Compose scaffold does not yet provide a verified clean installation. Application database configuration, migration/model alignment, and startup readiness need completion; see [roadmap package 1.1](docs/product/roadmap.md). The commands below describe the intended launch path, not a guarantee of a working fresh installation.
+- **Quick Start:** Copy `.env.example` to `.env`, set a private local database password, then start the API, UI, database, and migration step:
 
 ```bash
-export API_PORT=8081 UI_PORT=8080 DB_DATABASE=expensewise DB_USERNAME=expense
-# Set DB_PASSWORD locally; do not commit or share it.
+cp -n .env.example .env
+# Replace DB_PASSWORD in .env with a private local value.
 docker compose up --build -d
 docker compose logs -f
 ```
 
 - **Prerequisites:**
-   - .NET SDK (recommended version: see global.json or the project files)
-   - Docker & Docker Compose
+   - .NET SDK 10.0 (for local development)
+   - Docker Engine & Docker Compose
    - Optional: a MySQL client for inspecting the DB
-   - Environment variables: `API_PORT`, `UI_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`, `FORWARD_DB_PORT`
+   - Optional port overrides: `API_PORT`, `UI_PORT`, `FORWARD_DB_PORT`
 
 - **Run Locally (without Docker):**
    - Set the required env vars, then run the Presentation projects:

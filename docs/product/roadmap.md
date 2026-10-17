@@ -1,6 +1,6 @@
 # Delivery roadmap
 
-Created: 2026-10-16. All work packages below are planned, not completed by writing this roadmap.
+Created: 2026-10-16. A roadmap entry is not completed merely by writing this plan; record verification evidence when its exit gate passes.
 
 The [product specification](README.md) defines the target. The [assessment](current-state.md) explains why the work is needed. Existing handlers/routes are reusable inputs, not evidence that a work package is done.
 
@@ -17,6 +17,14 @@ Implement one numbered package at a time and attach evidence to its exit gate. R
 | 1.3 Expense ledger and exact equal allocations | 1.2 | Separate payer from recording actor; persist selected participants and exact cent allocations; implement atomic, retry-safe expense creation; add expense list/detail contracts and UI; fixed USD input/display; void/re-entry before repayments; consistent group summaries. Regenerate the API client. | Browser supports one payer and a selected subset; scenario B and expense/access/void portions of scenario C pass; expense/share totals reconcile on real MySQL; retries do not duplicate bills. |
 | 1.4 Balances and manual repayments | 1.3 | Replace paid-split arithmetic with payer/share/repayment accounting; add deterministic who-owes-whom suggestions; implement explicit full/partial repayments, history, confirmation, atomic validation, and duplicate/concurrent-request protection. Retire the old settle-all behavior. | Scenario A passes with exact balances at every step; invalid/self/over/concurrent repayments are rejected without partial writes; repeat submissions do not change balances/history twice. |
 | 1.5 Release proof and operating guide | 1.1, 1.2, 1.3, 1.4 | Complete Docker smoke and browser coverage; real-MySQL migration/constraint checks; failure-state checks; backup/restore rehearsal; remove misleading feature claims and dead/placeholder actions; update setup, API, and product docs. | All Phase 1 acceptance scenarios pass; project owner completes the main journey from the runbook unaided; the release gate below has evidence. |
+
+### Package 1.1 verification (2026-10-16)
+
+- Started the Compose stack with a new isolated project and volume. MySQL became healthy, the initial migration created the schema, and the migration service exited successfully.
+- Verified the API OpenAPI endpoint and UI root returned HTTP 200. Created an account through the API, retrieved it, restarted MySQL and both applications, and retrieved the same account afterward.
+- Re-ran the migration against the populated database; EF reported that it was already up to date. Confirmed the migration-history entry and legacy `expenses.settled` column remained present.
+- `docker compose config --quiet`, `dotnet build ExpenseWise.sln` (0 errors), and `dotnet test --no-build` (94 passed) succeeded. The build reported existing NuGet vulnerability warnings.
+- Removed the isolated test containers and volume after verification. The normal Compose named volume remains configured for local use.
 
 ### Implementation boundaries
 
@@ -82,4 +90,4 @@ Cloud/Azure hosting, mobile clients, multi-currency conversion, and payment-prov
 4. Update this roadmap when work is accepted, not merely when coding starts.
 5. Treat new ideas as deferred by default. Add them to Phase 1 only by explicitly changing the specification and acknowledging the added scope.
 
-**Next action:** Make Docker Engine available, then implement and verify package 1.1. Do not wire more settlement screens to the current split handler first.
+**Next action:** Review and accept the Phase 1.1 verification, then implement package 1.2 on its own feature branch. Do not wire more settlement screens to the current split handler first.

@@ -10,11 +10,6 @@ namespace Infrastructure.SqlDatabase
         private readonly RepositoryAdapter _adapter = new RepositoryAdapter();
         private readonly Func<CoreContext> _contextFactory;
 
-        public GroupRepository()
-            : this(() => new CoreContext())
-        {
-        }
-
         public GroupRepository(Func<CoreContext> contextFactory)
         {
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));

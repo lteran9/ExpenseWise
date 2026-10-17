@@ -8,9 +8,9 @@ namespace Infrastructure.SqlDatabase
     {
         private readonly IQuery<MemberOfEntity> _memberOfQuery;
 
-        public QueryAdapter()
+        public QueryAdapter(Func<CoreContext> contextFactory)
         {
-            _memberOfQuery = new MemberOfQuery();
+            _memberOfQuery = new MemberOfQuery(contextFactory);
         }
 
         #region MemberOf
