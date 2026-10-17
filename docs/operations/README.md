@@ -33,7 +33,7 @@ docker compose logs -f
 
 The UI reaches the API at `http://webapi:8081/` from within the Compose network; container-to-container traffic should use the service hostname, not `localhost`. Stop the stack with `docker compose down`. `docker compose down -v` also deletes the named database volume and its local data; use it only when that data is disposable.
 
-To apply migrations again after changing migration files, run `docker compose run --rm migrate`. The step is repeatable: EF applies only migrations not already recorded in the database history table.
+To apply newly added migrations, run `docker compose run --build --rm migrate` to rebuild the image before running it. The step is repeatable: EF applies only migrations not already recorded in the database history table. Editing an already-applied migration does not cause it to run again.
 
 The named `expensewise-mysql` volume keeps the database across container recreation and `docker compose down`. Do not use `docker compose down -v` if the data should be retained.
 
