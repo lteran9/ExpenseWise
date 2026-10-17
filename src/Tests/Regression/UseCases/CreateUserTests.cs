@@ -18,7 +18,7 @@ namespace Tests.Regression.UseCases
         {
             // Arrange
             mockRepository.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
-            mockRepository.Setup(x => x.FindByPhoneAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
+            mockRepository.Setup(x => x.FindByCanonicalPhoneAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
             mockRepository.Setup(x => x.CreateAsync(It.IsAny<User>())).ReturnsAsync(new User() { Id = 1000 });
             mockPasswordRepository.Setup(x => x.CreateAsync(It.IsAny<Password>())).ReturnsAsync(new Password());
             var createUser =
@@ -38,6 +38,7 @@ namespace Tests.Regression.UseCases
             Assert.True(response.Succeeded);
             Assert.True(response.Result != null);
             Assert.True(response.Result.Id > 0);
+            mockRepository.Verify(x => x.FindByCanonicalPhoneAsync(createUser.Phone), Times.Once);
         }
 
         [Fact]

@@ -78,6 +78,22 @@ namespace Infrastructure.SqlDatabase
             return null;
         }
 
+        public async Task<User?> FindByCanonicalPhoneAsync(string phone)
+        {
+            using (var context = _contextFactory())
+            {
+                var strippedPhone = StripPhoneOfCharacters(phone);
+                var dbEntity = await context.Users.FirstOrDefaultAsync(x => x.Phone == strippedPhone);
+                if (dbEntity?.Active == true)
+                {
+                    dbEntity.Phone = FormatPhoneNumber(dbEntity.Phone);
+                    return _adapter.MapDatabaseToEntity(dbEntity);
+                }
+            }
+
+            return null;
+        }
+
         public async Task<User?> FindByUniqueKeyAsync(Guid key)
         {
             using (var context = _contextFactory())

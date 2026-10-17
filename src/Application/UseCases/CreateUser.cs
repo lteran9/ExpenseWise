@@ -31,7 +31,7 @@ namespace Application.UseCases
                     return Invalid("The email address provided is already in use.");
                 }
 
-                if (await _userRepository.FindByPhoneAsync(request.Phone) != null)
+                if (await _userRepository.FindByCanonicalPhoneAsync(request.Phone) != null)
                 {
                     return Invalid("The phone number provided is already in use.");
                 }
