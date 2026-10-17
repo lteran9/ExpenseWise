@@ -37,7 +37,7 @@ namespace UI.Controllers
                         Settled = false,
                         Description = expense.Description,
                         Currency = expense.Currency,
-                        Amount = (decimal)expense.Amount,
+                        Amount = expense.Amount,
                         GroupKey = response.GroupKey
                     }).ToList()
                 });

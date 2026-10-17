@@ -20,6 +20,11 @@ builder.Services.AddOpenApi(options =>
     options.AddSchemaTransformer((schema, context, cancellationToken) =>
     {
         schema.AdditionalPropertiesAllowed = false;
+        if (context.JsonTypeInfo.Type == typeof(decimal))
+        {
+            schema.Format = "decimal";
+        }
+
         return Task.CompletedTask;
     });
 });

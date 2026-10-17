@@ -1,6 +1,7 @@
 # OpenAPI client
 
 The API project is the source of truth for HTTP request and response contracts. The checked-in `ExpenseWiseApiClient.generated.cs` is generated from the API's OpenAPI document; do not edit that file by hand.
+The API marks `decimal` schemas with the `decimal` format so NSwag preserves monetary values as `decimal` in generated request and response types.
 
 To regenerate it:
 

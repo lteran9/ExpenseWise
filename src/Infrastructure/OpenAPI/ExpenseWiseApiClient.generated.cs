@@ -2352,7 +2352,7 @@ namespace OpenAPI
         public string Currency { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("amount")]
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
         public System.Guid GroupKey { get; set; }
@@ -2456,7 +2456,7 @@ namespace OpenAPI
         public string Currency { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("amount")]
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
     }
 
@@ -2545,10 +2545,10 @@ namespace OpenAPI
         public string Name { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("expensed")]
-        public double Expensed { get; set; }
+        public decimal Expensed { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("outstanding")]
-        public double Outstanding { get; set; }
+        public decimal Outstanding { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
         public System.Guid OwnerId { get; set; }

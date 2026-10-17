@@ -37,7 +37,7 @@ namespace UI.Controllers
                 {
                     await _apiClient.ExpenseCreateAsync(new CreateExpenseInput
                     {
-                        Amount = (double)model.Amount,
+                        Amount = model.Amount,
                         Currency = model.Currency,
                         Description = model.Description,
                         GroupKey = model.GroupKey
