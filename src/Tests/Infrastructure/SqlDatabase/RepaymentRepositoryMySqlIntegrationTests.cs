@@ -112,7 +112,13 @@ namespace Tests.Infrastructure.SqlDatabase
                 Name = "Repayment integration test group",
                 UniqueKey = Guid.NewGuid(),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                Membership =
+                [
+                    new MemberOfEntity { User = owner, Active = true, CreatedAt = now, UpdatedAt = now },
+                    new MemberOfEntity { User = participant, Active = true, CreatedAt = now, UpdatedAt = now },
+                    new MemberOfEntity { User = otherParticipant, Active = true, CreatedAt = now, UpdatedAt = now }
+                ]
             };
             context.Users.AddRange(owner, participant, otherParticipant);
             context.Groups.Add(group);
