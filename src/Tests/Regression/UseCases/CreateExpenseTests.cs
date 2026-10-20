@@ -117,6 +117,42 @@ namespace Tests.Regression.UseCases
                 It.IsAny<Expense>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
+        [Theory]
+        [MemberData(nameof(InvalidParticipantLists))]
+        public async Task CreateExpense_WithInvalidParticipants_ReturnsValidationErrorWithoutCreatingExpense(
+            List<Guid>? participantKeys,
+            string expectedMessage)
+        {
+            var expenseRepository = new Mock<IExpenseRepository>();
+            var useCase = new CreateExpense(expenseRepository.Object, Mock.Of<IGroupRepository>());
+
+            var response = await useCase.Handle(new CreateExpenseRequest
+            {
+                ActorKey = Guid.NewGuid(),
+                GroupKey = Guid.NewGuid(),
+                IdempotencyKey = Guid.NewGuid(),
+                Description = "Expense",
+                Currency = "USD",
+                Amount = 10m,
+                PayerKey = Guid.NewGuid(),
+                ParticipantKeys = participantKeys!
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains(expectedMessage, response.ValidationMessages!);
+            expenseRepository.Verify(repository => repository.CreateWithSharesAsync(
+                It.IsAny<Expense>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        public static IEnumerable<object[]> InvalidParticipantLists()
+        {
+            yield return [null!, "Select at least one expense participant."];
+            yield return [new List<Guid>(), "Select at least one expense participant."];
+            var duplicateKey = Guid.NewGuid();
+            yield return [new List<Guid> { duplicateKey, duplicateKey }, "Expense participants must be unique."];
+            yield return [new List<Guid> { Guid.Empty }, "Expense participant keys must be valid."];
+        }
+
         [Fact]
         public async Task CreateExpense_WhenParticipantIsNotAnActiveMember_ReturnsValidationFailure()
         {
