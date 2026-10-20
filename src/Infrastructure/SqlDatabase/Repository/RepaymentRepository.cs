@@ -36,6 +36,22 @@ namespace Infrastructure.SqlDatabase
             return entities.Select(_adapter.MapDatabaseToEntity).ToList();
         }
 
+        public async Task<GroupLedgerSnapshot> GetGroupLedgerSnapshotAsync(int groupId, CancellationToken cancellationToken)
+        {
+            using var context = _contextFactory();
+            await using var transaction = context.Database.IsRelational()
+                ? await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, cancellationToken)
+                : null;
+
+            var snapshot = await BuildLedgerAsync(context, groupId, cancellationToken);
+            if (transaction != null)
+            {
+                await transaction.CommitAsync(cancellationToken);
+            }
+
+            return snapshot;
+        }
+
         public async Task<RecordRepaymentOutcome> RecordAsync(
             Repayment repayment,
             Func<GroupLedger, string?> validateAgainstLedger,
@@ -58,8 +74,8 @@ namespace Infrastructure.SqlDatabase
                     return new RecordRepaymentOutcome(_adapter.MapDatabaseToEntity(existing), false, null);
                 }
 
-                var ledger = await BuildLedgerAsync(context, groupId, cancellationToken);
-                var rejection = validateAgainstLedger(ledger);
+                var snapshot = await BuildLedgerAsync(context, groupId, cancellationToken);
+                var rejection = validateAgainstLedger(snapshot.Ledger);
                 if (rejection != null)
                 {
                     return new RecordRepaymentOutcome(null, false, rejection);
@@ -95,7 +111,7 @@ namespace Infrastructure.SqlDatabase
             }
         }
 
-        private async Task<GroupLedger> BuildLedgerAsync(CoreContext context, int groupId, CancellationToken cancellationToken)
+        private async Task<GroupLedgerSnapshot> BuildLedgerAsync(CoreContext context, int groupId, CancellationToken cancellationToken)
         {
             var members = await context.MemberOf
                 .Where(membership => membership.GroupId == groupId && membership.Active && membership.User != null)
@@ -115,10 +131,12 @@ namespace Infrastructure.SqlDatabase
                 .Include(repayment => repayment.Recipient)
                 .ToListAsync(cancellationToken);
 
-            return new GroupLedger(
+            var mappedRepayments = repayments.Select(_adapter.MapDatabaseToEntity).ToList();
+            var ledger = new GroupLedger(
                 members.Select(membership => _adapter.MapDatabaseToEntity(membership.User!)),
                 expenses.Select(_adapter.MapExpenseWithShares),
-                repayments.Select(_adapter.MapDatabaseToEntity));
+                mappedRepayments);
+            return new GroupLedgerSnapshot(ledger, mappedRepayments);
         }
 
         private static Task<RepaymentEntity?> LoadByUniqueKeyAsync(

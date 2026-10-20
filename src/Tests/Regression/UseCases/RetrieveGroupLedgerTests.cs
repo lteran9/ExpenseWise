@@ -48,18 +48,11 @@ namespace Tests.Regression.UseCases
             return repository;
         }
 
-        private static Mock<IExpenseRepository> ExpenseRepositoryReturning(List<Expense> expenses)
-        {
-            var repository = new Mock<IExpenseRepository>();
-            repository.Setup(value => value.GetGroupExpenses(It.IsAny<int>())).ReturnsAsync(expenses);
-            return repository;
-        }
-
-        private static Mock<IRepaymentRepository> RepaymentRepositoryReturning(List<Repayment> repayments)
+        private Mock<IRepaymentRepository> RepaymentRepositoryReturning(List<Expense> expenses, List<Repayment> repayments)
         {
             var repository = new Mock<IRepaymentRepository>();
-            repository.Setup(value => value.GetGroupRepaymentsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(repayments);
+            repository.Setup(value => value.GetGroupLedgerSnapshotAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GroupLedgerSnapshot(new GroupLedger(_group.Members, expenses, repayments), repayments));
             return repository;
         }
 
@@ -68,8 +61,7 @@ namespace Tests.Regression.UseCases
         {
             var useCase = new RetrieveGroupLedger(
                 GroupRepositoryReturning(_group).Object,
-                ExpenseRepositoryReturning([DinnerPaidByCy()]).Object,
-                RepaymentRepositoryReturning([]).Object);
+                RepaymentRepositoryReturning([DinnerPaidByCy()], []).Object);
 
             var response = await useCase.Handle(Request(_ana.UniqueKey, _groupKey), CancellationToken.None);
 
@@ -106,8 +98,7 @@ namespace Tests.Regression.UseCases
             };
             var useCase = new RetrieveGroupLedger(
                 GroupRepositoryReturning(_group).Object,
-                ExpenseRepositoryReturning([DinnerPaidByCy()]).Object,
-                RepaymentRepositoryReturning([older, newer]).Object);
+                RepaymentRepositoryReturning([DinnerPaidByCy()], [older, newer]).Object);
 
             var response = await useCase.Handle(Request(_cy.UniqueKey, _groupKey), CancellationToken.None);
 
@@ -123,17 +114,16 @@ namespace Tests.Regression.UseCases
         public async Task RetrieveGroupLedger_WhenActorIsNotMember_ReturnsInvalidWithoutLoadingLedger()
         {
             var outsider = new User { Id = 4, UniqueKey = Guid.NewGuid(), Name = "Outsider" };
-            var expenseRepository = ExpenseRepositoryReturning([DinnerPaidByCy()]);
+            var repaymentRepository = RepaymentRepositoryReturning([DinnerPaidByCy()], []);
             var useCase = new RetrieveGroupLedger(
                 GroupRepositoryReturning(_group).Object,
-                expenseRepository.Object,
-                RepaymentRepositoryReturning([]).Object);
+                repaymentRepository.Object);
 
             var response = await useCase.Handle(Request(outsider.UniqueKey, _groupKey), CancellationToken.None);
 
             Assert.False(response.Succeeded);
             Assert.Contains("Only group members can view the ledger.", response.ValidationMessages!);
-            expenseRepository.Verify(value => value.GetGroupExpenses(It.IsAny<int>()), Times.Never);
+            repaymentRepository.Verify(value => value.GetGroupLedgerSnapshotAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -144,8 +134,7 @@ namespace Tests.Regression.UseCases
             groupRepository.Setup(value => value.FindByUniqueKeyAsync(unknownGroupKey)).ReturnsAsync((Group?)null);
             var useCase = new RetrieveGroupLedger(
                 groupRepository.Object,
-                ExpenseRepositoryReturning([]).Object,
-                RepaymentRepositoryReturning([]).Object);
+                RepaymentRepositoryReturning([], []).Object);
 
             var response = await useCase.Handle(Request(_ana.UniqueKey, unknownGroupKey), CancellationToken.None);
 

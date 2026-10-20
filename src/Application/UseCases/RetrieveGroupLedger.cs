@@ -11,17 +11,14 @@ namespace Application.UseCases
     public class RetrieveGroupLedger : BaseRequestHandler<RetrieveGroupLedgerRequest, RetrieveGroupLedgerResponse>
     {
         private readonly IGroupRepository _groupRepository;
-        private readonly IExpenseRepository _expenseRepository;
         private readonly IRepaymentRepository _repaymentRepository;
         private readonly AbstractValidator<RetrieveGroupLedgerRequest> _validator;
 
         public RetrieveGroupLedger(
             IGroupRepository groupRepository,
-            IExpenseRepository expenseRepository,
             IRepaymentRepository repaymentRepository)
         {
             _groupRepository = groupRepository;
-            _expenseRepository = expenseRepository;
             _repaymentRepository = repaymentRepository;
             _validator = new RetrieveGroupLedgerRequestValidator();
         }
@@ -45,9 +42,9 @@ namespace Application.UseCases
                 return Invalid("Only group members can view the ledger.");
             }
 
-            var expenses = await _expenseRepository.GetGroupExpenses(group.Id) ?? new List<Expense>();
-            var repayments = await _repaymentRepository.GetGroupRepaymentsAsync(group.Id, cancellationToken) ?? new List<Repayment>();
-            var ledger = new GroupLedger(group.Members, expenses, repayments);
+            var snapshot = await _repaymentRepository.GetGroupLedgerSnapshotAsync(group.Id, cancellationToken);
+            var ledger = snapshot.Ledger;
+            var repayments = snapshot.Repayments;
 
             return Successful(new RetrieveGroupLedgerResponse
             {
