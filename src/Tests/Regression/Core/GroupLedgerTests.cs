@@ -33,6 +33,17 @@ namespace Tests.Regression.Core
         }
 
         [Fact]
+        public void GroupLedger_WhenPayerIsNoLongerMember_RetainsTheirBalance()
+        {
+            var ledger = new GroupLedger([Ana, Ben], [DinnerPaidByCy()], []);
+
+            Assert.Equal(3, ledger.Balances.Count);
+            Assert.Equal(40m, ledger.Balances.Single(balance => balance.Member.UniqueKey == Cy.UniqueKey).NetBalance);
+            Assert.Equal(40m, ledger.Outstanding);
+            Assert.Equal(2, ledger.SuggestRepayments().Count);
+        }
+
+        [Fact]
         public void GroupLedger_WhenExpenseVoided_ExcludesItFromBalancesAndTotals()
         {
             var ledger = new GroupLedger([Ana, Ben, Cy], [DinnerPaidByCy(voided: true)], []);

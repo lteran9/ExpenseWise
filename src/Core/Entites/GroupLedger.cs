@@ -5,11 +5,12 @@ namespace Core.Entities
 {
     /// <summary>
     /// Net balances for one group: expenses paid minus shares allocated, plus repayments sent minus repayments received.
-    /// Voided expenses are excluded. A positive balance means the member is owed money.
+    /// Voided expenses are excluded. Former members with financial history are retained. A positive balance means the member is owed money.
     /// </summary>
     public class GroupLedger
     {
         private readonly Dictionary<Guid, decimal> _netByMember = new();
+        private readonly Dictionary<Guid, User> _participants = new();
 
         public GroupLedger(IEnumerable<User> members, IEnumerable<Expense> expenses, IEnumerable<Repayment> repayments)
         {
@@ -18,12 +19,12 @@ namespace Core.Entities
                 TotalSpent += expense.Amount;
                 if (expense.Payer != null)
                 {
-                    AddToBalance(expense.Payer.UniqueKey, expense.Amount);
+                    AddToBalance(expense.Payer, expense.Amount);
                 }
 
                 foreach (var share in expense.Shares)
                 {
-                    AddToBalance(share.Participant.UniqueKey, -share.Amount);
+                    AddToBalance(share.Participant, -share.Amount);
                 }
             }
 
@@ -31,16 +32,22 @@ namespace Core.Entities
             {
                 if (repayment.Sender != null)
                 {
-                    AddToBalance(repayment.Sender.UniqueKey, repayment.Amount);
+                    AddToBalance(repayment.Sender, repayment.Amount);
                 }
 
                 if (repayment.Recipient != null)
                 {
-                    AddToBalance(repayment.Recipient.UniqueKey, -repayment.Amount);
+                    AddToBalance(repayment.Recipient, -repayment.Amount);
                 }
             }
 
-            Balances = members
+            var memberList = members.ToList();
+            var memberKeys = memberList.Select(member => member.UniqueKey).ToHashSet();
+            var formerParticipants = _participants.Values
+                .Where(participant => !memberKeys.Contains(participant.UniqueKey) && BalanceOf(participant.UniqueKey) != 0);
+
+            Balances = memberList
+                .Concat(formerParticipants)
                 .Select(member => new MemberBalance(member, BalanceOf(member.UniqueKey)))
                 .ToList();
             Outstanding = Balances.Where(balance => balance.NetBalance > 0).Sum(balance => balance.NetBalance);
@@ -128,9 +135,10 @@ namespace Core.Entities
             return null;
         }
 
-        private void AddToBalance(Guid memberKey, decimal amount)
+        private void AddToBalance(User member, decimal amount)
         {
-            _netByMember[memberKey] = _netByMember.GetValueOrDefault(memberKey) + amount;
+            _participants.TryAdd(member.UniqueKey, member);
+            _netByMember[member.UniqueKey] = _netByMember.GetValueOrDefault(member.UniqueKey) + amount;
         }
 
         private static List<Position> Positions(IEnumerable<(User Member, decimal Amount)> entries)
