@@ -42,7 +42,7 @@ Here, **implemented** means code exists, **partial** means important behavior is
 | Flexible splits/integrated payments | Not delivered | Deferred beyond Phase 1. The [home page](../../src/Presentation/UI/Views/Home/Index.cshtml) and [privacy page](../../src/Presentation/UI/Views/Home/Privacy.cshtml) now describe only equal splitting, registered members, and manual repayment records. |
 | Password recovery | Not offered | The placeholder forgot-password flow was removed in package 1.5; the sign-in page states that recovery is unavailable. Deferred beyond Phase 1. |
 | Compose and persistent MySQL | Implemented; locally verified | [Compose](../../docker-compose.yml), [API Dockerfile](../../src/Presentation/Api/Dockerfile), [UI Dockerfile](../../src/Presentation/UI/Dockerfile). Package 1.1 verification in the [roadmap](roadmap.md) confirms fresh-volume migration, service readiness, API/UI reachability, persistence across restart, and repeatable migration. |
-| Automated checks | Useful but incomplete | [Regression suite](../../src/Tests/Regression), [infrastructure suite](../../src/Tests/Infrastructure), [CI workflow](../../.github/workflows/build.yml). Unit tests use EF InMemory. Package 1.5 added real-MySQL constraint, decimal, and concurrency tests (run when `EXPENSEWISE_TEST_MYSQL_CONNECTION` is set) and the [HTTP acceptance script](../../scripts/acceptance-api.sh), which CI runs against a freshly built Compose stack. Browser acceptance was performed manually with a scripted walkthrough and is not committed or run in CI. |
+| Automated checks | Implemented; browser acceptance is manual | [Regression suite](../../src/Tests/Regression), [infrastructure suite](../../src/Tests/Infrastructure), [CI workflow](../../.github/workflows/build.yml). Unit tests use EF InMemory. Package 1.5 added real-MySQL constraint, decimal, and concurrency tests (run when `EXPENSEWISE_TEST_MYSQL_CONNECTION` is set, as in the CI build job) and the [HTTP acceptance script](../../scripts/acceptance-api.sh), which CI runs against a freshly built Compose stack. Browser acceptance was performed manually with a scripted walkthrough and is not committed or run in CI. |
 
 ## Remaining gaps
 
@@ -53,7 +53,7 @@ Package 1.5 recorded engineering evidence against the [Phase 1 release gate](roa
 ### 2. Coverage outside the automated suites
 
 - Browser behavior is verified manually; there is no committed browser test or CI browser job.
-- The real-MySQL integration tests are skipped unless a disposable test database is configured. CI does not configure one, so CI exercises real MySQL only through the Compose acceptance job.
+- The real-MySQL integration tests are skipped locally unless a disposable test database is configured; the CI build job provides one.
 - The stack is a trusted local/private deployment: plain HTTP, Development environment, nonpersisted data-protection keys, and manual backups. See [operations](../operations/README.md#limitations).
 
 This assessment is not a formal security audit or production readiness review.
