@@ -37,7 +37,18 @@ namespace UI.Controllers
 
         protected void AddApiErrorsToModelState(ApiException exception)
         {
-            if (!string.IsNullOrWhiteSpace(exception.Response))
+            var initialErrorCount = ModelState.ErrorCount;
+
+            // The generated client deserializes typed error bodies into Result and leaves Response empty.
+            if (exception is ApiException<ValidationErrorResponse> { Result.ValidationMessages: { } typedMessages })
+            {
+                foreach (var message in typedMessages.Where(x => !string.IsNullOrWhiteSpace(x)))
+                {
+                    ModelState.AddModelError(string.Empty, message);
+                }
+            }
+
+            if (ModelState.ErrorCount == initialErrorCount && !string.IsNullOrWhiteSpace(exception.Response))
             {
                 try
                 {
@@ -82,7 +93,7 @@ namespace UI.Controllers
                 }
             }
 
-            if (ModelState.ErrorCount == 0)
+            if (ModelState.ErrorCount == initialErrorCount)
             {
                 ModelState.AddModelError(string.Empty, $"The API request failed with status code {exception.StatusCode}.");
             }

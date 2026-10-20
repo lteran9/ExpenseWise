@@ -45,7 +45,7 @@ namespace Application.UseCases
                     }
                 }
 
-                return Invalid("Unable to find user account with given email.");
+                return Invalid("Invalid email or password.");
             }
 
             return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
