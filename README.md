@@ -4,7 +4,7 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 
 ## Project status and completion plan
 
-The foundation is implemented, but the Docker-hosted expense-to-settlement journey is not yet verified or complete. Start with the [current-state assessment](docs/product/current-state.md), [Phase 1 specification](docs/product/README.md), and [delivery roadmap](docs/product/roadmap.md).
+Phase 1 packages 1.1-1.5 are implemented, and the Docker-hosted expense-to-settlement journey has been verified through HTTP acceptance checks and a browser walkthrough. Owner acceptance and a versioned release remain open in the [release gate](docs/product/roadmap.md#phase-1-release-gate). See the [current-state assessment](docs/product/current-state.md), [Phase 1 specification](docs/product/README.md), [delivery roadmap](docs/product/roadmap.md), and [operations guide](docs/operations/README.md).
 
 Phase 1 targets local Docker Compose, registered participants, organizer-recorded USD expenses, equal splits among selected people, and manual repayment tracking. It does not process payments or target public hosting.
 
@@ -24,12 +24,12 @@ Phase 1 targets local Docker Compose, registered participants, organizer-recorde
 
 ```mermaid
 flowchart LR;
-   id2(Mobile) --> id3(UI);
-   id1(Desktop) --> id3(UI);
-   
-   subgraph Azure
+   id1(Browser) --> id3(UI);
+
+   subgraph compose [Docker Compose]
     id3(UI) --> id4(API)
     id4(API) --> A@{ shape: cyl, label: "MySQL" };
+    id5(migrate) --> A
    end
 ```
 
@@ -37,12 +37,15 @@ flowchart LR;
 
 ```mermaid
 erDiagram
-   User ||--|{ MemberOf : is
-   Password ||--|{ User : ""
+   User ||--o{ MemberOf : is
+   Password ||--|| User : ""
    MemberOf }|--|| Group : ""
-   Split }o--|| Group : ""
-   User }|--|{ Split : ""
-   Split }|..|| Expense : ""
+   Group ||--o{ Expense : contains
+   User ||--o{ Expense : pays
+   Expense ||--|{ ExpenseShare : "split into"
+   User ||--o{ ExpenseShare : owes
+   Group ||--o{ Repayment : contains
+   User ||--o{ Repayment : "sends or receives"
 ```
 
 ## Developer Guide
@@ -111,16 +114,18 @@ docker compose up --build -d webapp
 ```bash
 dotnet build ExpenseWise.sln
 dotnet test --no-build
+# With the Compose stack running, run the HTTP acceptance checks (requires curl, jq, uuidgen):
+scripts/acceptance-api.sh
 ```
 
 - **Contributing:**
-   - Use feature branches and open PRs against `main`/`develop` (project convention-dependent).
+   - Use one feature branch per change and open PRs against `master`.
    - Run tests locally before submitting a PR.
 
 - **Troubleshooting:**
    - In Docker Compose, the UI must reach the API at `http://webapi:8081/`. Do not use `localhost` for the API URL inside the UI container: that points back to the UI container itself. Compose configures this address automatically. To apply Compose configuration changes to a running UI container, recreate it with `docker compose up -d --force-recreate webapp`.
    - If migrations or DB issues occur, inspect the `src/Infrastructure/SqlDatabase/Migrations` folder and the container logs.
-   - Use `docker compose logs <service>` to view specific service output.
+   - Use `docker compose logs <service>` to view specific service output. See the [operations guide](docs/operations/README.md#troubleshooting) for outage behavior and backup/restore.
 
 - **References & Contacts:**
    - API startup: [src/Presentation/Api/Program.cs](src/Presentation/Api/Program.cs)

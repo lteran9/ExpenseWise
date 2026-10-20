@@ -41,11 +41,84 @@ To apply newly added migrations, run `docker compose run --build --rm migrate` t
 
 The named `expensewise-mysql` volume keeps the database across container recreation and `docker compose down`. Do not use `docker compose down -v` if the data should be retained.
 
-## Useful checks
+## Acceptance checks
 
-- Inspect service output with `docker compose logs <service>`.
-- Check migration completion with `docker compose ps -a migrate` and its output with `docker compose logs migrate`.
+With the Compose stack running, run the HTTP acceptance script from the repository root:
+
+```bash
+scripts/acceptance-api.sh
+```
+
+The script requires `curl`, `jq`, and `uuidgen`. It registers disposable accounts on every run and exercises product scenarios A (steps 1-8), B, and the API-observable parts of C: invalid input, authentication and membership rejection, idempotent retries, voiding, self-repayment and overpayment rejection, concurrent repayments, void-after-repayment rejection, rejected account deletion, and the removed expense-update route. Step A8 restarts the `mysql` and `webapi` services and checks that the ledger survives; set `SKIP_RESTART=1` to skip it. Set `API_BASE_URL` when the API is not at `http://localhost:${API_PORT:-8081}`. The script stops at the first failed check and exits nonzero. The `acceptance` job in the GitHub Actions workflow runs the same script against a freshly built Compose stack.
+
+The real-MySQL integration tests in `src/Tests/Infrastructure` are skipped unless `EXPENSEWISE_TEST_MYSQL_CONNECTION` is set. Point them at a disposable, already-migrated database (never one whose data matters) and pass the password through `Database__Password`:
+
+```bash
+docker compose exec -T mysql sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" exec mysql -uroot -e "CREATE DATABASE IF NOT EXISTS expensewise_test; GRANT ALL ON expensewise_test.* TO \`$MYSQL_USER\`@\`%\`"'
+Database__Host=127.0.0.1 Database__Port=3306 Database__Name=expensewise_test \
+  Database__Username="$DB_USERNAME" Database__Password="$DB_PASSWORD" \
+  dotnet run --project src/Presentation/Api -- --migrate
+Database__Password="$DB_PASSWORD" \
+  EXPENSEWISE_TEST_MYSQL_CONNECTION="Server=127.0.0.1;Port=3306;Database=expensewise_test;User ID=$DB_USERNAME" \
+  dotnet test
+```
+
+Load `DB_USERNAME` and `DB_PASSWORD` from `.env` first (for example, `set -a; . ./.env; set +a`). Tests use uniquely keyed data, so they can be rerun against the same test database.
+
+## Backup and restore
+
+The database is the only state that must be backed up; the API and UI containers are stateless apart from sign-in sessions. Backups contain account emails, phone numbers, password hashes, and ledger data, so store them privately, never commit them (the repository ignores `backups/`), and delete copies you no longer need.
+
+Create a consistent backup while the stack is running:
+
+```bash
+mkdir -p backups
+docker compose exec -T mysql sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" exec mysqldump --single-transaction --no-tablespaces -u"$MYSQL_USER" "$MYSQL_DATABASE"' \
+  > "backups/expensewise-$(date +%Y%m%d-%H%M%S).sql"
+```
+
+The credentials are read from the container's environment, so they do not appear on the host command line. Check that the file is not empty and ends with `-- Dump completed`.
+
+### Rehearse a restore
+
+Rehearse restores in a disposable Compose project so the working database is not touched. Use different host ports and the same `.env`:
+
+```bash
+export COMPOSE_PROJECT_NAME=expensewise-restore-test API_PORT=18081 UI_PORT=18080 FORWARD_DB_PORT=13306
+docker compose up -d --wait mysql
+docker compose exec -T mysql sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" exec mysql -u"$MYSQL_USER" "$MYSQL_DATABASE"' < backups/<backup-file>.sql
+docker compose up -d --wait
+```
+
+The migration service should report that no migrations were applied. Reconcile the restore against the source before trusting the backup:
+
+1. Compare `CHECKSUM TABLE` output (and row counts) for `users`, `passwords`, `groups`, `member_of`, `expenses`, `expense_shares`, `repayments`, and `__EFMigrationsHistory` in both databases. Both must run the same MySQL version for checksums to be comparable.
+2. Sign in to the restored stack and compare each group's balances, outstanding total, expenses, and repayment history with the source.
+
+Remove the rehearsal with `docker compose down -v` while `COMPOSE_PROJECT_NAME` is still set to the disposable project, then `unset COMPOSE_PROJECT_NAME API_PORT UI_PORT FORWARD_DB_PORT`. Double-check the project name before running `down -v`.
+
+### Restore the working database
+
+Restore only a backup taken from the same ExpenseWise version (the same applied migrations). The dump drops and recreates each table, replacing all current data:
+
+```bash
+docker compose stop webapp webapi
+docker compose exec -T mysql sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" exec mysql -u"$MYSQL_USER" "$MYSQL_DATABASE"' < backups/<backup-file>.sql
+docker compose up -d
+```
+
+Sign in again afterwards and verify balances as in the rehearsal.
+
+## Troubleshooting
+
+- Inspect service output with `docker compose logs <service>`. Logs must not contain database passwords or signing keys; report it as a defect if they do.
+- Check migration completion with `docker compose ps -a migrate` and its output with `docker compose logs migrate`. The API does not start when migration fails.
+- If the API is down, UI pages show an error such as "Unable to load your groups" instead of empty data, and actions are not recorded. Restart it with `docker compose up -d webapi`.
+- If MySQL is down, the API logs `Unable to connect to any of the specified MySQL hosts`, and the UI shows a failed request instead of balances. Restart it with `docker compose up -d mysql` and retry; a submission that failed was not recorded, and a retried submission from the same form is not recorded twice.
+- Recreating the UI container ends browser sessions; sign in again. API tokens expire after 20 minutes.
 - Inspect schema history under `src/Infrastructure/SqlDatabase/Migrations`.
 - Check the API's Development OpenAPI document at `/openapi/v1.json` when the API is running in Development.
 
-These instructions describe local development only; they are not a production deployment or backup procedure.
+## Limitations
+
+These instructions cover a trusted local or private-network Compose deployment. They are not a hardened public deployment: the stack serves plain HTTP, runs the API in the Development environment, does not persist ASP.NET Core data-protection keys, and has no automated backup schedule, monitoring, or password recovery.

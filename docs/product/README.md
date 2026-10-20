@@ -1,6 +1,6 @@
 # Product scope and definition of done
 
-Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and share rules for package 1.3 were confirmed on 2026-10-19; repayment rules for package 1.4 were confirmed on 2026-10-20.
+Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and share rules for package 1.3 were confirmed on 2026-10-19; repayment rules for package 1.4 were confirmed on 2026-10-20. Package 1.5 recorded release evidence on 2026-10-20; owner acceptance and a versioned release remain open in the [release gate](roadmap.md#phase-1-release-gate).
 
 - [Current-state assessment](current-state.md): what exists and the evidence behind the gaps.
 - [Delivery roadmap](roadmap.md): ordered work packages and release gates.

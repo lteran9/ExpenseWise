@@ -53,6 +53,21 @@ Implement one numbered package at a time and attach evidence to its exit gate. R
 - Not yet verified: the browser journey for scenario A (including the confirmation dialog and retry behavior), the restart check, and real-MySQL tests for void-versus-repayment locking. These remain open for the exit gate.
 - Behavior change from 1.3, confirmed by the spec: voiding is blocked after any repayment exists, and member removal is blocked when the member has expense or repayment history.
 
+### Package 1.5 verification (2026-10-20)
+
+Toolchain: .NET SDK 10.0.401, Docker 28.0.4, Docker Compose 2.38.2, MySQL 8.0.46, Chromium 155.
+
+- **Cleanup.** Removed the unimplemented `PUT /Expense/Update` route and `UpdateExpense` stub, the placeholder forgot-password UI, and commented-out API code; regenerated the OpenAPI document and client. Rewrote the home and privacy pages to describe only the delivered behavior. `GET /Group/Retrieve` now returns the same expensed/outstanding totals as the group list.
+- **Defects found and fixed during verification.** In the container, amounts rendered as `¤90.00` because the UI used the invariant culture; the UI now formats with en-US. The groups page reported "not a member of any groups" when the API call failed; it now shows an error instead.
+- **Build and tests.** `dotnet build ExpenseWise.sln` succeeded with 0 warnings/errors. `dotnet test --no-build` passed 95 Regression tests and 49 Infrastructure tests with 0 skipped, using a migrated `expensewise_test` database on the Compose MySQL service and the application database user. New real-MySQL tests cover void-after-repayment rejection, a concurrent void-versus-repayment race (exactly one applies; stable over five runs), 0.01 and 9,999,999,999,999,999.99 decimal round-trips, duplicate repayment keys and membership (MySQL 1062), and an unknown repayment sender (MySQL 1452).
+- **Fresh install.** `docker compose down -v` followed by `docker compose up --build -d`: MySQL became healthy, the migrate service applied all three migrations and exited 0, and the UI root returned HTTP 200. No manual SQL or source edits were used.
+- **HTTP acceptance.** [`scripts/acceptance-api.sh`](../../scripts/acceptance-api.sh) passed all 26 checks against the stack: scenario A steps 1-8 with exact balances, suggestions, totals, and outstanding values at each step (step 8 restarts `mysql` and `webapi`); scenario B allocations, reload stability, fourth member, excluded payer, and single participant; scenario C invalid money and currency, nonmember payer/participant, duplicate or empty participants and duplicate membership (all without writes), anonymous/nonmember/member-write rejection, idempotent expense and repayment retries, voiding before repayments, self-repayment and overpayment rejection, two racing repayments that each settle the same debt (one stored), void-after-repayment rejection, account-deletion rejection, and the removed update route. The new `acceptance` job in [the CI workflow](../../.github/workflows/build.yml) runs this script against a freshly built Compose stack.
+- **Browser journey.** A scripted Chromium walkthrough against the Compose UI passed 15 checks: three registrations, group creation and member invitations, scenario A steps 1-8 entirely in the browser (selected-subset expense, balances and suggestions, the repayment confirmation step, resubmitting the same repayment form including its antiforgery token without a second record, settlement to zero, and the same ledger after restarting every Compose service and signing in again), browser rejection of an overpayment and of voiding after repayments, and Bob's member view without organizer actions.
+- **Failure states.** With the API stopped, the groups, expenses, and balances pages showed error alerts rather than empty data. With MySQL stopped, the API logged `Unable to connect to any of the specified MySQL hosts`, the UI showed a failed request and "Unable to load balances", and no action reported success. Missing `DB_PASSWORD`/`JWT_SIGNING_KEY` stops `docker compose` with a named-variable error, and a short signing key stops the API with a clear message. Searching all Compose logs for the database password found no occurrences.
+- **Backup and restore.** Took a `mysqldump --single-transaction` backup from the running stack, restored it into a disposable Compose project (`expensewise-restore-test`) with its own volume, and the migrate service reported no migrations to apply. `CHECKSUM TABLE` output for all eight tables matched the source, row counts matched (25 users, 5 groups, 15 memberships, 8 expenses, 21 shares, 9 repayments), and API group lists and ledgers for all five groups were identical between the source and restored stacks. The disposable project and volume were removed. The procedure is in the [operations guide](../operations/README.md#backup-and-restore).
+- **Documentation.** Updated the [operations guide](../operations/README.md) (acceptance checks, real-MySQL tests, backup/restore, troubleshooting, limitations), [API routes](../api/README.md), [current-state assessment](current-state.md), and the repository README.
+- **Not verified here.** The CI `acceptance` job has not yet run on GitHub. The browser walkthrough was run locally and is not committed. The project owner has not yet completed scenario A unaided, and no release has been tagged.
+
 
 - Keep business rules in the Core and Application layers and persistence behind Application ports; wire configuration and infrastructure in the composition layer.
 - Add only the domain/storage changes needed for payer, immutable allocations, repayments, and the agreed correction policy. Reuse existing entities where their meaning remains valid; do not preserve the paid-split experiment at the cost of incorrect accounting.
@@ -66,22 +81,22 @@ Implement one numbered package at a time and attach evidence to its exit gate. R
 
 The checklist is initially unchecked intentionally. Link test output, release/commit references, or a dated manual verification record when each item passes. A planned feature or passing unit test alone does not satisfy a Docker/browser gate.
 
-- [ ] Detailed rules for each delivered package have been reviewed; no unresolved decision affects balances or permissions.
-- [ ] A clean documented Compose install works without manual SQL or source edits.
-- [ ] The documented pre-1.3 data reset and migration are verified; subsequent migrations from the supported package 1.3 state are data-preserving.
-- [ ] All UI Phase 1 operations go through the API; client/contracts match the server.
-- [ ] Registration, sign-in/out, groups, membership, and organizer/member permissions work.
-- [ ] Exact USD equal splits among selected people are persisted and remain stable.
-- [ ] Per-member balances, repayment suggestions, partial/full repayments, and history reconcile.
-- [ ] Duplicate/concurrent requests cannot double count or overpay.
-- [ ] Correction restrictions and unavailable features are explicit in the UI.
-- [ ] Specification scenarios A-D pass, including the Docker-hosted browser journey.
-- [ ] Real-MySQL tests verify migrations, foreign keys, unique constraints, decimal persistence, and atomic writes.
-- [ ] Existing regression/infrastructure tests and solution build pass.
-- [ ] CI runs the necessary automated checks, including the Docker acceptance checks required for release.
-- [ ] Data survives restart; a backup has been restored and reconciled in a separate disposable environment.
-- [ ] Configuration errors and API/database outages produce useful errors/logs without false success.
-- [ ] Setup, recovery, limitations, and API documentation describe the delivered behavior; UI claims match it.
+- [x] Detailed rules for each delivered package have been reviewed; no unresolved decision affects balances or permissions. Evidence: rules for packages 1.2-1.4 are confirmed in the [specification](README.md); no open rule decisions remain.
+- [x] A clean documented Compose install works without manual SQL or source edits. Evidence: package 1.5 fresh-install check (2026-10-20).
+- [x] The documented pre-1.3 data reset and migration are verified; subsequent migrations from the supported package 1.3 state are data-preserving. Evidence: package 1.3 and 1.4 verification; the only later migration, `AddRepayments`, is additive.
+- [x] All UI Phase 1 operations go through the API; client/contracts match the server. Evidence: package 1.2 UI audit (the UI references only the OpenAPI client project); client regenerated from the server's OpenAPI document in package 1.5.
+- [x] Registration, sign-in/out, groups, membership, and organizer/member permissions work. Evidence: package 1.5 HTTP acceptance and browser journey.
+- [x] Exact USD equal splits among selected people are persisted and remain stable. Evidence: scenario B in the package 1.5 HTTP acceptance; real-MySQL decimal tests.
+- [x] Per-member balances, repayment suggestions, partial/full repayments, and history reconcile. Evidence: scenario A in the package 1.5 HTTP acceptance and browser journey.
+- [x] Duplicate/concurrent requests cannot double count or overpay. Evidence: package 1.4 and 1.5 real-MySQL concurrency tests; idempotency and concurrent-repayment acceptance checks; browser form resubmission.
+- [x] Correction restrictions and unavailable features are explicit in the UI. Evidence: package 1.5 cleanup; browser checks of void-after-repayment rejection and member view; sign-in page states password recovery is unavailable.
+- [x] Specification scenarios A-D pass, including the Docker-hosted browser journey. Evidence: package 1.5 HTTP acceptance (A-C), browser journey (A), fresh install, restart, restore, and failure-state checks (D).
+- [x] Real-MySQL tests verify migrations, foreign keys, unique constraints, decimal persistence, and atomic writes. Evidence: package 1.5 Infrastructure run, 49 passed and 0 skipped against migrated MySQL.
+- [x] Existing regression/infrastructure tests and solution build pass. Evidence: package 1.5 build and tests.
+- [ ] CI runs the necessary automated checks, including the Docker acceptance checks required for release. Added the `acceptance` job in package 1.5; check this item after it passes on GitHub Actions.
+- [x] Data survives restart; a backup has been restored and reconciled in a separate disposable environment. Evidence: scenario A step 8 (HTTP and browser) and the package 1.5 backup/restore rehearsal.
+- [x] Configuration errors and API/database outages produce useful errors/logs without false success. Evidence: package 1.5 failure-state checks.
+- [x] Setup, recovery, limitations, and API documentation describe the delivered behavior; UI claims match it. Evidence: package 1.5 documentation and cleanup.
 - [ ] A versioned release or recorded release commit identifies the verified result and its known limitations.
 - [ ] The project owner completes scenario A unaided and accepts the release.
 
@@ -116,4 +131,4 @@ Cloud/Azure hosting, mobile clients, multi-currency conversion, and payment-prov
 4. Update this roadmap when work is accepted, not merely when coding starts.
 5. Treat new ideas as deferred by default. Add them to Phase 1 only by explicitly changing the specification and acknowledging the added scope.
 
-**Next action:** Review and accept the Phase 1.1 verification, then implement package 1.2 on its own feature branch. Do not wire more settlement screens to the current split handler first.
+**Next action:** Confirm the CI `acceptance` job passes on GitHub Actions, have the project owner complete scenario A unaided from the [operations guide](../operations/README.md), then tag a versioned release that records the verified commit and the [known limitations](../operations/README.md#limitations). Phase 1 is done when the remaining release-gate items are checked; do not start Phase 2 work before then.
