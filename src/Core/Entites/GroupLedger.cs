@@ -64,27 +64,20 @@ namespace Core.Entities
             var creditors = Positions(Balances.Where(balance => balance.NetBalance > 0).Select(balance => (balance.Member, balance.NetBalance)));
             var suggestions = new List<RepaymentSuggestion>();
 
-            var debtorIndex = 0;
-            var creditorIndex = 0;
-            while (debtorIndex < debtors.Count && creditorIndex < creditors.Count)
-            {
-                var debtor = debtors[debtorIndex];
-                var creditor = creditors[creditorIndex];
-                var amount = Math.Min(debtor.Remaining, creditor.Remaining);
+            static Position? LargestRemaining(IEnumerable<Position> positions) => positions
+                .Where(position => position.Remaining > 0)
+                .OrderByDescending(position => position.Remaining)
+                .ThenBy(position => position.Member.Name, StringComparer.Ordinal)
+                .ThenBy(position => position.Member.UniqueKey)
+                .FirstOrDefault();
 
+            while (LargestRemaining(debtors) is { } debtor &&
+                   LargestRemaining(creditors) is { } creditor)
+            {
+                var amount = Math.Min(debtor.Remaining, creditor.Remaining);
                 suggestions.Add(new RepaymentSuggestion(debtor.Member, creditor.Member, amount));
                 debtor.Remaining -= amount;
                 creditor.Remaining -= amount;
-
-                if (debtor.Remaining == 0)
-                {
-                    debtorIndex++;
-                }
-
-                if (creditor.Remaining == 0)
-                {
-                    creditorIndex++;
-                }
             }
 
             return suggestions;
