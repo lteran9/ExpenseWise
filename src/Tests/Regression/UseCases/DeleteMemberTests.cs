@@ -62,7 +62,7 @@ namespace Tests.Regression.UseCases
                     Owner = new User { UniqueKey = Guid.NewGuid() },
                     Members = [new User { UniqueKey = memberKey }]
                 });
-            var useCase = new DeleteMember(repository.Object);
+            var useCase = new DeleteMember(repository.Object, Mock.Of<IExpenseRepository>(), Mock.Of<IRepaymentRepository>());
 
             var response = await useCase.Handle(new DeleteMemberRequest
             {
@@ -73,6 +73,71 @@ namespace Tests.Regression.UseCases
 
             Assert.False(response.Succeeded);
             Assert.Contains("Only the group organizer", response.ValidationMessages!.Single());
+            repository.Verify(value => value.RemoveMemberAsync(It.IsAny<MemberOf>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteMember_WhenMemberHasExpenseHistory_DoesNotRemoveMember()
+        {
+            var groupKey = Guid.NewGuid();
+            var actorKey = Guid.NewGuid();
+            var member = new User { UniqueKey = Guid.NewGuid() };
+            var group = new Group
+            {
+                Id = 10,
+                UniqueKey = groupKey,
+                Owner = new User { UniqueKey = actorKey },
+                Members = [member]
+            };
+            var repository = new Mock<IGroupRepository>();
+            repository.Setup(value => value.FindByUniqueKeyAsync(groupKey)).ReturnsAsync(group);
+            var expenseRepository = new Mock<IExpenseRepository>();
+            expenseRepository.Setup(value => value.GetGroupExpenses(group.Id)).ReturnsAsync(
+            [
+                new Expense { Voided = true, Payer = member, Shares = [] }
+            ]);
+            var useCase = new DeleteMember(repository.Object, expenseRepository.Object, Mock.Of<IRepaymentRepository>());
+
+            var response = await useCase.Handle(new DeleteMemberRequest
+            {
+                GroupKey = groupKey,
+                MemberKey = member.UniqueKey,
+                ActorKey = actorKey
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("expense or repayment history", response.ValidationMessages!.Single());
+            repository.Verify(value => value.RemoveMemberAsync(It.IsAny<MemberOf>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteMember_WhenMemberHasRepaymentHistory_DoesNotRemoveMember()
+        {
+            var groupKey = Guid.NewGuid();
+            var actorKey = Guid.NewGuid();
+            var member = new User { UniqueKey = Guid.NewGuid() };
+            var group = new Group
+            {
+                Id = 10,
+                UniqueKey = groupKey,
+                Owner = new User { UniqueKey = actorKey },
+                Members = [member]
+            };
+            var repository = new Mock<IGroupRepository>();
+            repository.Setup(value => value.FindByUniqueKeyAsync(groupKey)).ReturnsAsync(group);
+            var repaymentRepository = new Mock<IRepaymentRepository>();
+            repaymentRepository.Setup(value => value.GetGroupRepaymentsAsync(group.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync([new Repayment { Sender = member, Recipient = new User { UniqueKey = Guid.NewGuid() } }]);
+            var useCase = new DeleteMember(repository.Object, Mock.Of<IExpenseRepository>(), repaymentRepository.Object);
+
+            var response = await useCase.Handle(new DeleteMemberRequest
+            {
+                GroupKey = groupKey,
+                MemberKey = member.UniqueKey,
+                ActorKey = actorKey
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
             repository.Verify(value => value.RemoveMemberAsync(It.IsAny<MemberOf>()), Times.Never);
         }
     }

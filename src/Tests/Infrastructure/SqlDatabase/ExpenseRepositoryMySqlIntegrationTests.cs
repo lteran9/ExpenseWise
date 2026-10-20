@@ -58,29 +58,14 @@ namespace Tests.Infrastructure.SqlDatabase
 
             try
             {
-                int missingUserId;
-                await using (var context = new CoreContext(options))
-                {
-                    missingUserId = -1;
-                    while (await context.Users.AnyAsync(user => user.Id == missingUserId))
-                    {
-                        missingUserId--;
-                    }
-                }
-
                 var expense = BuildExpense(Guid.NewGuid(), seed);
-                expense.Shares =
-                [
-                    new ExpenseShare
-                    {
-                        Participant = new User { Id = missingUserId, UniqueKey = Guid.NewGuid() },
-                        Amount = 10m
-                    }
-                ];
+                // Duplicate participants violate share uniqueness after the expense insert.
+                expense.Shares[1].Participant = expense.Shares[0].Participant;
                 var repository = new ExpenseRepository(() => new CoreContext(options));
 
-                await Assert.ThrowsAsync<DbUpdateException>(
+                var exception = await Assert.ThrowsAsync<DbUpdateException>(
                     () => repository.CreateWithSharesAsync(expense, CancellationToken.None));
+                Assert.Equal(1062, Assert.IsType<MySqlException>(exception.InnerException).Number);
 
                 await using var verifyContext = new CoreContext(options);
                 Assert.Empty(await verifyContext.Expenses.Where(item => item.UniqueKey == expense.UniqueKey).ToListAsync());
@@ -125,7 +110,13 @@ namespace Tests.Infrastructure.SqlDatabase
                 Name = "Integration test group",
                 UniqueKey = Guid.NewGuid(),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                Membership =
+                [
+                    new MemberOfEntity { User = owner, Active = true, CreatedAt = now, UpdatedAt = now },
+                    new MemberOfEntity { User = participant, Active = true, CreatedAt = now, UpdatedAt = now },
+                    new MemberOfEntity { User = otherParticipant, Active = true, CreatedAt = now, UpdatedAt = now }
+                ]
             };
             context.Users.AddRange(owner, participant, otherParticipant);
             context.Groups.Add(group);

@@ -54,13 +54,34 @@ namespace Tests.Infrastructure.SqlDatabase
             var repository = new ExpenseRepository(() => new CoreContext(options));
             var created = await repository.CreateWithSharesAsync(BuildExpense(key), CancellationToken.None);
 
-            var voided = await repository.VoidAsync(key, 5, CancellationToken.None);
+            var outcome = await repository.VoidAsync(key, 5, CancellationToken.None);
 
-            Assert.NotNull(voided);
-            Assert.True(voided!.Voided);
+            Assert.False(outcome.BlockedByRepayments);
+            Assert.NotNull(outcome.Expense);
+            Assert.True(outcome.Expense!.Voided);
             await using var verifyContext = new CoreContext(options);
             Assert.Equal(1, await verifyContext.ExpenseShares.CountAsync());
             Assert.True((await verifyContext.Expenses.SingleAsync()).Voided);
+        }
+
+        [Fact]
+        public async Task CreateWithSharesAsync_WhenParticipantIsNoLongerMember_ThrowsAndStoresNothing()
+        {
+            var options = CreateInMemoryOptions(nameof(CreateWithSharesAsync_WhenParticipantIsNoLongerMember_ThrowsAndStoresNothing));
+            await SeedExpenseRelations(options);
+            await using (var context = new CoreContext(options))
+            {
+                context.MemberOf.RemoveRange(context.MemberOf.Where(membership => membership.UserId == 2));
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new ExpenseRepository(() => new CoreContext(options));
+
+            await Assert.ThrowsAsync<GroupMembershipConflictException>(
+                () => repository.CreateWithSharesAsync(BuildExpense(Guid.NewGuid()), CancellationToken.None));
+
+            await using var verifyContext = new CoreContext(options);
+            Assert.Equal(0, await verifyContext.Expenses.CountAsync());
         }
 
         private static Expense BuildExpense(Guid key) => new()
@@ -89,6 +110,9 @@ namespace Tests.Infrastructure.SqlDatabase
                 new UserEntity { Id = 1, FirstName = "Owner", LastName = "One", Email = "owner@example.test", Phone = "100", CountryCode = "+1", UniqueKey = Guid.NewGuid() },
                 new UserEntity { Id = 2, FirstName = "Member", LastName = "Two", Email = "member@example.test", Phone = "200", CountryCode = "+1", UniqueKey = Guid.NewGuid() });
             context.Groups.Add(new GroupEntity { Id = 5, OwnerId = 1, Name = "Group", UniqueKey = Guid.NewGuid() });
+            context.MemberOf.AddRange(
+                new MemberOfEntity { UserId = 1, GroupId = 5, Active = true },
+                new MemberOfEntity { UserId = 2, GroupId = 5, Active = true });
             await context.SaveChangesAsync();
         }
     }

@@ -37,44 +37,29 @@ namespace UI.Controllers
 
         protected void AddApiErrorsToModelState(ApiException exception)
         {
-            if (!string.IsNullOrWhiteSpace(exception.Response))
+            var initialErrorCount = ModelState.ErrorCount;
+
+            // The generated client deserializes typed error bodies into Result and leaves Response empty.
+            if (exception is ApiException<ValidationErrorResponse> { Result.ValidationMessages: { } typedMessages })
+            {
+                foreach (var message in typedMessages.Where(x => !string.IsNullOrWhiteSpace(x)))
+                {
+                    ModelState.AddModelError(string.Empty, message);
+                }
+            }
+
+            // Untyped error bodies are deserialized into ApiException<object>.Result as a JsonElement.
+            if (ModelState.ErrorCount == initialErrorCount && exception is ApiException<object> { Result: JsonElement resultElement })
+            {
+                AddJsonErrorsToModelState(resultElement);
+            }
+
+            if (ModelState.ErrorCount == initialErrorCount && !string.IsNullOrWhiteSpace(exception.Response))
             {
                 try
                 {
                     using var document = JsonDocument.Parse(exception.Response);
-                    var root = document.RootElement;
-                    if (root.ValueKind == JsonValueKind.Array)
-                    {
-                        foreach (var message in root.EnumerateArray())
-                        {
-                            if (message.ValueKind == JsonValueKind.String && message.GetString() is { } text)
-                            {
-                                ModelState.AddModelError(string.Empty, text);
-                            }
-                        }
-                    }
-
-                    if (root.ValueKind == JsonValueKind.Object)
-                    {
-                        if (TryGetProperty(root, "validationMessages", out var validationMessages) &&
-                            validationMessages.ValueKind == JsonValueKind.Array)
-                        {
-                            foreach (var message in validationMessages.EnumerateArray())
-                            {
-                                if (message.ValueKind == JsonValueKind.String && message.GetString() is { } text)
-                                {
-                                    ModelState.AddModelError(string.Empty, text);
-                                }
-                            }
-                        }
-
-                        if (TryGetProperty(root, "detail", out var detail) &&
-                            detail.ValueKind == JsonValueKind.String &&
-                            detail.GetString() is { Length: > 0 } detailText)
-                        {
-                            ModelState.AddModelError(string.Empty, detailText);
-                        }
-                    }
+                    AddJsonErrorsToModelState(document.RootElement);
                 }
                 catch
                 {
@@ -82,9 +67,45 @@ namespace UI.Controllers
                 }
             }
 
-            if (ModelState.ErrorCount == 0)
+            if (ModelState.ErrorCount == initialErrorCount)
             {
                 ModelState.AddModelError(string.Empty, $"The API request failed with status code {exception.StatusCode}.");
+            }
+        }
+
+        private void AddJsonErrorsToModelState(JsonElement root)
+        {
+            if (root.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var message in root.EnumerateArray())
+                {
+                    if (message.ValueKind == JsonValueKind.String && message.GetString() is { } text)
+                    {
+                        ModelState.AddModelError(string.Empty, text);
+                    }
+                }
+            }
+
+            if (root.ValueKind == JsonValueKind.Object)
+            {
+                if (TryGetProperty(root, "validationMessages", out var validationMessages) &&
+                    validationMessages.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var message in validationMessages.EnumerateArray())
+                    {
+                        if (message.ValueKind == JsonValueKind.String && message.GetString() is { } text)
+                        {
+                            ModelState.AddModelError(string.Empty, text);
+                        }
+                    }
+                }
+
+                if (TryGetProperty(root, "detail", out var detail) &&
+                    detail.ValueKind == JsonValueKind.String &&
+                    detail.GetString() is { Length: > 0 } detailText)
+                {
+                    ModelState.AddModelError(string.Empty, detailText);
+                }
             }
         }
 

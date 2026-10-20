@@ -35,6 +35,7 @@ namespace ExpenseWise.DependencyConfiguration
             serviceCollection.AddScoped<IUserRepository, UserRepository>();
             serviceCollection.AddScoped<IGroupRepository, GroupRepository>();
             serviceCollection.AddScoped<IExpenseRepository, ExpenseRepository>();
+            serviceCollection.AddScoped<IRepaymentRepository, RepaymentRepository>();
             serviceCollection.AddScoped<IPasswordRepository, PasswordRepository>();
             serviceCollection.AddScoped<IQueryPort<MemberOf>, QueryAdapter>();
 

@@ -18,6 +18,7 @@ namespace Infrastructure.SqlDatabase
                     cfg.AddProfile(Activator.CreateInstance(typeof(MemberOfProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(ExpenseProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(ExpenseShareProfile)) as Profile);
+                    cfg.AddProfile(Activator.CreateInstance(typeof(RepaymentProfile)) as Profile);
                     cfg.AddProfile(Activator.CreateInstance(typeof(PasswordProfile)) as Profile);
                 }, NullLoggerFactory.Instance).CreateMapper();
         }

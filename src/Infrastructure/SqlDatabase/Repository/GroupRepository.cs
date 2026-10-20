@@ -217,6 +217,10 @@ namespace Infrastructure.SqlDatabase
 
             using (var context = _contextFactory())
             {
+                await using var transaction = context.Database.IsRelational()
+                    ? await context.Database.BeginTransactionAsync()
+                    : null;
+
                 var stored = dbEntity.Id > 0
                     ? await context.MemberOf.FindAsync(dbEntity.Id)
                     : await context.MemberOf.FirstOrDefaultAsync(x => x.UserId == dbEntity.UserId && x.GroupId == dbEntity.GroupId);
@@ -226,8 +230,31 @@ namespace Infrastructure.SqlDatabase
                     return null;
                 }
 
+                await GroupWriteLock.AcquireAsync(context, stored.GroupId, CancellationToken.None);
+
+                var userId = stored.UserId;
+                var groupId = stored.GroupId;
+                var hasHistory =
+                    await context.Expenses.AnyAsync(expense => expense.GroupId == groupId
+                        && (expense.PayerUserId == userId
+                            || expense.UserId == userId
+                            || expense.Shares.Any(share => share.UserId == userId)))
+                    || await context.Repayments.AnyAsync(repayment => repayment.GroupId == groupId
+                        && (repayment.SenderUserId == userId
+                            || repayment.RecipientUserId == userId
+                            || repayment.RecordedByUserId == userId));
+                if (hasHistory)
+                {
+                    throw new GroupMembershipConflictException("Members with expense or repayment history cannot be removed from the group.");
+                }
+
                 var delete = context.Remove(stored);
                 await context.SaveChangesAsync();
+                if (transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
+
                 return _adapter.MapDatabaseToEntity(delete.Entity);
             }
         }

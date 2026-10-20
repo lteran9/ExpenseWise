@@ -145,32 +145,6 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPost(nameof(Pay))]
-        [ProducesResponseType(typeof(PayExpenseResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Pay()
-        {
-            try
-            {
-                var response = await _mediator.Send(new PayExpenseRequest());
-                if (response.Succeeded)
-                {
-                    return Ok(response.Result);
-                }
-                else
-                {
-                    return BadRequest(response);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unable to record an expense payment.");
-                return Problem();
-            }
-        }
-
         [HttpPut(nameof(Update))]
         [ProducesResponseType(typeof(UpdateExpenseResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]

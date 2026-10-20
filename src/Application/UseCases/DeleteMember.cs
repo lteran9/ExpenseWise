@@ -11,11 +11,18 @@ namespace Application.UseCases
     public class DeleteMember : BaseRequestHandler<DeleteMemberRequest, DeleteMemberResponse>
     {
         private readonly IGroupRepository _repository;
+        private readonly IExpenseRepository _expenseRepository;
+        private readonly IRepaymentRepository _repaymentRepository;
         private readonly AbstractValidator<DeleteMemberRequest> _validator;
 
-        public DeleteMember(IGroupRepository repository)
+        public DeleteMember(
+            IGroupRepository repository,
+            IExpenseRepository expenseRepository,
+            IRepaymentRepository repaymentRepository)
         {
             _repository = repository;
+            _expenseRepository = expenseRepository;
+            _repaymentRepository = repaymentRepository;
             _validator = new DeleteMemberRequestValidator();
         }
 
@@ -41,11 +48,27 @@ namespace Application.UseCases
                     return Invalid("Member not found in the group.");
                 }
 
-                var response = await _repository.RemoveMemberAsync(new MemberOf
+                var expenses = await _expenseRepository.GetGroupExpenses(group.Id) ?? new List<Expense>();
+                var repayments = await _repaymentRepository.GetGroupRepaymentsAsync(group.Id, cancellationToken) ?? new List<Repayment>();
+                if (HasHistory(member.UniqueKey, expenses, repayments))
                 {
-                    Group = group,
-                    User = member
-                });
+                    return Invalid("Members with expense or repayment history cannot be removed from the group.");
+                }
+
+                MemberOf? response;
+                try
+                {
+                    response = await _repository.RemoveMemberAsync(new MemberOf
+                    {
+                        Group = group,
+                        User = member
+                    });
+                }
+                catch (GroupMembershipConflictException exception)
+                {
+                    return Invalid(exception.Message);
+                }
+
                 if (response != null)
                 {
                     return Successful(
@@ -62,6 +85,18 @@ namespace Application.UseCases
             }
 
             return Invalid(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
+        }
+
+        private static bool HasHistory(Guid memberKey, IEnumerable<Expense> expenses, IEnumerable<Repayment> repayments)
+        {
+            return expenses.Any(expense =>
+                    expense.Payer?.UniqueKey == memberKey
+                    || expense.CreatedBy?.UniqueKey == memberKey
+                    || expense.Shares.Any(share => share.Participant.UniqueKey == memberKey))
+                || repayments.Any(repayment =>
+                    repayment.Sender?.UniqueKey == memberKey
+                    || repayment.Recipient?.UniqueKey == memberKey
+                    || repayment.RecordedBy?.UniqueKey == memberKey);
         }
     }
 

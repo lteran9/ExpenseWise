@@ -45,7 +45,14 @@ Implement one numbered package at a time and attach evidence to its exit gate. R
 - The isolated test volume was removed. The migration's pre-1.3 data reset was exercised only on this disposable database.
 - These checks are smoke evidence, not completion of the package exit gate: the full scenario B/C browser journey, including a selected-subset browser flow, remains to be verified.
 
-### Implementation boundaries
+### Package 1.4 verification (2026-10-20)
+
+- `dotnet build ExpenseWise.sln` succeeded with 0 warnings/errors. `dotnet test --no-build` passed the Regression suite (93 tests).
+- Infrastructure tests ran against the local MySQL container on a dedicated `expensewise_test` database, with migrations applied: 42 passed, 0 skipped. This includes real-MySQL checks that concurrent same-key expense and repayment requests store one row, and that an overpayment is rejected without writing.
+- Applied the additive `AddRepayments` migration with the Compose migrate service. Rebuilt the API and UI images; the UI root returned HTTP 200, and the unauthenticated repayment ledger API request returned HTTP 401.
+- Not yet verified: the browser journey for scenario A (including the confirmation dialog and retry behavior), the restart check, and real-MySQL tests for void-versus-repayment locking. These remain open for the exit gate.
+- Behavior change from 1.3, confirmed by the spec: voiding is blocked after any repayment exists, and member removal is blocked when the member has expense or repayment history.
+
 
 - Keep business rules in the Core and Application layers and persistence behind Application ports; wire configuration and infrastructure in the composition layer.
 - Add only the domain/storage changes needed for payer, immutable allocations, repayments, and the agreed correction policy. Reuse existing entities where their meaning remains valid; do not preserve the paid-split experiment at the cost of incorrect accounting.
