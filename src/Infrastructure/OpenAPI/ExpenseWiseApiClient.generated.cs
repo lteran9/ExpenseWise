@@ -38,6 +38,15 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ExpenseListItemResponse> ExpenseDetailAsync(System.Guid? expenseKey);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ExpenseListItemResponse> ExpenseDetailAsync(System.Guid? expenseKey, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<CreateExpenseResponse> ExpenseCreateAsync(CreateExpenseInput body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -47,12 +56,12 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body);
+        System.Threading.Tasks.Task<VoidExpenseResponse> ExpenseVoidAsync(VoidExpenseInput body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<VoidExpenseResponse> ExpenseVoidAsync(VoidExpenseInput body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -195,7 +204,7 @@ namespace OpenAPI
         public ExpenseWiseClient(System.Net.Http.HttpClient httpClient)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "http://localhost:5153";
+            BaseUrl = "http://[::]:8081";
             _httpClient = httpClient;
             Initialize();
         }
@@ -286,6 +295,120 @@ namespace OpenAPI
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ExpenseListResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<object>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<ExpenseListItemResponse> ExpenseDetailAsync(System.Guid? expenseKey)
+        {
+            return ExpenseDetailAsync(expenseKey, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<ExpenseListItemResponse> ExpenseDetailAsync(System.Guid? expenseKey, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "Expense/Detail"
+                    urlBuilder_.Append("Expense/Detail");
+                    urlBuilder_.Append('?');
+                    if (expenseKey != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("expenseKey")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(expenseKey, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ExpenseListItemResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -459,15 +582,15 @@ namespace OpenAPI
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body)
+        public virtual System.Threading.Tasks.Task<VoidExpenseResponse> ExpenseVoidAsync(VoidExpenseInput body)
         {
-            return ExpenseSplitAsync(body, System.Threading.CancellationToken.None);
+            return ExpenseVoidAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SplitExpenseResponse> ExpenseSplitAsync(SplitExpenseInput body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<VoidExpenseResponse> ExpenseVoidAsync(VoidExpenseInput body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -487,8 +610,8 @@ namespace OpenAPI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "Expense/Split"
-                    urlBuilder_.Append("Expense/Split");
+                    // Operation Path: "Expense/Void"
+                    urlBuilder_.Append("Expense/Void");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -515,7 +638,7 @@ namespace OpenAPI
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<SplitExpenseResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<VoidExpenseResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -2238,7 +2361,7 @@ namespace OpenAPI
                     var field_ = System.Reflection.IntrospectionExtensions.GetTypeInfo(value.GetType()).GetDeclaredField(name);
                     if (field_ != null)
                     {
-                        var attribute = System.Reflection.CustomAttributeExtensions.GetCustomAttribute(field_, typeof(System.Runtime.Serialization.EnumMemberAttribute))
+                        var attribute = System.Reflection.CustomAttributeExtensions.GetCustomAttribute(field_, typeof(System.Runtime.Serialization.EnumMemberAttribute)) 
                             as System.Runtime.Serialization.EnumMemberAttribute;
                         if (attribute != null)
                         {
@@ -2250,7 +2373,7 @@ namespace OpenAPI
                     return converted == null ? string.Empty : converted;
                 }
             }
-            else if (value is bool)
+            else if (value is bool) 
             {
                 return System.Convert.ToString((bool)value, cultureInfo).ToLowerInvariant();
             }
@@ -2357,6 +2480,15 @@ namespace OpenAPI
         [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
         public System.Guid GroupKey { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("payerKey")]
+        public System.Guid PayerKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("participantKeys")]
+        public System.Collections.Generic.ICollection<System.Guid> ParticipantKeys { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("idempotencyKey")]
+        public System.Guid IdempotencyKey { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -2365,6 +2497,12 @@ namespace OpenAPI
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         public int Id { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("uniqueKey")]
+        public System.Guid UniqueKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("replayed")]
+        public bool Replayed { get; set; }
 
     }
 
@@ -2444,6 +2582,10 @@ namespace OpenAPI
     public partial class ExpenseListItemResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("uniqueKey")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid UniqueKey { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         public int Id { get; set; }
 
@@ -2457,6 +2599,29 @@ namespace OpenAPI
 
         [System.Text.Json.Serialization.JsonPropertyName("amount")]
         public decimal Amount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("payerKey")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid PayerKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("payerName")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string PayerName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("recordedByKey")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid RecordedByKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("recordedByName")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string RecordedByName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("voided")]
+        public bool Voided { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("shares")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.Collections.Generic.ICollection<ExpenseShareResponse> Shares { get; set; } = new System.Collections.ObjectModel.Collection<ExpenseShareResponse>();
 
     }
 
@@ -2474,6 +2639,23 @@ namespace OpenAPI
         [System.Text.Json.Serialization.JsonPropertyName("expenses")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<ExpenseListItemResponse> Expenses { get; set; } = new System.Collections.ObjectModel.Collection<ExpenseListItemResponse>();
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ExpenseShareResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("participantKey")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid ParticipantKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("participantName")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ParticipantName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amount")]
+        public decimal Amount { get; set; }
 
     }
 
@@ -2568,24 +2750,6 @@ namespace OpenAPI
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class SplitExpenseInput
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
-        public System.Guid GroupKey { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class SplitExpenseResponse
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("success")]
-        public bool Success { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class UpdateExpenseResponse
     {
 
@@ -2660,6 +2824,30 @@ namespace OpenAPI
 
         [System.Text.Json.Serialization.JsonPropertyName("validationMessages")]
         public System.Collections.Generic.ICollection<string> ValidationMessages { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class VoidExpenseInput
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("groupKey")]
+        public System.Guid GroupKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("expenseKey")]
+        public System.Guid ExpenseKey { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class VoidExpenseResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("expenseKey")]
+        public System.Guid ExpenseKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("voided")]
+        public bool Voided { get; set; }
 
     }
 

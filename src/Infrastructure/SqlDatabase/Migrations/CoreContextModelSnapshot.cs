@@ -48,9 +48,9 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("int")
                         .HasColumnName("group_id");
 
-                    b.Property<bool>("Settled")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("settled");
+                    b.Property<int>("PayerUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("payer_id");
 
                     b.Property<Guid>("UniqueKey")
                         .HasColumnType("char(36)")
@@ -64,9 +64,15 @@ namespace SqlDatabase.Migrations
                         .HasColumnType("int")
                         .HasColumnName("created_by");
 
+                    b.Property<bool>("Voided")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("voided");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("PayerUserId");
 
                     b.HasIndex("UniqueKey")
                         .IsUnique();
@@ -74,6 +80,39 @@ namespace SqlDatabase.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("expenses");
+                });
+
+            modelBuilder.Entity("Infrastructure.SqlDatabase.ExpenseShareEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("ExpenseId")
+                        .HasColumnType("int")
+                        .HasColumnName("expense_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ExpenseId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("expense_shares");
                 });
 
             modelBuilder.Entity("Infrastructure.SqlDatabase.GroupEntity", b =>
@@ -197,57 +236,6 @@ namespace SqlDatabase.Migrations
                     b.ToTable("passwords");
                 });
 
-            modelBuilder.Entity("Infrastructure.SqlDatabase.SplitEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("ExpenseId")
-                        .HasColumnType("int")
-                        .HasColumnName("expense_id");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int")
-                        .HasColumnName("group_id");
-
-                    b.Property<bool>("Paid")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("paid");
-
-                    b.Property<DateTime?>("PaidOn")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("paid_on");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExpenseId");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("UserId", "GroupId", "ExpenseId")
-                        .IsUnique();
-
-                    b.ToTable("splits");
-                });
-
             modelBuilder.Entity("Infrastructure.SqlDatabase.UserEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -323,6 +311,12 @@ namespace SqlDatabase.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "Payer")
+                        .WithMany()
+                        .HasForeignKey("PayerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Infrastructure.SqlDatabase.UserEntity", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -332,6 +326,27 @@ namespace SqlDatabase.Migrations
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Group");
+
+                    b.Navigation("Payer");
+                });
+
+            modelBuilder.Entity("Infrastructure.SqlDatabase.ExpenseShareEntity", b =>
+                {
+                    b.HasOne("Infrastructure.SqlDatabase.ExpenseEntity", "Expense")
+                        .WithMany("Shares")
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "Participant")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Expense");
+
+                    b.Navigation("Participant");
                 });
 
             modelBuilder.Entity("Infrastructure.SqlDatabase.GroupEntity", b =>
@@ -375,31 +390,9 @@ namespace SqlDatabase.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Infrastructure.SqlDatabase.SplitEntity", b =>
+            modelBuilder.Entity("Infrastructure.SqlDatabase.ExpenseEntity", b =>
                 {
-                    b.HasOne("Infrastructure.SqlDatabase.ExpenseEntity", "Expense")
-                        .WithMany()
-                        .HasForeignKey("ExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Infrastructure.SqlDatabase.GroupEntity", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Expense");
-
-                    b.Navigation("Group");
-
-                    b.Navigation("User");
+                    b.Navigation("Shares");
                 });
 
             modelBuilder.Entity("Infrastructure.SqlDatabase.GroupEntity", b =>

@@ -34,6 +34,8 @@ namespace Infrastructure.SqlDatabase
 
         public Expense MapDatabaseToEntity(ExpenseEntity dbEntity) => DatabaseMapper.Instance.Map<Expense>(dbEntity);
         public ExpenseEntity MapEntityToDatabase(Expense entity) => DatabaseMapper.Instance.Map<ExpenseEntity>(entity);
+        public ExpenseShare MapDatabaseToEntity(ExpenseShareEntity dbEntity) => DatabaseMapper.Instance.Map<ExpenseShare>(dbEntity);
+        public ExpenseShareEntity MapEntityToDatabase(ExpenseShare entity) => DatabaseMapper.Instance.Map<ExpenseShareEntity>(entity);
 
         #endregion
 
@@ -44,11 +46,5 @@ namespace Infrastructure.SqlDatabase
 
         #endregion
 
-        #region Split
-
-        public Split MapDatabaseToEntity(SplitEntity dbEntity) => DatabaseMapper.Instance.Map<Split>(dbEntity);
-        public SplitEntity MapEntityToDatabase(Split entity) => DatabaseMapper.Instance.Map<SplitEntity>(entity);
-
-        #endregion
     }
 }

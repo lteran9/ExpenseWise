@@ -34,10 +34,24 @@ namespace Application.UseCases
                 foreach (var group in groups ?? new List<Group>())
                 {
                     var expenseList = await _expenseRepository.GetGroupExpenses(group.Id);
-                    var paymentsList = await _expenseRepository.GetSplitsAsync(group.Id);
+                    var activeExpenses = expenseList?.Where(expense => !expense.Voided).ToList() ?? [];
+                    var expensed = activeExpenses.Sum(expense => expense.Amount);
+                    var balances = new Dictionary<Guid, decimal>();
+                    foreach (var expense in activeExpenses)
+                    {
+                        if (expense.Payer != null)
+                        {
+                            balances[expense.Payer.UniqueKey] = balances.GetValueOrDefault(expense.Payer.UniqueKey) + expense.Amount;
+                        }
 
-                    var expensed = expenseList?.Sum(x => x.Amount) ?? 0;
-                    var outstanding = expensed - (paymentsList?.Where(e => e.Paid).Sum(x => x.Amount) ?? 0);
+                        foreach (var share in expense.Shares)
+                        {
+                            balances[share.Participant.UniqueKey] =
+                                balances.GetValueOrDefault(share.Participant.UniqueKey) - share.Amount;
+                        }
+                    }
+
+                    var outstanding = balances.Values.Where(balance => balance > 0).Sum();
                     response.Add(new RetrieveGroupResponse
                     {
                         Active = group.Active,

@@ -11,14 +11,19 @@ namespace Core.Entities
 
         public decimal Amount { get; set; }
 
+        public Guid UniqueKey { get; set; }
+        public bool Voided { get; set; }
+
         public User? CreatedBy { get; set; }
+        public User? Payer { get; set; }
         public Group? BelongsTo { get; set; }
-        public List<Split>? Payments { get; set; }
+        public List<ExpenseShare> Shares { get; set; }
 
         public Expense()
         {
             Description = string.Empty;
             Currency = string.Empty;
+            Shares = new List<ExpenseShare>();
         }
     }
 }

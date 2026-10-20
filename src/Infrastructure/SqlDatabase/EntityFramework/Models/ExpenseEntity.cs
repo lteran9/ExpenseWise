@@ -14,6 +14,8 @@ namespace Infrastructure.SqlDatabase
         public int GroupId { get; set; }
         [Column("created_by")]
         public int UserId { get; set; }
+        [Column("payer_id")]
+        public int PayerUserId { get; set; }
 
         [Column("description")]
         public string Description { get; set; }
@@ -25,6 +27,8 @@ namespace Infrastructure.SqlDatabase
 
         [Column("unique_key")]
         public Guid UniqueKey { get; set; }
+        [Column("voided")]
+        public bool Voided { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
@@ -35,6 +39,9 @@ namespace Infrastructure.SqlDatabase
         public GroupEntity? Group { get; set; }
         [ForeignKey(nameof(UserId))]
         public UserEntity? CreatedBy { get; set; }
+        [ForeignKey(nameof(PayerUserId))]
+        public UserEntity? Payer { get; set; }
+        public ICollection<ExpenseShareEntity> Shares { get; set; } = new List<ExpenseShareEntity>();
 
         public ExpenseEntity()
         {

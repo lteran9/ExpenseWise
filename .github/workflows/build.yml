@@ -14,6 +14,19 @@ jobs:
     strategy:
       matrix:
         dotnet: ["10.0.x"]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: integration-test
+          MYSQL_DATABASE: expensewise_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pintegration-test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
       - uses: actions/checkout@v6
@@ -24,5 +37,16 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
+      - name: Migrate test database
+        env:
+          Database__Host: 127.0.0.1
+          Database__Port: "3306"
+          Database__Name: expensewise_test
+          Database__Username: root
+          Database__Password: integration-test
+        run: dotnet run --project src/Presentation/Api --no-build -- --migrate
       - name: Test
+        env:
+          EXPENSEWISE_TEST_MYSQL_CONNECTION: "Server=127.0.0.1;Port=3306;Database=expensewise_test;User ID=root;Password="
+          Database__Password: integration-test
         run: dotnet test --no-build --verbosity normal
