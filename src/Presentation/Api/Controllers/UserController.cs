@@ -89,30 +89,6 @@ namespace Api.Controllers
             return Problem();
         }
 
-        // [HttpPost(nameof(ForgotPassword))]
-        // [ProducesResponseType(typeof(ForgotPasswordResponse), StatusCodes.Status200OK)]
-        // [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        // [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        // public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
-        // {
-        //    try
-        //         {
-        //             var response = await _mediator.Send(request);
-        //             if (response.Succeeded)
-        //             {
-        //                 return Ok(response.Result);
-        //             }
-        //             else
-        //             {
-        //                 return BadRequest(response);
-        //             }
-        //         }
-        //         catch (Exception ex)
-        //         {
-        //             return Problem(detail: ex.Message);
-        //         }
-        // }
-
         [HttpPut(nameof(Update))]
         [ProducesResponseType(typeof(UpdateUserResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]

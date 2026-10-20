@@ -11,7 +11,7 @@ public class RetrieveGroupTests
     public async Task RetrieveGroup_WithEmptyActorKey_ReturnsValidationFailure()
     {
         var repository = new Mock<IGroupRepository>();
-        var useCase = new RetrieveGroup(repository.Object);
+        var useCase = new RetrieveGroup(repository.Object, Mock.Of<IRepaymentRepository>());
 
         var result = await useCase.Handle(
             new RetrieveGroupRequest { UniqueKey = Guid.NewGuid() },
@@ -36,7 +36,7 @@ public class RetrieveGroupTests
                 Members = [new User { UniqueKey = Guid.NewGuid() }]
             });
 
-        var useCase = new RetrieveGroup(repository.Object);
+        var useCase = new RetrieveGroup(repository.Object, Mock.Of<IRepaymentRepository>());
         var result = await useCase.Handle(
             new RetrieveGroupRequest { UniqueKey = groupKey, ActorKey = actorKey },
             CancellationToken.None);
@@ -59,12 +59,61 @@ public class RetrieveGroupTests
                 Members = [new User { UniqueKey = actorKey }]
             });
 
-        var useCase = new RetrieveGroup(repository.Object);
+        var useCase = new RetrieveGroup(repository.Object, EmptyLedgerRepository().Object);
         var result = await useCase.Handle(
             new RetrieveGroupRequest { UniqueKey = groupKey, ActorKey = actorKey },
             CancellationToken.None);
 
         Assert.True(result.Succeeded);
         Assert.Single(result.Result!.Members);
+    }
+
+    [Fact]
+    public async Task RetrieveGroup_WithExpensesAndRepayments_ReturnsLedgerTotals()
+    {
+        var organizer = new User { UniqueKey = Guid.NewGuid() };
+        var member = new User { UniqueKey = Guid.NewGuid() };
+        var group = new Group
+        {
+            Id = 7,
+            UniqueKey = Guid.NewGuid(),
+            Owner = organizer,
+            Members = [organizer, member]
+        };
+        var repository = new Mock<IGroupRepository>();
+        repository.Setup(value => value.FindByUniqueKeyAsync(group.UniqueKey)).ReturnsAsync(group);
+        var repaymentRepository = new Mock<IRepaymentRepository>();
+        repaymentRepository.Setup(value => value.GetGroupLedgerSnapshotAsync(group.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GroupLedgerSnapshot(new GroupLedger(group.Members,
+                [
+                    new Expense
+                    {
+                        Amount = 20m,
+                        Payer = organizer,
+                        Shares =
+                        [
+                            new ExpenseShare { Participant = organizer, Amount = 10m },
+                            new ExpenseShare { Participant = member, Amount = 10m }
+                        ]
+                    }
+                ],
+                [new Repayment { Sender = member, Recipient = organizer, Amount = 4m }]), []));
+
+        var useCase = new RetrieveGroup(repository.Object, repaymentRepository.Object);
+        var result = await useCase.Handle(
+            new RetrieveGroupRequest { UniqueKey = group.UniqueKey, ActorKey = member.UniqueKey },
+            CancellationToken.None);
+
+        Assert.True(result.Succeeded);
+        Assert.Equal(20m, result.Result!.Expensed);
+        Assert.Equal(6m, result.Result.Outstanding);
+    }
+
+    private static Mock<IRepaymentRepository> EmptyLedgerRepository()
+    {
+        var repaymentRepository = new Mock<IRepaymentRepository>();
+        repaymentRepository.Setup(value => value.GetGroupLedgerSnapshotAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GroupLedgerSnapshot(new GroupLedger([], [], []), []));
+        return repaymentRepository;
     }
 }

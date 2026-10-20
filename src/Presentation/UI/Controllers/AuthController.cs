@@ -130,21 +130,6 @@ namespace UI.Controllers
             return View(model);
         }
 
-        [HttpGet]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ForgotPassword(AuthViewModel model)
-        {
-            ModelState.AddModelError(string.Empty, "Please add a valid email address.");
-
-            return View();
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOut()

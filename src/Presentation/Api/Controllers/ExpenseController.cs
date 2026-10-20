@@ -145,32 +145,6 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut(nameof(Update))]
-        [ProducesResponseType(typeof(UpdateExpenseResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update()
-        {
-            try
-            {
-                var response = await _mediator.Send(new UpdateExpenseRequest());
-                if (response.Succeeded)
-                {
-                    return Ok(response.Result);
-                }
-                else
-                {
-                    return BadRequest(response);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unable to update an expense.");
-                return Problem();
-            }
-        }
-
         private static ExpenseListItemResponse ToExpenseListItem(Core.Entities.Expense expense) =>
             new(
                 expense.UniqueKey,

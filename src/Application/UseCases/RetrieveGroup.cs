@@ -10,11 +10,13 @@ namespace Application.UseCases
     public class RetrieveGroup : BaseRequestHandler<RetrieveGroupRequest, RetrieveGroupResponse>
     {
         private readonly IGroupRepository _repository;
+        private readonly IRepaymentRepository _repaymentRepository;
         private readonly RetrieveGroupRequestValidator _validator;
 
-        public RetrieveGroup(IGroupRepository repository)
+        public RetrieveGroup(IGroupRepository repository, IRepaymentRepository repaymentRepository)
         {
             _repository = repository;
+            _repaymentRepository = repaymentRepository;
             _validator = new RetrieveGroupRequestValidator();
         }
 
@@ -37,6 +39,8 @@ namespace Application.UseCases
                         return Invalid("Group not found.");
                     }
 
+                    var ledger = (await _repaymentRepository.GetGroupLedgerSnapshotAsync(response.Id, cancellationToken)).Ledger;
+
                     return Successful(
                         new RetrieveGroupResponse()
                         {
@@ -52,7 +56,9 @@ namespace Application.UseCases
                                 Email = member.Email,
                                 Phone = member.Phone,
                                 UniqueKey = member.UniqueKey
-                            }).ToList()
+                            }).ToList(),
+                            Expensed = Math.Max(ledger.TotalSpent, 0),
+                            Outstanding = Math.Max(ledger.Outstanding, 0)
                         });
                 }
                 else
