@@ -111,6 +111,7 @@ namespace UI.Controllers
             }
             catch (ApiException ex)
             {
+                outcomeUnknown = ex.StatusCode != 400;
                 AddApiErrorsToModelState(ex);
                 _logger.LogWarning("Unable to record repayment through the API. Status code: {StatusCode}", ex.StatusCode);
             }
