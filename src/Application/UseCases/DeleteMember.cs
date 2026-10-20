@@ -55,11 +55,20 @@ namespace Application.UseCases
                     return Invalid("Members with expense or repayment history cannot be removed from the group.");
                 }
 
-                var response = await _repository.RemoveMemberAsync(new MemberOf
+                MemberOf? response;
+                try
                 {
-                    Group = group,
-                    User = member
-                });
+                    response = await _repository.RemoveMemberAsync(new MemberOf
+                    {
+                        Group = group,
+                        User = member
+                    });
+                }
+                catch (GroupMembershipConflictException exception)
+                {
+                    return Invalid(exception.Message);
+                }
+
                 if (response != null)
                 {
                     return Successful(

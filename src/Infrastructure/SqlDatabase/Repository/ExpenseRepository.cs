@@ -42,6 +42,20 @@ namespace Infrastructure.SqlDatabase
                 return (MapExpense(existing), false);
             }
 
+            var participantIds = expense.Shares.Select(share => share.Participant.Id)
+                .Append(expense.Payer!.Id)
+                .Distinct()
+                .ToList();
+            var activeCount = await context.MemberOf.CountAsync(
+                membership => membership.GroupId == expense.BelongsTo!.Id
+                    && membership.Active
+                    && participantIds.Contains(membership.UserId),
+                cancellationToken);
+            if (activeCount != participantIds.Count)
+            {
+                throw new GroupMembershipConflictException("The payer and every participant must still be members of the group.");
+            }
+
             try
             {
                 var entity = _adapter.MapEntityToDatabase(expense);

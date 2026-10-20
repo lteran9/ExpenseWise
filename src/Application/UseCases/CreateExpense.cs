@@ -90,7 +90,17 @@ namespace Application.UseCases
                     })
                     .ToList();
 
-                var (stored, created) = await _expenseRepository.CreateWithSharesAsync(expense, cancellationToken);
+                Expense stored;
+                bool created;
+                try
+                {
+                    (stored, created) = await _expenseRepository.CreateWithSharesAsync(expense, cancellationToken);
+                }
+                catch (GroupMembershipConflictException exception)
+                {
+                    return Invalid(exception.Message);
+                }
+
                 if (!created && !IsSameSubmission(stored, expense))
                 {
                     return Invalid("This expense request key was already used for different expense details.");
