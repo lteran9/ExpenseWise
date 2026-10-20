@@ -69,6 +69,172 @@ namespace Tests.Infrastructure.SqlDatabase
             }
         }
 
+        [MySqlIntegrationFact]
+        public async Task VoidAsync_AfterRepaymentRecorded_IsBlockedWithoutWriting()
+        {
+            var options = CreateOptions();
+            var seed = await SeedGroupWithDebt(options);
+
+            try
+            {
+                var repaymentRepository = new RepaymentRepository(() => new CoreContext(options));
+                var recorded = await repaymentRepository.RecordAsync(
+                    BuildRepayment(Guid.NewGuid(), seed, 1m), ValidateFor(seed, 1m), CancellationToken.None);
+                Assert.True(recorded.Created);
+
+                var expenseRepository = new ExpenseRepository(() => new CoreContext(options));
+                var outcome = await expenseRepository.VoidAsync(seed.ExpenseKey, seed.GroupId, CancellationToken.None);
+
+                Assert.True(outcome.BlockedByRepayments);
+                Assert.Null(outcome.Expense);
+                await using var context = new CoreContext(options);
+                Assert.False((await context.Expenses.SingleAsync(expense => expense.UniqueKey == seed.ExpenseKey)).Voided);
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
+        [MySqlIntegrationFact]
+        public async Task VoidAsync_RacingRepaymentForWholeDebt_AppliesExactlyOneChange()
+        {
+            var options = CreateOptions();
+            var seed = await SeedGroupWithDebt(options);
+
+            try
+            {
+                var expenseRepository = new ExpenseRepository(() => new CoreContext(options));
+                var repaymentRepository = new RepaymentRepository(() => new CoreContext(options));
+
+                var voidTask = expenseRepository.VoidAsync(seed.ExpenseKey, seed.GroupId, CancellationToken.None);
+                var repaymentTask = repaymentRepository.RecordAsync(
+                    BuildRepayment(Guid.NewGuid(), seed, 5m), ValidateFor(seed, 5m), CancellationToken.None);
+                await Task.WhenAll(voidTask, repaymentTask);
+
+                var voided = voidTask.Result.Expense?.Voided == true;
+                var repaid = repaymentTask.Result.Created;
+                Assert.True(voided ^ repaid, $"Expected exactly one change; voided={voided}, repaid={repaid}.");
+
+                await using var context = new CoreContext(options);
+                var storedVoided = (await context.Expenses.SingleAsync(expense => expense.UniqueKey == seed.ExpenseKey)).Voided;
+                var storedRepayments = await context.Repayments.CountAsync(repayment => repayment.GroupId == seed.GroupId);
+                Assert.Equal(voided, storedVoided);
+                Assert.Equal(repaid ? 1 : 0, storedRepayments);
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
+        [MySqlIntegrationFact]
+        public async Task RecordAsync_SmallestAmount_PersistsExactDecimal()
+        {
+            var options = CreateOptions();
+            var seed = await SeedGroupWithDebt(options);
+
+            try
+            {
+                var repository = new RepaymentRepository(() => new CoreContext(options));
+                var key = Guid.NewGuid();
+
+                var result = await repository.RecordAsync(
+                    BuildRepayment(key, seed, 0.01m), ValidateFor(seed, 0.01m), CancellationToken.None);
+
+                Assert.True(result.Created);
+                await using var context = new CoreContext(options);
+                Assert.Equal(0.01m, (await context.Repayments.SingleAsync(repayment => repayment.UniqueKey == key)).Amount);
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
+        [MySqlIntegrationFact]
+        public async Task Repayments_DuplicateUniqueKeyOrUnknownSender_AreRejectedByConstraints()
+        {
+            var options = CreateOptions();
+            var seed = await SeedGroupWithDebt(options);
+
+            try
+            {
+                var key = Guid.NewGuid();
+                await using (var context = new CoreContext(options))
+                {
+                    context.Repayments.Add(BuildRepaymentEntity(key, seed, seed.ParticipantId));
+                    await context.SaveChangesAsync();
+                }
+
+                await using (var context = new CoreContext(options))
+                {
+                    context.Repayments.Add(BuildRepaymentEntity(key, seed, seed.ParticipantId));
+                    var duplicate = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                    Assert.Equal(1062, Assert.IsType<MySqlException>(duplicate.InnerException).Number);
+                }
+
+                await using (var context = new CoreContext(options))
+                {
+                    context.Repayments.Add(BuildRepaymentEntity(Guid.NewGuid(), seed, int.MaxValue));
+                    var unknownSender = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                    Assert.Equal(1452, Assert.IsType<MySqlException>(unknownSender.InnerException).Number);
+                }
+
+                await using var verifyContext = new CoreContext(options);
+                Assert.Equal(1, await verifyContext.Repayments.CountAsync(repayment => repayment.GroupId == seed.GroupId));
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
+        [MySqlIntegrationFact]
+        public async Task Membership_DuplicateUserAndGroup_IsRejectedByUniqueConstraint()
+        {
+            var options = CreateOptions();
+            var seed = await SeedGroupWithDebt(options);
+
+            try
+            {
+                await using var context = new CoreContext(options);
+                var now = DateTime.UtcNow;
+                context.Add(new MemberOfEntity
+                {
+                    UserId = seed.ParticipantId,
+                    GroupId = seed.GroupId,
+                    Active = true,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                });
+
+                var exception = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                Assert.Equal(1062, Assert.IsType<MySqlException>(exception.InnerException).Number);
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
+        private static RepaymentEntity BuildRepaymentEntity(Guid key, SeedData seed, int senderId)
+        {
+            var now = DateTime.UtcNow;
+            return new RepaymentEntity
+            {
+                UniqueKey = key,
+                GroupId = seed.GroupId,
+                SenderUserId = senderId,
+                RecipientUserId = seed.OwnerId,
+                RecordedByUserId = seed.OwnerId,
+                Amount = 1m,
+                Currency = "USD",
+                OccurredAt = now,
+                CreatedAt = now
+            };
+        }
+
         private static Func<GroupLedger, string?> ValidateFor(SeedData seed, decimal amount) =>
             ledger => ledger.ValidateRepayment(seed.ParticipantKey, seed.OwnerKey, amount);
 
@@ -125,7 +291,7 @@ namespace Tests.Infrastructure.SqlDatabase
             await context.SaveChangesAsync();
 
             var seed = new SeedData(group.Id, group.UniqueKey, owner.Id, owner.UniqueKey,
-                participant.Id, participant.UniqueKey, otherParticipant.Id, otherParticipant.UniqueKey);
+                participant.Id, participant.UniqueKey, otherParticipant.Id, otherParticipant.UniqueKey, Guid.NewGuid());
 
             var expenseRepository = new ExpenseRepository(() => new CoreContext(options));
             await expenseRepository.CreateWithSharesAsync(new Expense
@@ -133,7 +299,7 @@ namespace Tests.Infrastructure.SqlDatabase
                 Description = "Repayment integration expense",
                 Currency = "USD",
                 Amount = 10m,
-                UniqueKey = Guid.NewGuid(),
+                UniqueKey = seed.ExpenseKey,
                 CreatedBy = new User { Id = seed.OwnerId, UniqueKey = seed.OwnerKey },
                 Payer = new User { Id = seed.OwnerId, UniqueKey = seed.OwnerKey },
                 BelongsTo = new Group { Id = seed.GroupId, UniqueKey = seed.GroupKey },
@@ -192,6 +358,7 @@ namespace Tests.Infrastructure.SqlDatabase
             int ParticipantId,
             Guid ParticipantKey,
             int OtherParticipantId,
-            Guid OtherParticipantKey);
+            Guid OtherParticipantKey,
+            Guid ExpenseKey);
     }
 }

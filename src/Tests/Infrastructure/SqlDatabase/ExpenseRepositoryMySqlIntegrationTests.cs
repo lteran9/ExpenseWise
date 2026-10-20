@@ -82,6 +82,39 @@ namespace Tests.Infrastructure.SqlDatabase
             }
         }
 
+        [MySqlIntegrationFact]
+        public async Task CreateWithSharesAsync_LargestSupportedAmount_PersistsExactDecimals()
+        {
+            var options = CreateOptions();
+            var seed = await SeedRelations(options);
+
+            try
+            {
+                var expense = BuildExpense(Guid.NewGuid(), seed);
+                expense.Amount = 9999999999999999.99m;
+                expense.Shares[0].Amount = 5000000000000000.00m;
+                expense.Shares[1].Amount = 4999999999999999.99m;
+                var repository = new ExpenseRepository(() => new CoreContext(options));
+
+                await repository.CreateWithSharesAsync(expense, CancellationToken.None);
+
+                await using var context = new CoreContext(options);
+                var stored = await context.Expenses.SingleAsync(item => item.UniqueKey == expense.UniqueKey);
+                var shares = await context.ExpenseShares
+                    .Where(share => share.ExpenseId == stored.Id)
+                    .OrderByDescending(share => share.Amount)
+                    .Select(share => share.Amount)
+                    .ToListAsync();
+                Assert.Equal(9999999999999999.99m, stored.Amount);
+                Assert.Equal(new[] { 5000000000000000.00m, 4999999999999999.99m }, shares);
+                Assert.Equal(stored.Amount, shares.Sum());
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
         private static DbContextOptions<CoreContext> CreateOptions(params IInterceptor[] interceptors)
         {
             var connectionString = new MySqlConnectionStringBuilder(
