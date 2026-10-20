@@ -170,6 +170,7 @@ namespace UI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to void the expense.");
+                ModelState.AddModelError(string.Empty, "Unable to void this expense right now. Please try again.");
             }
 
             return RedirectToAction(nameof(List), new { group = groupKey });
