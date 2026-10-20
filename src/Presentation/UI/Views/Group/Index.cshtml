@@ -32,6 +32,9 @@
                   <a asp-action="List" asp-controller="Expense" asp-route-group="@group.UniqueKey" class="btn btn-outline-secondary" aria-label="View expenses">
                      <i class="bi bi-receipt"></i>
                   </a>
+                  <a asp-action="Ledger" asp-controller="Repayment" asp-route-group="@group.UniqueKey" class="btn btn-outline-secondary" aria-label="View balances and repayments">
+                     <i class="bi bi-cash-stack"></i>
+                  </a>
                </div>
             </div>
             <fieldset class="mb-4">
@@ -57,11 +60,15 @@
       </div>
    }
 }
-else
+else if (ViewData.ModelState.IsValid)
 {
    <div class="alert alert-info">
       You are not a member of any groups yet. Create one to get started.
    </div>
+}
+else
+{
+   <div class="alert alert-danger">Unable to load your groups. Please try again.</div>
 }
 
 <div class="d-grid">

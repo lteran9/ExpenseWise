@@ -1,7 +1,9 @@
 using OpenAPI;
 using UI.Filters;
 using UI.Configuration;
+using System.Globalization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +52,15 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// Phase 1 is USD-only; format money and parse amounts with en-US regardless of the host or browser culture.
+var usdCulture = CultureInfo.GetCultureInfo("en-US");
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(usdCulture),
+    SupportedCultures = [usdCulture],
+    SupportedUICultures = [usdCulture]
+});
 
 app.UseHttpsRedirection();
 app.UseRouting();
