@@ -191,6 +191,42 @@ namespace Tests.Regression.UseCases
         }
 
         [Fact]
+        public async Task CreateExpense_WhenReplayedParticipantIsNoLongerActive_ReturnsReplayedExpense()
+        {
+            var owner = Member(Guid.NewGuid(), 1);
+            var removedParticipant = Member(Guid.NewGuid(), 2);
+            var groupKey = Guid.NewGuid();
+            var request = Request(owner, groupKey, owner.UniqueKey, [removedParticipant.UniqueKey]);
+            var stored = new Expense
+            {
+                Id = 77,
+                UniqueKey = request.IdempotencyKey,
+                Description = request.Description,
+                Currency = "USD",
+                Amount = request.Amount,
+                BelongsTo = new Group { Id = 12, UniqueKey = groupKey },
+                CreatedBy = owner,
+                Payer = owner,
+                Shares = [new ExpenseShare { Amount = request.Amount, Participant = removedParticipant }]
+            };
+            var expenseRepository = new Mock<IExpenseRepository>();
+            expenseRepository
+                .Setup(repository => repository.FindByUniqueKeyAsync(request.IdempotencyKey, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(stored);
+            var useCase = new CreateExpense(
+                expenseRepository.Object,
+                GroupRepository(groupKey, owner, owner).Object);
+
+            var response = await useCase.Handle(request, CancellationToken.None);
+
+            Assert.True(response.Succeeded);
+            Assert.Equal(stored.Id, response.Result!.Id);
+            Assert.True(response.Result.Replayed);
+            expenseRepository.Verify(repository => repository.CreateWithSharesAsync(
+                It.IsAny<Expense>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
         public async Task CreateExpense_WhenKeyReusedWithDifferentDetails_ReturnsInvalid()
         {
             var owner = Member(Guid.NewGuid(), 1);

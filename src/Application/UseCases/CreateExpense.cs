@@ -37,23 +37,6 @@ namespace Application.UseCases
                     return Invalid("Only the group organizer can record expenses.");
                 }
 
-                var membersByKey = group.Members.ToDictionary(member => member.UniqueKey);
-                if (!membersByKey.TryGetValue(request.PayerKey, out var payer))
-                {
-                    return Invalid("The payer must be an active member of the group.");
-                }
-
-                var participants = new List<User>();
-                foreach (var participantKey in request.ParticipantKeys)
-                {
-                    if (!membersByKey.TryGetValue(participantKey, out var participant))
-                    {
-                        return Invalid("Every participant must be an active member of the group.");
-                    }
-
-                    participants.Add(participant);
-                }
-
                 var expense = new Expense
                 {
                     Description = request.Description.Trim(),
@@ -61,10 +44,51 @@ namespace Application.UseCases
                     Amount = request.Amount,
                     BelongsTo = group,
                     CreatedBy = group.Owner,
-                    Payer = payer,
+                    Payer = new User { UniqueKey = request.PayerKey },
                     UniqueKey = request.IdempotencyKey,
-                    Shares = AllocateShares(request.Amount, participants)
+                    Shares = AllocateShares(
+                        request.Amount,
+                        request.ParticipantKeys.Select(key => new User { UniqueKey = key }).ToList())
                 };
+
+                var existing = await _expenseRepository.FindByUniqueKeyAsync(request.IdempotencyKey, cancellationToken);
+                if (existing != null)
+                {
+                    if (!IsSameSubmission(existing, expense))
+                    {
+                        return Invalid("This expense request key was already used for different expense details.");
+                    }
+
+                    return Successful(new CreateExpenseResponse
+                    {
+                        Id = existing.Id,
+                        UniqueKey = existing.UniqueKey,
+                        Replayed = true
+                    });
+                }
+
+                var membersByKey = group.Members.ToDictionary(member => member.UniqueKey);
+                if (!membersByKey.TryGetValue(request.PayerKey, out var payer))
+                {
+                    return Invalid("The payer must be an active member of the group.");
+                }
+
+                foreach (var share in expense.Shares)
+                {
+                    if (!membersByKey.ContainsKey(share.Participant.UniqueKey))
+                    {
+                        return Invalid("Every participant must be an active member of the group.");
+                    }
+                }
+
+                expense.Payer = payer;
+                expense.Shares = expense.Shares
+                    .Select(share => new ExpenseShare
+                    {
+                        Amount = share.Amount,
+                        Participant = membersByKey[share.Participant.UniqueKey]
+                    })
+                    .ToList();
 
                 var (stored, created) = await _expenseRepository.CreateWithSharesAsync(expense, cancellationToken);
                 if (!created && !IsSameSubmission(stored, expense))
@@ -105,15 +129,15 @@ namespace Application.UseCases
             return stored.Description == requested.Description
                 && stored.Currency == requested.Currency
                 && stored.Amount == requested.Amount
-                && stored.BelongsTo?.Id == requested.BelongsTo?.Id
-                && stored.CreatedBy?.Id == requested.CreatedBy?.Id
-                && stored.Payer?.Id == requested.Payer?.Id
+                && stored.BelongsTo?.UniqueKey == requested.BelongsTo?.UniqueKey
+                && stored.CreatedBy?.UniqueKey == requested.CreatedBy?.UniqueKey
+                && stored.Payer?.UniqueKey == requested.Payer?.UniqueKey
                 && stored.Shares
-                    .OrderBy(share => share.Participant.Id)
-                    .Select(share => (share.Participant.Id, share.Amount))
+                    .OrderBy(share => share.Participant.UniqueKey)
+                    .Select(share => (share.Participant.UniqueKey, share.Amount))
                     .SequenceEqual(requested.Shares
-                        .OrderBy(share => share.Participant.Id)
-                        .Select(share => (share.Participant.Id, share.Amount)));
+                        .OrderBy(share => share.Participant.UniqueKey)
+                        .Select(share => (share.Participant.UniqueKey, share.Amount)));
         }
     }
 
