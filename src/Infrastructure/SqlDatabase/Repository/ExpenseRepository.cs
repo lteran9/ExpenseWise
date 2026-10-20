@@ -19,16 +19,28 @@ namespace Infrastructure.SqlDatabase
 
         public async Task<(Expense Expense, bool Created)> CreateWithSharesAsync(Expense expense, CancellationToken cancellationToken)
         {
+            // Fast path for idempotent retries that never waits on the group lock. The lookup inside the lock is authoritative.
+            using (var probe = _contextFactory())
+            {
+                var previous = await LoadByUniqueKeyAsync(probe, expense.UniqueKey, cancellationToken);
+                if (previous != null)
+                {
+                    return (MapExpense(previous), false);
+                }
+            }
+
             using var context = _contextFactory();
+
+            await using var transaction = context.Database.IsRelational()
+                ? await context.Database.BeginTransactionAsync(cancellationToken)
+                : null;
+
+            await GroupWriteLock.AcquireAsync(context, expense.BelongsTo!.Id, cancellationToken);
             var existing = await LoadByUniqueKeyAsync(context, expense.UniqueKey, cancellationToken);
             if (existing != null)
             {
                 return (MapExpense(existing), false);
             }
-
-            await using var transaction = context.Database.IsRelational()
-                ? await context.Database.BeginTransactionAsync(cancellationToken)
-                : null;
 
             try
             {
@@ -92,24 +104,41 @@ namespace Infrastructure.SqlDatabase
             return entity == null ? null : MapExpense(entity);
         }
 
-        public async Task<Expense?> VoidAsync(Guid uniqueKey, int groupId, CancellationToken cancellationToken)
+        public async Task<VoidExpenseOutcome> VoidAsync(Guid uniqueKey, int groupId, CancellationToken cancellationToken)
         {
             using var context = _contextFactory();
+
+            await using var transaction = context.Database.IsRelational()
+                ? await context.Database.BeginTransactionAsync(cancellationToken)
+                : null;
+
+            await GroupWriteLock.AcquireAsync(context, groupId, cancellationToken);
             var entity = await context.Expenses
                 .FirstOrDefaultAsync(expense => expense.UniqueKey == uniqueKey && expense.GroupId == groupId, cancellationToken);
             if (entity == null)
             {
-                return null;
+                return new VoidExpenseOutcome(null, false);
             }
 
-            if (!entity.Voided)
+            if (entity.Voided)
             {
-                entity.Voided = true;
-                entity.UpdatedAt = DateTime.UtcNow;
-                await context.SaveChangesAsync(cancellationToken);
+                return new VoidExpenseOutcome(MapExpense(entity), false);
             }
 
-            return MapExpense(entity);
+            if (await context.Repayments.AnyAsync(repayment => repayment.GroupId == groupId, cancellationToken))
+            {
+                return new VoidExpenseOutcome(null, true);
+            }
+
+            entity.Voided = true;
+            entity.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync(cancellationToken);
+            if (transaction != null)
+            {
+                await transaction.CommitAsync(cancellationToken);
+            }
+
+            return new VoidExpenseOutcome(MapExpense(entity), false);
         }
 
         public async Task<List<Expense>?> GetGroupExpenses(int groupId)
@@ -146,13 +175,6 @@ namespace Infrastructure.SqlDatabase
                 .FirstOrDefaultAsync(expense => expense.UniqueKey == key, cancellationToken);
         }
 
-        private Expense MapExpense(ExpenseEntity entity)
-        {
-            var expense = _adapter.MapDatabaseToEntity(entity);
-            expense.Shares = entity.Shares
-                .Select(_adapter.MapDatabaseToEntity)
-                .ToList();
-            return expense;
-        }
+        private Expense MapExpense(ExpenseEntity entity) => _adapter.MapExpenseWithShares(entity);
     }
 }

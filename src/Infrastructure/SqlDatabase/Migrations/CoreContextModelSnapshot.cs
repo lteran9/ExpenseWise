@@ -236,6 +236,66 @@ namespace SqlDatabase.Migrations
                     b.ToTable("passwords");
                 });
 
+            modelBuilder.Entity("Infrastructure.SqlDatabase.RepaymentEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("currency");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int")
+                        .HasColumnName("group_id");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<int>("RecipientUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("recipient_id");
+
+                    b.Property<int>("RecordedByUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<int>("SenderUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("sender_id");
+
+                    b.Property<Guid>("UniqueKey")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("unique_key");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("RecipientUserId");
+
+                    b.HasIndex("RecordedByUserId");
+
+                    b.HasIndex("SenderUserId");
+
+                    b.HasIndex("UniqueKey")
+                        .IsUnique();
+
+                    b.ToTable("repayments");
+                });
+
             modelBuilder.Entity("Infrastructure.SqlDatabase.UserEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -388,6 +448,41 @@ namespace SqlDatabase.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Infrastructure.SqlDatabase.RepaymentEntity", b =>
+                {
+                    b.HasOne("Infrastructure.SqlDatabase.GroupEntity", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "Recipient")
+                        .WithMany()
+                        .HasForeignKey("RecipientUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "RecordedBy")
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.SqlDatabase.UserEntity", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("RecordedBy");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Infrastructure.SqlDatabase.ExpenseEntity", b =>

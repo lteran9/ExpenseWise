@@ -1,6 +1,6 @@
 # Product scope and definition of done
 
-Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and share rules for package 1.3 were confirmed on 2026-10-19; repayment rules for package 1.4 remain proposed.
+Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and share rules for package 1.3 were confirmed on 2026-10-19; repayment rules for package 1.4 were confirmed on 2026-10-20.
 
 - [Current-state assessment](current-state.md): what exists and the evidence behind the gaps.
 - [Delivery roadmap](roadmap.md): ordered work packages and release gates.
@@ -74,9 +74,9 @@ The package 1.3 migration intentionally resets all existing application data. Hi
 
 Package 1.3 does not provide a repayment writer. The no-repayments condition for voiding therefore holds until package 1.4 adds repayments and enforces the condition against the ledger.
 
-## Proposed detailed rules for package 1.4
+## Confirmed detailed rules for package 1.4
 
-Review these defaults before implementing package 1.4; any changes should update this specification and its acceptance tests.
+Confirmed on 2026-10-20. Changes must update this specification and its acceptance tests. Repayment suggestions use a deterministic greedy pairing of debtors and creditors in participant-key order, and the server timestamp sets occurrence time. Clients send an idempotency key with each record request. The legacy Pay/settle-all endpoint is removed.
 
 ### Balances and manual repayments
 

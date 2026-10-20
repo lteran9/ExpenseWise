@@ -14,6 +14,7 @@ namespace Infrastructure.SqlDatabase
         public DbSet<MemberOfEntity> MemberOf { get; set; }
         public DbSet<ExpenseEntity> Expenses { get; set; }
         public DbSet<ExpenseShareEntity> ExpenseShares { get; set; }
+        public DbSet<RepaymentEntity> Repayments { get; set; }
         public DbSet<PasswordEntity> Passwords { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -36,6 +37,21 @@ namespace Infrastructure.SqlDatabase
                 .HasOne(share => share.Participant)
                 .WithMany()
                 .HasForeignKey(share => share.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<RepaymentEntity>()
+                .HasOne(repayment => repayment.Sender)
+                .WithMany()
+                .HasForeignKey(repayment => repayment.SenderUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<RepaymentEntity>()
+                .HasOne(repayment => repayment.Recipient)
+                .WithMany()
+                .HasForeignKey(repayment => repayment.RecipientUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<RepaymentEntity>()
+                .HasOne(repayment => repayment.RecordedBy)
+                .WithMany()
+                .HasForeignKey(repayment => repayment.RecordedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

@@ -12,6 +12,11 @@ namespace Application.UseCases.Ports
         /// </summary>
         Task<(Expense Expense, bool Created)> CreateWithSharesAsync(Expense expense, CancellationToken cancellationToken);
         Task<Expense?> FindByUniqueKeyAsync(Guid uniqueKey, CancellationToken cancellationToken);
-        Task<Expense?> VoidAsync(Guid uniqueKey, int groupId, CancellationToken cancellationToken);
+        /// <summary>
+        /// Voids the expense unless the group already has repayments. The check and the update run under the same group lock.
+        /// </summary>
+        Task<VoidExpenseOutcome> VoidAsync(Guid uniqueKey, int groupId, CancellationToken cancellationToken);
     }
+
+    public sealed record VoidExpenseOutcome(Expense? Expense, bool BlockedByRepayments);
 }

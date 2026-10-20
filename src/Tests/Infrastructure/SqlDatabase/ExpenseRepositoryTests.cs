@@ -54,10 +54,11 @@ namespace Tests.Infrastructure.SqlDatabase
             var repository = new ExpenseRepository(() => new CoreContext(options));
             var created = await repository.CreateWithSharesAsync(BuildExpense(key), CancellationToken.None);
 
-            var voided = await repository.VoidAsync(key, 5, CancellationToken.None);
+            var outcome = await repository.VoidAsync(key, 5, CancellationToken.None);
 
-            Assert.NotNull(voided);
-            Assert.True(voided!.Voided);
+            Assert.False(outcome.BlockedByRepayments);
+            Assert.NotNull(outcome.Expense);
+            Assert.True(outcome.Expense!.Voided);
             await using var verifyContext = new CoreContext(options);
             Assert.Equal(1, await verifyContext.ExpenseShares.CountAsync());
             Assert.True((await verifyContext.Expenses.SingleAsync()).Voided);

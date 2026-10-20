@@ -1,0 +1,153 @@
+@model RepaymentLedgerViewModel
+@{
+    ViewData["Title"] = "Balances";
+}
+
+<h1 class="display-4 text-center">@ViewData["Title"]</h1>
+<hr />
+<div asp-validation-summary="All" class="text-danger"></div>
+@if (!Model.HasLoadedLedger)
+{
+    <div class="alert alert-danger">Unable to load balances. Please try again.</div>
+}
+else
+{
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="card box-shadow h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-muted">Total spent</h2>
+                    <p class="display-6 mb-0">@Model.TotalSpent.ToString("C") USD</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card box-shadow h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-muted">Outstanding</h2>
+                    <p class="display-6 mb-0">@Model.Outstanding.ToString("C") USD</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="card box-shadow mb-3">
+        <div class="card-body">
+            <h2 class="h4">Member balances</h2>
+            <ul class="list-group">
+                @foreach (var balance in Model.Balances)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@balance.Name</span>
+                        @if (balance.NetBalance > 0)
+                        {
+                            <span class="text-success">Is owed @balance.NetBalance.ToString("C")</span>
+                        }
+                        else if (balance.NetBalance < 0)
+                        {
+                            <span class="text-danger">Owes @((-balance.NetBalance).ToString("C"))</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Settled up</span>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+
+    <section class="card box-shadow mb-3">
+        <div class="card-body">
+            <h2 class="h4">Suggested repayments</h2>
+            @if (Model.Suggestions.Count == 0)
+            {
+                <p class="mb-0 text-muted">Everyone is settled up. There are no suggested repayments.</p>
+            }
+            else
+            {
+                <ul class="list-group">
+                    @foreach (var suggestion in Model.Suggestions)
+                    {
+                        <li class="list-group-item">
+                            @suggestion.FromName pays @suggestion.ToName @suggestion.Amount.ToString("C") USD
+                        </li>
+                    }
+                </ul>
+            }
+            <p class="form-text mb-0">Suggestions are a starting point. Recording a repayment does not move money.</p>
+        </div>
+    </section>
+
+    @if (Model.IsOrganizer)
+    {
+        <section class="card box-shadow mb-3">
+            <div class="card-body">
+                <h2 class="h4">Record a repayment</h2>
+                <p class="text-muted">This records a payment that already happened outside ExpenseWise. It does not move money, and it cannot be reversed yet.</p>
+                <form asp-action="Record" asp-controller="Repayment" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label" for="senderKey">Paid by</label>
+                        <select id="senderKey" name="senderKey" class="form-select" required>
+                            <option value="">Select a member</option>
+                            @foreach (var member in Model.Members)
+                            {
+                                <option value="@member.Key">@member.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="recipientKey">Paid to</label>
+                        <select id="recipientKey" name="recipientKey" class="form-select" required>
+                            <option value="">Select a member</option>
+                            @foreach (var member in Model.Members)
+                            {
+                                <option value="@member.Key">@member.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="amount">Amount (USD)</label>
+                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" step="0.01" placeholder="$" required />
+                    </div>
+                    <input type="hidden" name="groupKey" value="@Model.GroupKey" />
+                    <input type="hidden" name="idempotencyKey" value="@Model.IdempotencyKey" />
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary"
+                                onclick="return confirm('Record this repayment? It does not move money and cannot be reversed yet.');">
+                            Record repayment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    }
+
+    <section class="card box-shadow mb-3">
+        <div class="card-body">
+            <h2 class="h4">Repayment history</h2>
+            @if (Model.History.Count == 0)
+            {
+                <p class="mb-0 text-muted">No repayments have been recorded for this group yet.</p>
+            }
+            else
+            {
+                <ul class="list-group">
+                    @foreach (var repayment in Model.History)
+                    {
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>@repayment.SenderName paid @repayment.RecipientName @repayment.Amount.ToString("C") @repayment.Currency</span>
+                                <small class="text-muted">@repayment.OccurredAt.ToString("g")</small>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </section>
+}
+<div class="d-flex gap-2">
+    <a asp-action="List" asp-controller="Expense" asp-route-group="@Model.GroupKey" class="btn btn-secondary">Back to expenses</a>
+</div>

@@ -428,95 +428,6 @@
         }
       }
     },
-    "/Expense/Pay": {
-      "post": {
-        "tags": [
-          "Expense"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PayExpenseResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PayExpenseResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PayExpenseResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "additionalProperties": false
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "additionalProperties": false
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "additionalProperties": false
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "additionalProperties": false
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/Expense/Update": {
       "put": {
         "tags": [
@@ -1403,6 +1314,215 @@
         }
       }
     },
+    "/Repayment/Ledger": {
+      "get": {
+        "tags": [
+          "Repayment"
+        ],
+        "parameters": [
+          {
+            "name": "groupKey",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "additionalProperties": false,
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetrieveGroupLedgerResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetrieveGroupLedgerResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetrieveGroupLedgerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Repayment/Record": {
+      "post": {
+        "tags": [
+          "Repayment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordRepaymentInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordRepaymentInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordRepaymentInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordRepaymentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordRepaymentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordRepaymentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/User/Find": {
       "get": {
         "tags": [
@@ -2234,8 +2354,24 @@
         },
         "additionalProperties": false
       },
-      "PayExpenseResponse": {
+      "MemberBalanceResponse": {
         "type": "object",
+        "properties": {
+          "uniqueKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "additionalProperties": false
+          },
+          "netBalance": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "decimal"
+          }
+        },
         "additionalProperties": false
       },
       "ProblemDetails": {
@@ -2266,6 +2402,155 @@
             "type": "string",
             "additionalProperties": false,
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecordRepaymentInput": {
+        "type": "object",
+        "properties": {
+          "groupKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "senderKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "recipientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "currency": {
+            "type": "string",
+            "additionalProperties": false
+          },
+          "amount": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "decimal"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecordRepaymentResponse": {
+        "type": "object",
+        "properties": {
+          "repaymentKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "created": {
+            "type": "boolean",
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "RepaymentHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "repaymentKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "senderName": {
+            "type": "string",
+            "additionalProperties": false
+          },
+          "recipientName": {
+            "type": "string",
+            "additionalProperties": false
+          },
+          "amount": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RepaymentSuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "fromKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "fromName": {
+            "type": "string",
+            "additionalProperties": false
+          },
+          "toKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "toName": {
+            "type": "string",
+            "additionalProperties": false
+          },
+          "amount": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "decimal"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RetrieveGroupLedgerResponse": {
+        "type": "object",
+        "properties": {
+          "totalSpent": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "decimal"
+          },
+          "outstanding": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "decimal"
+          },
+          "balances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberBalanceResponse"
+            },
+            "additionalProperties": false
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RepaymentSuggestionResponse"
+            },
+            "additionalProperties": false
+          },
+          "repayments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RepaymentHistoryResponse"
+            },
+            "additionalProperties": false
           }
         },
         "additionalProperties": false
@@ -2460,6 +2745,9 @@
     },
     {
       "name": "Health"
+    },
+    {
+      "name": "Repayment"
     },
     {
       "name": "User"

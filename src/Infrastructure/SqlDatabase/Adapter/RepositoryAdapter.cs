@@ -37,6 +37,20 @@ namespace Infrastructure.SqlDatabase
         public ExpenseShare MapDatabaseToEntity(ExpenseShareEntity dbEntity) => DatabaseMapper.Instance.Map<ExpenseShare>(dbEntity);
         public ExpenseShareEntity MapEntityToDatabase(ExpenseShare entity) => DatabaseMapper.Instance.Map<ExpenseShareEntity>(entity);
 
+        public Expense MapExpenseWithShares(ExpenseEntity dbEntity)
+        {
+            var expense = MapDatabaseToEntity(dbEntity);
+            expense.Shares = dbEntity.Shares.Select(MapDatabaseToEntity).ToList();
+            return expense;
+        }
+
+        #endregion
+
+        #region Repayment
+
+        public Repayment MapDatabaseToEntity(RepaymentEntity dbEntity) => DatabaseMapper.Instance.Map<Repayment>(dbEntity);
+        public RepaymentEntity MapEntityToDatabase(Repayment entity) => DatabaseMapper.Instance.Map<RepaymentEntity>(entity);
+
         #endregion
 
         #region Password

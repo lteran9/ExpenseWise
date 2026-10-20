@@ -13,13 +13,19 @@ namespace Application.UseCases
         private readonly IUserRepository _userRepository;
         private readonly IGroupRepository _groupRepository;
         private readonly IExpenseRepository _expenseRepository;
+        private readonly IRepaymentRepository _repaymentRepository;
         private readonly AbstractValidator<ListGroupsRequest> _validator;
 
-        public ListGroups(IUserRepository userRepository, IGroupRepository groupRepository, IExpenseRepository expenseRepository)
+        public ListGroups(
+            IUserRepository userRepository,
+            IGroupRepository groupRepository,
+            IExpenseRepository expenseRepository,
+            IRepaymentRepository repaymentRepository)
         {
             _userRepository = userRepository;
             _groupRepository = groupRepository;
             _expenseRepository = expenseRepository;
+            _repaymentRepository = repaymentRepository;
             _validator = new ListGroupsRequestValidator();
         }
 
@@ -33,25 +39,9 @@ namespace Application.UseCases
 
                 foreach (var group in groups ?? new List<Group>())
                 {
-                    var expenseList = await _expenseRepository.GetGroupExpenses(group.Id);
-                    var activeExpenses = expenseList?.Where(expense => !expense.Voided).ToList() ?? [];
-                    var expensed = activeExpenses.Sum(expense => expense.Amount);
-                    var balances = new Dictionary<Guid, decimal>();
-                    foreach (var expense in activeExpenses)
-                    {
-                        if (expense.Payer != null)
-                        {
-                            balances[expense.Payer.UniqueKey] = balances.GetValueOrDefault(expense.Payer.UniqueKey) + expense.Amount;
-                        }
-
-                        foreach (var share in expense.Shares)
-                        {
-                            balances[share.Participant.UniqueKey] =
-                                balances.GetValueOrDefault(share.Participant.UniqueKey) - share.Amount;
-                        }
-                    }
-
-                    var outstanding = balances.Values.Where(balance => balance > 0).Sum();
+                    var expenses = await _expenseRepository.GetGroupExpenses(group.Id) ?? new List<Expense>();
+                    var repayments = await _repaymentRepository.GetGroupRepaymentsAsync(group.Id, cancellationToken) ?? new List<Repayment>();
+                    var ledger = new GroupLedger(group.Members, expenses, repayments);
                     response.Add(new RetrieveGroupResponse
                     {
                         Active = group.Active,
@@ -67,8 +57,8 @@ namespace Application.UseCases
                             Phone = member.Phone,
                             UniqueKey = member.UniqueKey
                         }).ToList(),
-                        Expensed = Math.Max(expensed, 0),
-                        Outstanding = Math.Max(outstanding, 0)
+                        Expensed = Math.Max(ledger.TotalSpent, 0),
+                        Outstanding = Math.Max(ledger.Outstanding, 0)
                     });
                 }
 

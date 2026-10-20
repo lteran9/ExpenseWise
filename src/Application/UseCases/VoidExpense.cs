@@ -38,16 +38,21 @@ namespace Application.UseCases
                 return Invalid("Only the group organizer can void expenses.");
             }
 
-            var expense = await _expenseRepository.VoidAsync(request.ExpenseKey, group.Id, cancellationToken);
-            if (expense == null)
+            var outcome = await _expenseRepository.VoidAsync(request.ExpenseKey, group.Id, cancellationToken);
+            if (outcome.BlockedByRepayments)
+            {
+                return Invalid("Expenses cannot be voided after repayments have been recorded in this group.");
+            }
+
+            if (outcome.Expense == null)
             {
                 return Invalid("Expense not found in the requested group.");
             }
 
             return Successful(new VoidExpenseResponse
             {
-                ExpenseKey = expense.UniqueKey,
-                Voided = expense.Voided
+                ExpenseKey = outcome.Expense.UniqueKey,
+                Voided = outcome.Expense.Voided
             });
         }
     }

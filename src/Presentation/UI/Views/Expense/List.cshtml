@@ -62,5 +62,6 @@ else
     {
         <a asp-action="Create" asp-route-group="@Model.GroupKey" class="btn btn-primary">Record expense</a>
     }
+    <a asp-action="Ledger" asp-controller="Repayment" asp-route-group="@Model.GroupKey" class="btn btn-outline-primary">View balances</a>
     <a asp-action="Index" asp-controller="Group" class="btn btn-secondary">Back to groups</a>
 </div>
