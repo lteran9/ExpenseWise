@@ -41,15 +41,39 @@ namespace Api.Controllers
                 return Ok(new ExpenseListResponse(
                     response.Result.GroupKey,
                     response.Result.GroupMembers,
-                    response.Result.Expenses.Select(expense => new ExpenseListItemResponse(
-                        expense.Id,
-                        expense.Description,
-                        expense.Currency,
-                        expense.Amount)).ToList()));
+                    response.Result.Expenses.Select(ToExpenseListItem).ToList()));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to list group expenses.");
+                return Problem();
+            }
+        }
+
+        [HttpGet(nameof(Detail))]
+        [ProducesResponseType(typeof(ExpenseListItemResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Detail([FromQuery] Guid expenseKey, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var response = await _mediator.Send(new RetrieveExpenseRequest
+                {
+                    ActorKey = AuthenticatedUserKey,
+                    ExpenseKey = expenseKey
+                }, cancellationToken);
+                if (!response.Succeeded || response.Result == null)
+                {
+                    return BadRequest(response);
+                }
+
+                return Ok(ToExpenseListItem(response.Result.Expense));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to retrieve an expense.");
                 return Problem();
             }
         }
@@ -69,7 +93,10 @@ namespace Api.Controllers
                     Description = input.Description,
                     Currency = input.Currency,
                     Amount = input.Amount,
-                    GroupKey = input.GroupKey
+                    GroupKey = input.GroupKey,
+                    PayerKey = input.PayerKey,
+                    ParticipantKeys = input.ParticipantKeys,
+                    IdempotencyKey = input.IdempotencyKey
                 };
                 var response = await _mediator.Send(request, cancellationToken);
                 if (response.Succeeded)
@@ -88,33 +115,32 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPost(nameof(Split))]
-        [ProducesResponseType(typeof(SplitExpenseResponse), StatusCodes.Status200OK)]
+        [HttpPost(nameof(Void))]
+        [ProducesResponseType(typeof(VoidExpenseResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Split([FromBody] SplitExpenseInput input, CancellationToken cancellationToken)
+        public async Task<IActionResult> Void([FromBody] VoidExpenseInput input, CancellationToken cancellationToken)
         {
             try
             {
-                var request = new SplitExpenseRequest
+                var request = new VoidExpenseRequest
                 {
                     ActorKey = AuthenticatedUserKey,
-                    GroupKey = input.GroupKey
+                    GroupKey = input.GroupKey,
+                    ExpenseKey = input.ExpenseKey
                 };
                 var response = await _mediator.Send(request, cancellationToken);
                 if (response.Succeeded)
                 {
                     return Ok(response.Result);
                 }
-                else
-                {
-                    return BadRequest(response);
-                }
+
+                return BadRequest(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to split expenses.");
+                _logger.LogError(ex, "Unable to void an expense.");
                 return Problem();
             }
         }
@@ -170,5 +196,22 @@ namespace Api.Controllers
                 return Problem();
             }
         }
+
+        private static ExpenseListItemResponse ToExpenseListItem(Core.Entities.Expense expense) =>
+            new(
+                expense.UniqueKey,
+                expense.Id,
+                expense.Description,
+                expense.Currency,
+                expense.Amount,
+                expense.Payer!.UniqueKey,
+                expense.Payer.Name,
+                expense.CreatedBy!.UniqueKey,
+                expense.CreatedBy.Name,
+                expense.Voided,
+                expense.Shares.Select(share => new ExpenseShareResponse(
+                    share.Participant.UniqueKey,
+                    share.Participant.Name,
+                    share.Amount)).ToList());
     }
 }

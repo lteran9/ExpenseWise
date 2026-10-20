@@ -26,6 +26,8 @@ For running the API or UI directly with `dotnet run`, provide the same database 
 
 The API issues a signed bearer token from `POST /User/Authenticate`; tokens expire after 20 minutes. The MVC UI keeps the API token in its server-side session and protects browser routes with an HTTP-only authentication cookie. Sign in again after expiry. The signing key must be identical across API instances that validate the same tokens and must remain private. This local configuration is not a recommendation for public deployment.
 
+**Package 1.3 migration warning:** the migration intentionally deletes all existing ExpenseWise application data (accounts, groups, memberships, passwords, expenses, and legacy splits) before creating the new payer/share schema. This reset was approved for the beta; do not run it against a database whose data must be retained. Register accounts and recreate groups after migration. Later migrations must preserve the supported ledger unless a separate reset is explicitly approved.
+
 From the repository root, run:
 
 ```bash

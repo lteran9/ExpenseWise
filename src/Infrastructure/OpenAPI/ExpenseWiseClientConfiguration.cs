@@ -1,12 +1,13 @@
-namespace OpenAPI;
-
-public partial class ExpenseWiseClient
+namespace OpenAPI
 {
-    partial void Initialize()
+    public partial class ExpenseWiseClient
     {
-        if (_httpClient.BaseAddress is not null)
+        partial void Initialize()
         {
-            _baseUrl = _httpClient.BaseAddress.ToString();
+            if (_httpClient.BaseAddress is not null)
+            {
+                _baseUrl = _httpClient.BaseAddress.ToString();
+            }
         }
     }
 }

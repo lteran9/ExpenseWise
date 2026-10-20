@@ -9,7 +9,7 @@ All application logic in ExpenseWise is encapsulated inside vertical slices with
 
 ## 1. Structure of a Use Case
 
-Each use case typically contains the Handler, Request, and Response classes in a single file (or grouped together):
+Each use case may keep its related Handler, Request, and Response types, plus supporting types used only by that use case, together in one file as a cohesive vertical slice. This is the exception to the project-wide one-type-per-file convention; do not place unrelated types in the slice file.
 
 ```csharp
 namespace Application.UseCases
@@ -67,5 +67,8 @@ namespace Application.UseCases
 ## 3. Ports & Boundaries
 
 - Define repository and external communication interfaces in `src/Application/UseCases/Ports/` (e.g., `IExpenseRepository.cs`, `IGroupRepository.cs`).
+- `Ports/` must contain only interfaces. Do not add records, enums, classes, or DTOs there, even when a port method returns them.
+- Place supporting types used by a single use case in that use case's slice file in the `Application.UseCases` namespace. Place types shared by several use cases in their own file at the root of `src/Application/UseCases/`.
+- Keep business decisions, such as whether a reused idempotency key matches the original submission, in the use case. Ports should report facts (for example, `CreateWithSharesAsync` returns the stored expense and whether it was newly created), not enforce business rules.
 - Never reference Entity Framework Core (`CoreContext`), Dapper, or presentation types inside `Application.UseCases`.
 - Rely solely on domain entities in `Core.Entities`.

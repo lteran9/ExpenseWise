@@ -1,0 +1,66 @@
+@model ExpenseLedgerViewModel
+@{
+    ViewData["Title"] = "Expense Ledger";
+}
+
+<h1 class="display-4 text-center">@ViewData["Title"]</h1>
+<hr />
+<div asp-validation-summary="All" class="text-danger"></div>
+@if (Model.Expenses.Count == 0 && Model.HasLoadedExpenses)
+{
+    <div class="alert alert-info">No expenses have been recorded for this group yet.</div>
+}
+else if (!Model.HasLoadedExpenses)
+{
+    <div class="alert alert-danger">Unable to load expenses. Please try again.</div>
+}
+else
+{
+    @foreach (var expense in Model.Expenses)
+    {
+        <section class="card box-shadow mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h2 class="h4">@expense.Description</h2>
+                        <p class="mb-1">Total: @expense.Amount.ToString("C") USD</p>
+                        <p class="mb-1">Paid by @expense.PayerName; recorded by @expense.RecordedByName.</p>
+                    </div>
+                    @if (expense.Voided)
+                    {
+                        <span class="badge text-bg-secondary">Voided</span>
+                    }
+                    else if (Model.IsOrganizer)
+                    {
+                        <form asp-action="Void" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="groupKey" value="@Model.GroupKey" />
+                            <input type="hidden" name="expenseKey" value="@expense.Key" />
+                            <button type="submit" class="btn btn-outline-danger"
+                                    onclick="return confirm('Void this expense? It will remain in the ledger but no longer count toward totals.');">
+                                Void
+                            </button>
+                        </form>
+                    }
+                </div>
+                <h3 class="h6 mt-3">Shares</h3>
+                <ul class="list-group">
+                    @foreach (var share in expense.Shares)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>@share.ParticipantName</span>
+                            <span>@share.Amount.ToString("C")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </section>
+    }
+}
+<div class="d-flex gap-2">
+    @if (Model.IsOrganizer)
+    {
+        <a asp-action="Create" asp-route-group="@Model.GroupKey" class="btn btn-primary">Record expense</a>
+    }
+    <a asp-action="Index" asp-controller="Group" class="btn btn-secondary">Back to groups</a>
+</div>

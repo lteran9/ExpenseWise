@@ -1,6 +1,6 @@
 # Product scope and definition of done
 
-Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and repayment rules remain proposed until their packages are reviewed.
+Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and share rules for package 1.3 were confirmed on 2026-10-19; repayment rules for package 1.4 remain proposed.
 
 - [Current-state assessment](current-state.md): what exists and the evidence behind the gaps.
 - [Delivery roadmap](roadmap.md): ordered work packages and release gates.
@@ -55,13 +55,11 @@ These steps must be possible in the browser, without Swagger, manual SQL, or edi
 
 Local/trusted deployment limits the deployment target; it does not remove the need for per-user access checks.
 
-## Proposed detailed rules for later packages
-
-Review these defaults before implementing the affected package; any changes should update this specification and its acceptance tests.
+## Confirmed detailed rules for package 1.3
 
 ### Expenses and shares
 
-- One expense has one payer who is an active group member, at least one distinct participating member, a description, and a positive USD amount with at most two decimal places.
+- One expense has one payer who is an active group member, at least one distinct participating member, a description, and a positive USD amount with at most two decimal places and no more than 16 integer digits.
 - The payer may be included in or excluded from the participants. The person entering the record is not implicitly the payer.
 - An organizer may record an expense paid by another member. Multiple payers for one expense are deferred.
 - Store exact decimal/minor-unit amounts; do not use floating-point money arithmetic.
@@ -71,6 +69,14 @@ Review these defaults before implementing the affected package; any changes shou
 - Creating shares does not mark them paid. The payer's outlay, participants' obligations, and later repayments are separate concepts.
 - Preserve the original participants/shares when membership changes.
 - For the minimum correction workflow, the organizer can void an expense and re-enter it before any repayment has been recorded in that group. Retain the voided entry and exclude it from calculations. General expense editing and post-repayment corrections are deferred; block unsupported corrections clearly.
+
+The package 1.3 migration intentionally resets all existing application data. Historical paid splits cannot be reliably distinguished from allocations and repayments; no pre-1.3 data conversion is supported. Subsequent migrations must preserve data unless a separate explicit decision says otherwise. Do not run this migration against data that must be retained.
+
+Package 1.3 does not provide a repayment writer. The no-repayments condition for voiding therefore holds until package 1.4 adds repayments and enforces the condition against the ledger.
+
+## Proposed detailed rules for package 1.4
+
+Review these defaults before implementing package 1.4; any changes should update this specification and its acceptance tests.
 
 ### Balances and manual repayments
 
@@ -97,7 +103,7 @@ net balance = expenses paid - allocated shares
 
 - A fresh documented Compose setup builds, waits for MySQL readiness, applies the schema through a repeatable migration step, and serves the browser UI.
 - Missing/invalid configuration fails clearly. No embedded credentials, generated container-name dependencies, or manual schema setup.
-- Restarting services preserves accounts, memberships, expenses, shares, and repayments. A restart may require users to sign in again; persistent login is not a Phase 1 requirement.
+- After package 1.3 is installed, restarting services preserves accounts, memberships, expenses, and shares. A restart may require users to sign in again; persistent login is not a Phase 1 requirement.
 - Provide a documented backup and restore procedure and prove that a restored ledger matches the original.
 - Errors are logged appropriately without passwords and shown usefully to users without exposing internal exceptions.
 - The local deployment is not advertised as safe for public exposure.

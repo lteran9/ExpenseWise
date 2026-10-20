@@ -1,4 +1,5 @@
 using System;
+using Application.UseCases.Ports;
 using System.Threading.Tasks;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
@@ -14,83 +15,81 @@ namespace Tests.Infrastructure.SqlDatabase
                 .Options;
 
         [Fact]
-        public async Task GivenNewExpense_WhenCreateAsync_ThenReturnsSavedExpense()
+        public async Task CreateWithSharesAsync_PersistsSharesAndReturnsExistingExpenseForReusedKey()
         {
-            var options = CreateInMemoryOptions(nameof(GivenNewExpense_WhenCreateAsync_ThenReturnsSavedExpense));
+            var options = CreateInMemoryOptions(nameof(CreateWithSharesAsync_PersistsSharesAndReturnsExistingExpenseForReusedKey));
+            var key = Guid.NewGuid();
+            await SeedExpenseRelations(options);
             var repository = new ExpenseRepository(() => new CoreContext(options));
+            var expense = BuildExpense(key);
 
-            var expense = new Expense
-            {
-                Description = "Hotel",
-                Currency = "USD",
-                Amount = 240.50m
-            };
-
-            var created = await repository.CreateAsync(expense);
-
-            Assert.NotNull(created);
-            Assert.Equal("Hotel", created!.Description);
+            var created = await repository.CreateWithSharesAsync(expense, CancellationToken.None);
 
             await using var verifyContext = new CoreContext(options);
-            var stored = await verifyContext.Expenses.FirstOrDefaultAsync(x => x.Description == "Hotel");
-            Assert.NotNull(stored);
-            Assert.Equal("Hotel", stored!.Description);
+            Assert.True(created.Created);
+            Assert.Equal(1, await verifyContext.Expenses.CountAsync());
+            var storedShare = await verifyContext.ExpenseShares.SingleAsync();
+            Assert.Equal(created.Expense.Id, storedShare.ExpenseId);
+            Assert.Equal(2, storedShare.UserId);
+            Assert.Equal(10m, storedShare.Amount);
+
+            expense.Amount = 11m;
+            var existing = await repository.CreateWithSharesAsync(expense, CancellationToken.None);
+            Assert.False(existing.Created);
+            Assert.Equal(created.Expense.Id, existing.Expense.Id);
+            Assert.Equal(10m, existing.Expense.Amount);
+            Assert.Equal(5, existing.Expense.BelongsTo!.Id);
+            Assert.Equal(1, existing.Expense.CreatedBy!.Id);
+            Assert.Equal(1, existing.Expense.Payer!.Id);
+            Assert.Equal((2, 10m), existing.Expense.Shares.Select(share => (share.Participant.Id, share.Amount)).Single());
+            Assert.Equal(1, await verifyContext.Expenses.CountAsync());
         }
 
         [Fact]
-        public async Task GivenExistingExpense_WhenDeleteAsync_ThenRemovesExpense()
+        public async Task VoidAsync_MarksExpenseVoidedWithoutDeletingShares()
         {
-            var options = CreateInMemoryOptions(nameof(GivenExistingExpense_WhenDeleteAsync_ThenRemovesExpense));
+            var options = CreateInMemoryOptions(nameof(VoidAsync_MarksExpenseVoidedWithoutDeletingShares));
+            var key = Guid.NewGuid();
+            await SeedExpenseRelations(options);
+            var repository = new ExpenseRepository(() => new CoreContext(options));
+            var created = await repository.CreateWithSharesAsync(BuildExpense(key), CancellationToken.None);
 
-            await using (var context = new CoreContext(options))
-            {
-                context.Expenses.Add(new ExpenseEntity
+            var voided = await repository.VoidAsync(key, 5, CancellationToken.None);
+
+            Assert.NotNull(voided);
+            Assert.True(voided!.Voided);
+            await using var verifyContext = new CoreContext(options);
+            Assert.Equal(1, await verifyContext.ExpenseShares.CountAsync());
+            Assert.True((await verifyContext.Expenses.SingleAsync()).Voided);
+        }
+
+        private static Expense BuildExpense(Guid key) => new()
+        {
+            Description = "Shared expense",
+            Currency = "USD",
+            Amount = 10m,
+            UniqueKey = key,
+            CreatedBy = new User { Id = 1, UniqueKey = Guid.NewGuid() },
+            Payer = new User { Id = 1, UniqueKey = Guid.NewGuid() },
+            BelongsTo = new Group { Id = 5, UniqueKey = Guid.NewGuid() },
+            Shares =
+            [
+                new ExpenseShare
                 {
-                    Id = 1,
-                    Description = "Taxi",
-                    Currency = "USD",
-                    Amount = 42.75m,
-                    UniqueKey = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-                await context.SaveChangesAsync();
-            }
+                    Participant = new User { Id = 2, UniqueKey = Guid.NewGuid() },
+                    Amount = 10m
+                }
+            ]
+        };
 
-            var repository = new ExpenseRepository(() => new CoreContext(options));
-            var deleted = await repository.DeleteAsync(new Expense { Id = 1 });
-
-            Assert.NotNull(deleted);
-
-            await using var verifyContext = new CoreContext(options);
-            var stored = await verifyContext.Expenses.FindAsync(1);
-            Assert.Null(stored);
-        }
-
-        [Fact]
-        public async Task GivenNewSplit_WhenAddSplitAsync_ThenReturnsSavedSplit()
+        private static async Task SeedExpenseRelations(DbContextOptions<CoreContext> options)
         {
-            var options = CreateInMemoryOptions(nameof(GivenNewSplit_WhenAddSplitAsync_ThenReturnsSavedSplit));
-            var repository = new ExpenseRepository(() => new CoreContext(options));
-
-            var split = new Split
-            {
-                User = new User { Id = 1 },
-                Group = new Group { Id = 2 },
-                Expense = new Expense { Id = 3 },
-                Paid = false
-            };
-
-            var created = await repository.AddSplitAsync(split);
-
-            Assert.NotNull(created);
-            Assert.Equal(1, created!.User.Id);
-            Assert.Equal(2, created.Group.Id);
-            Assert.Equal(3, created.Expense.Id);
-
-            await using var verifyContext = new CoreContext(options);
-            var stored = await verifyContext.Splits.FirstOrDefaultAsync(x => x.UserId == 1 && x.GroupId == 2 && x.ExpenseId == 3);
-            Assert.NotNull(stored);
+            await using var context = new CoreContext(options);
+            context.Users.AddRange(
+                new UserEntity { Id = 1, FirstName = "Owner", LastName = "One", Email = "owner@example.test", Phone = "100", CountryCode = "+1", UniqueKey = Guid.NewGuid() },
+                new UserEntity { Id = 2, FirstName = "Member", LastName = "Two", Email = "member@example.test", Phone = "200", CountryCode = "+1", UniqueKey = Guid.NewGuid() });
+            context.Groups.Add(new GroupEntity { Id = 5, OwnerId = 1, Name = "Group", UniqueKey = Guid.NewGuid() });
+            await context.SaveChangesAsync();
         }
     }
 }

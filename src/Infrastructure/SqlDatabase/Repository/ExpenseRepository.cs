@@ -3,6 +3,7 @@ using System.Net.Mime;
 using Microsoft.EntityFrameworkCore;
 using Core.Entities;
 using Application.UseCases.Ports;
+using MySql.Data.MySqlClient;
 
 namespace Infrastructure.SqlDatabase
 {
@@ -16,106 +17,99 @@ namespace Infrastructure.SqlDatabase
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
         }
 
-        public async Task<Expense?> CreateAsync(Expense expense)
+        public async Task<(Expense Expense, bool Created)> CreateWithSharesAsync(Expense expense, CancellationToken cancellationToken)
         {
-            var dbEntity = _adapter.MapEntityToDatabase(expense);
-
-            // Prevent EF Core from trying to persist related Group/User
-            // entities when creating an expense row.
-            dbEntity.Group = null;
-            dbEntity.CreatedBy = null;
-
-            using (var context = _contextFactory())
+            using var context = _contextFactory();
+            var existing = await LoadByUniqueKeyAsync(context, expense.UniqueKey, cancellationToken);
+            if (existing != null)
             {
-                // Default values
-                if (dbEntity.CreatedAt == DateTime.MinValue) dbEntity.CreatedAt = DateTime.Now;
-                if (dbEntity.UpdatedAt == DateTime.MinValue) dbEntity.UpdatedAt = DateTime.Now;
-                if (dbEntity.UniqueKey == Guid.Empty) dbEntity.UniqueKey = Guid.NewGuid();
-
-                var insert = context.Add(dbEntity);
-                await context.SaveChangesAsync();
-                return _adapter.MapDatabaseToEntity(insert.Entity);
+                return (MapExpense(existing), false);
             }
-        }
 
-        public async Task<Expense?> UpdateAsync(Expense expense)
-        {
-            using (var context = _contextFactory())
-            {
-                var dbEntity = _adapter.MapEntityToDatabase(expense);
-                var update = context.Update(dbEntity);
-                await context.SaveChangesAsync();
-                return _adapter.MapDatabaseToEntity(update.Entity);
-            }
-        }
+            await using var transaction = context.Database.IsRelational()
+                ? await context.Database.BeginTransactionAsync(cancellationToken)
+                : null;
 
-        public async Task<Expense?> DeleteAsync(Expense expense)
-        {
-            using (var context = _contextFactory())
+            try
             {
-                var dbEntity = _adapter.MapEntityToDatabase(expense);
-                if (dbEntity.Id > 0)
+                var entity = _adapter.MapEntityToDatabase(expense);
+                entity.Group = null;
+                entity.CreatedBy = null;
+                entity.Payer = null;
+                entity.Shares = [];
+                entity.CreatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = entity.CreatedAt;
+
+                context.Expenses.Add(entity);
+                await context.SaveChangesAsync(cancellationToken);
+
+                var shares = expense.Shares.Select(share => new ExpenseShareEntity
                 {
-                    context.Expenses.Attach(dbEntity);
-                    context.Expenses.Remove(dbEntity);
-                    await context.SaveChangesAsync();
-
-                    return _adapter.MapDatabaseToEntity(dbEntity);
-                }
-            }
-
-            return null;
-        }
-
-        public async Task<Split?> AddSplitAsync(Split split)
-        {
-            var dbEntity = _adapter.MapEntityToDatabase(split);
-
-            // Prevent EF Core from trying to persist related User/Group/Expense
-            // entities when creating a split row.
-            dbEntity.User = null;
-            dbEntity.Group = null;
-            dbEntity.Expense = null;
-
-            if (dbEntity.CreatedAt == DateTime.MinValue) dbEntity.CreatedAt = DateTime.Now;
-            if (dbEntity.UpdatedAt == DateTime.MinValue) dbEntity.UpdatedAt = DateTime.Now;
-
-            using (var context = _contextFactory())
-            {
-                var insert = context.Add(dbEntity);
-                await context.SaveChangesAsync();
-                return
-                    new Split
-                    {
-                        Id = insert.Entity.Id,
-                        Paid = insert.Entity.Paid,
-                        PaidOn = insert.Entity.PaidOn,
-                        User = new User { Id = insert.Entity.UserId },
-                        Group = new Group { Id = insert.Entity.GroupId },
-                        Expense = new Expense { Id = insert.Entity.ExpenseId }
-                    };
-            }
-        }
-
-        public async Task<Split?> RemoveSplitAsync(Split split)
-        {
-            using (var context = _contextFactory())
-            {
-                var dbEntity = _adapter.MapEntityToDatabase(split);
-                dbEntity.User = null;
-                dbEntity.Group = null;
-                dbEntity.Expense = null;
-                if (dbEntity.Id > 0)
+                    ExpenseId = entity.Id,
+                    UserId = share.Participant.Id,
+                    Amount = share.Amount,
+                    CreatedAt = entity.CreatedAt
+                });
+                await context.ExpenseShares.AddRangeAsync(shares, cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
+                if (transaction != null)
                 {
-                    context.Splits.Attach(dbEntity);
-                    context.Splits.Remove(dbEntity);
-                    await context.SaveChangesAsync();
-
-                    return _adapter.MapDatabaseToEntity(dbEntity);
+                    await transaction.CommitAsync(cancellationToken);
                 }
+
+                entity.PayerUserId = expense.Payer!.Id;
+                entity.Payer = new UserEntity { Id = expense.Payer.Id, UniqueKey = expense.Payer.UniqueKey };
+                entity.CreatedBy = new UserEntity { Id = expense.CreatedBy!.Id, UniqueKey = expense.CreatedBy.UniqueKey };
+                entity.Shares = await context.ExpenseShares
+                    .Where(share => share.ExpenseId == entity.Id)
+                    .Include(share => share.Participant)
+                    .ToListAsync(cancellationToken);
+                return (MapExpense(entity), true);
+            }
+            catch (DbUpdateException exception) when (exception.InnerException is MySqlException { Number: 1062 })
+            {
+                if (transaction != null)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    await transaction.DisposeAsync();
+                }
+
+                using var retryContext = _contextFactory();
+                var concurrent = await LoadByUniqueKeyAsync(retryContext, expense.UniqueKey, cancellationToken);
+                if (concurrent == null)
+                {
+                    throw;
+                }
+
+                return (MapExpense(concurrent), false);
+            }
+        }
+
+        public async Task<Expense?> FindByUniqueKeyAsync(Guid uniqueKey, CancellationToken cancellationToken)
+        {
+            using var context = _contextFactory();
+            var entity = await LoadByUniqueKeyAsync(context, uniqueKey, cancellationToken);
+            return entity == null ? null : MapExpense(entity);
+        }
+
+        public async Task<Expense?> VoidAsync(Guid uniqueKey, int groupId, CancellationToken cancellationToken)
+        {
+            using var context = _contextFactory();
+            var entity = await context.Expenses
+                .FirstOrDefaultAsync(expense => expense.UniqueKey == uniqueKey && expense.GroupId == groupId, cancellationToken);
+            if (entity == null)
+            {
+                return null;
             }
 
-            return null;
+            if (!entity.Voided)
+            {
+                entity.Voided = true;
+                entity.UpdatedAt = DateTime.UtcNow;
+                await context.SaveChangesAsync(cancellationToken);
+            }
+
+            return MapExpense(entity);
         }
 
         public async Task<List<Expense>?> GetGroupExpenses(int groupId)
@@ -124,26 +118,41 @@ namespace Infrastructure.SqlDatabase
             {
                 using (var context = _contextFactory())
                 {
-                    var expenses = await context.Expenses.Where(x => x.GroupId == groupId).ToListAsync();
-                    return expenses.Select(x => _adapter.MapDatabaseToEntity(x)).ToList();
+                    var expenses = await context.Expenses
+                        .Where(expense => expense.GroupId == groupId)
+                        .Include(expense => expense.Payer)
+                        .Include(expense => expense.CreatedBy)
+                        .Include(expense => expense.Shares)
+                            .ThenInclude(share => share.Participant)
+                        .ToListAsync();
+                    return expenses.Select(MapExpense).ToList();
                 }
             }
 
             return null;
         }
 
-        public async Task<List<Split>?> GetSplitsAsync(int groupId)
+        private async Task<ExpenseEntity?> LoadByUniqueKeyAsync(
+            CoreContext context,
+            Guid key,
+            CancellationToken cancellationToken)
         {
-            if (groupId > 0)
-            {
-                using (var context = _contextFactory())
-                {
-                    var splits = await context.Splits.Where(x => x.GroupId == groupId).ToListAsync();
-                    return splits.Select(x => _adapter.MapDatabaseToEntity(x)).ToList();
-                }
-            }
+            return await context.Expenses
+                .Include(expense => expense.Group)
+                .Include(expense => expense.Payer)
+                .Include(expense => expense.CreatedBy)
+                .Include(expense => expense.Shares)
+                    .ThenInclude(share => share.Participant)
+                .FirstOrDefaultAsync(expense => expense.UniqueKey == key, cancellationToken);
+        }
 
-            return null;
+        private Expense MapExpense(ExpenseEntity entity)
+        {
+            var expense = _adapter.MapDatabaseToEntity(entity);
+            expense.Shares = entity.Shares
+                .Select(_adapter.MapDatabaseToEntity)
+                .ToList();
+            return expense;
         }
     }
 }

@@ -36,12 +36,21 @@ Implement one numbered package at a time and attach evidence to its exit gate. R
 - Audited all UI C# and project references: no MediatR/use-case/repository/domain access remains; the UI references the generated OpenAPI client and calls use cases only over HTTP.
 - `dotnet build ExpenseWise.sln` succeeded with 0 warnings/errors; `dotnet test --no-build` passed 113 tests (72 Regression, 41 Infrastructure). Removed the isolated Compose containers and test volume afterward.
 
+### Package 1.3 verification (2026-10-19)
+
+- `dotnet build ExpenseWise.sln --no-restore` succeeded with 0 warnings/errors; `dotnet test ExpenseWise.sln --no-build` passed 99 tests (61 Regression, 38 Infrastructure).
+- Generated the idempotent MySQL migration script and applied the migration to a fresh, isolated Compose MySQL volume. The migration service exited successfully; the API OpenAPI endpoint and UI root returned HTTP 200.
+- In an API smoke journey, registered an organizer and member, created a group, and added the member. Created a USD 10.01 expense with the member as payer and the organizer as recorder; shares were USD 5.01 and USD 5.00. Repeating the same request key returned the existing expense, and voiding retained its shares.
+- In a UI HTTP-form smoke journey, signed in, created an expense with a different payer and recorder, confirmed the rendered payer and USD 3.25 shares, then voided it and confirmed the ledger retained the expense and shares. This exercised the antiforgery-protected UI endpoints but was not browser automation.
+- The isolated test volume was removed. The migration's pre-1.3 data reset was exercised only on this disposable database.
+- These checks are smoke evidence, not completion of the package exit gate: the full scenario B/C browser journey, including a selected-subset browser flow, remains to be verified.
+
 ### Implementation boundaries
 
 - Keep business rules in the Core and Application layers and persistence behind Application ports; wire configuration and infrastructure in the composition layer.
 - Add only the domain/storage changes needed for payer, immutable allocations, repayments, and the agreed correction policy. Reuse existing entities where their meaning remains valid; do not preserve the paid-split experiment at the cost of incorrect accounting.
 - All Phase 1 UI operations should use API contracts. Update OpenAPI metadata/contracts and regenerate the client, rather than maintaining two application execution paths.
-- Use migrations that preserve existing data. Determine whether historical paid splits can be mapped reliably; if not, require an explicit owner-approved reconciliation plan. Never silently invent repayment recipients or wipe a database.
+- Use migrations that preserve existing data by default. Package 1.3 is the explicit owner-approved exception: its migration resets all pre-1.3 application data because paid splits cannot be reliably mapped to shares or repayments. Disclose and test that reset; preserve data in later migrations.
 - Keep legacy/unimplemented operations unavailable or explicitly rejected until supported. Do not leave `NotImplementedException` behind advertised release actions.
 - Add tests with each package, not just at the final gate. Keep existing tests passing; intentionally changed behavior needs updated expectations.
 - No framework/provider replacement unless a reproduced compatibility issue justifies it.
@@ -52,7 +61,7 @@ The checklist is initially unchecked intentionally. Link test output, release/co
 
 - [ ] Detailed rules for each delivered package have been reviewed; no unresolved decision affects balances or permissions.
 - [ ] A clean documented Compose install works without manual SQL or source edits.
-- [ ] Migration from the supported existing database state is tested and data-preserving.
+- [ ] The documented pre-1.3 data reset and migration are verified; subsequent migrations from the supported package 1.3 state are data-preserving.
 - [ ] All UI Phase 1 operations go through the API; client/contracts match the server.
 - [ ] Registration, sign-in/out, groups, membership, and organizer/member permissions work.
 - [ ] Exact USD equal splits among selected people are persisted and remain stable.
