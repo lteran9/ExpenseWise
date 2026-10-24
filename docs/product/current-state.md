@@ -42,7 +42,7 @@ Here, **implemented** means code exists, **partial** means important behavior is
 | Flexible splits/integrated payments | Not delivered | Deferred. The [Home page](../../src/Presentation/UI/Views/Home/Index.cshtml) was aligned on 2026-10-24 to claim only exact USD equal splits among selected members. |
 | Password recovery | Not delivered | Deferred from Phase 1. The placeholder forgot-password page and sign-in link were removed on 2026-10-24. |
 | Compose and persistent MySQL | Implemented; locally verified | [Compose](../../docker-compose.yml), [API Dockerfile](../../src/Presentation/Api/Dockerfile), [UI Dockerfile](../../src/Presentation/UI/Dockerfile). Package 1.1 verification in the [roadmap](roadmap.md) confirms fresh-volume migration, service readiness, API/UI reachability, persistence across restart, and repeatable migration. |
-| Automated checks | Useful but incomplete | [Regression suite](../../src/Tests/Regression), [infrastructure suite](../../src/Tests/Infrastructure), [CI workflow](../../.github/workflows/build.yml). Real-MySQL integration tests cover atomic expense/share writes, idempotent expense and repayment requests, overpayment rejection, and void-versus-repayment locking; CI runs them against a MySQL service. Docker-hosted browser acceptance is manual and recorded in the [roadmap](roadmap.md); it is not automated in CI. |
+| Automated checks | Useful but incomplete | [Regression suite](../../src/Tests/Regression), [infrastructure suite](../../src/Tests/Infrastructure), [CI workflow](../../.github/workflows/build.yml). Real-MySQL integration tests cover atomic expense/share writes, idempotent expense and repayment requests, overpayment rejection, and void-versus-repayment locking; CI runs them against a MySQL service. Docker-hosted browser acceptance for scenario A, restart persistence, and the scenario C access checks runs in the CI `docker-acceptance` job ([acceptance suite](../../src/Tests/Acceptance)); the other scenarios were verified manually and recorded in the [roadmap](roadmap.md). |
 
 ## Highest-priority gaps
 
@@ -55,7 +55,7 @@ Package 1.4 adds repayment history, deterministic repayment suggestions, and val
 
 ### 2. Automated checks do not yet cover full release acceptance
 
-The regression and infrastructure suites now cover exact allocations, selected participants, payer distinction, retries, and voiding. Remaining gaps include automated concurrency and real-MySQL migration/constraint tests, plus full Docker-hosted browser acceptance for the product scenarios.
+The regression and infrastructure suites now cover exact allocations, selected participants, payer distinction, retries, voiding, concurrency, and real-MySQL constraints. The CI acceptance suite automates scenario A, restart persistence, and the scenario C access checks in the Docker-hosted browser. Scenarios B and D and the remaining scenario C checks still rely on the dated manual verification in the [roadmap](roadmap.md).
 
 This assessment is not a formal security audit or production readiness review.
 

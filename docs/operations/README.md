@@ -14,7 +14,28 @@ dotnet build ExpenseWise.sln
 dotnet test --no-build
 ```
 
-The GitHub Actions workflow also restores, builds, and tests with the .NET 10 SDK on pushes and pull requests targeting `master`.
+The GitHub Actions workflow also restores, builds, and tests with the .NET 10 SDK on pushes and pull requests targeting `master`. A second job, `docker-acceptance`, then runs the browser acceptance tests against the Compose stack (see [Docker acceptance tests](#docker-acceptance-tests)).
+
+### Docker acceptance tests
+
+[`src/Tests/Acceptance`](../../src/Tests/Acceptance) drives the Docker-hosted UI in headless Chromium with Playwright. It treats the stack as a black box and references no application projects. The tests skip unless `EXPENSEWISE_UI_URL` and `EXPENSEWISE_API_URL` are set, so `dotnet test --no-build` reports them as skipped.
+
+- `Category=Scenario` runs product scenario A end to end, including replaying a repayment submission, plus the scenario C access checks: anonymous requests, a nonmember opening another group, and an ordinary member forging organizer writes. Scenario A saves its organizer, group, and final ledger to a state file.
+- `Category=AfterRestart` signs in again after the stack is restarted and checks that the saved expenses, shares, repayments, and zero balances are unchanged.
+
+To run them against a local stack that is already up (the first run downloads Chromium):
+
+```bash
+export EXPENSEWISE_UI_URL=http://localhost:8080 EXPENSEWISE_API_URL=http://localhost:8081
+bash .github/scripts/wait-for-stack.sh "$EXPENSEWISE_UI_URL" "$EXPENSEWISE_API_URL"
+dotnet build src/Tests/Acceptance
+dotnet test src/Tests/Acceptance --no-build --filter "Category=Scenario"
+docker compose down && docker compose up -d
+bash .github/scripts/wait-for-stack.sh "$EXPENSEWISE_UI_URL" "$EXPENSEWISE_API_URL"
+dotnet test src/Tests/Acceptance --no-build --filter "Category=AfterRestart"
+```
+
+The tests create disposable accounts and groups with unique emails, so they add data to whatever database the stack uses. Prefer a separate Compose project, such as `docker compose -p ewci ...` with its own ports, over your everyday stack. Optional variables: `EXPENSEWISE_ACCEPTANCE_STATE` sets the state-file path (default: the system temp directory), and `EXPENSEWISE_ACCEPTANCE_ARTIFACTS` sets where Playwright traces are written (default: `acceptance-artifacts` in the test output directory). Open a trace with `pwsh src/Tests/Acceptance/bin/Debug/net10.0/playwright.ps1 show-trace <file>.zip`. In CI, the traces and Compose logs are uploaded as the `docker-acceptance-diagnostics` artifact when the job fails.
 
 ## Docker Compose
 
