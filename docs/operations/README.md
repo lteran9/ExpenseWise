@@ -41,6 +41,52 @@ To apply newly added migrations, run `docker compose run --build --rm migrate` t
 
 The named `expensewise-mysql` volume keeps the database across container recreation and `docker compose down`. Do not use `docker compose down -v` if the data should be retained.
 
+### Restarting the stack
+
+Restart with `docker compose down` followed by `docker compose up -d`. Compose then waits for MySQL to be healthy, runs the migration service, and starts the API only after migration succeeds. Avoid `docker compose restart` for the whole stack: it does not honor `depends_on`, so the migration service can start before MySQL is ready, fail to connect, and stay running while the API starts against an unmigrated database. If that happens, run `docker compose down` and `docker compose up -d`.
+
+The UI does not persist its ASP.NET Core data-protection keys. After the UI container is recreated, existing browser sign-ins are invalid and users must sign in again. Sign-ins also expire after 20 minutes.
+
+## Backup and restore
+
+Back up the running database to a file outside the repository. Load the same `.env` values into the shell first (`set -a; . ./.env; set +a`):
+
+```bash
+docker compose exec -T -e MYSQL_PWD="$DB_PASSWORD" mysql \
+  mysqldump -uroot --single-transaction --routines --triggers "$DB_DATABASE" > expensewise-backup.sql
+```
+
+Rehearse a restore in a separate, disposable MySQL container before relying on a backup, and compare its record counts and totals with the source:
+
+```bash
+docker run -d --name expensewise-restore -e MYSQL_ROOT_PASSWORD=restore-only \
+  -e MYSQL_DATABASE=expensewise mysql:8.0 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+# Wait until `docker exec -e MYSQL_PWD=restore-only expensewise-restore mysql -uroot -e "SELECT 1"` succeeds.
+docker exec -i -e MYSQL_PWD=restore-only expensewise-restore mysql -uroot expensewise < expensewise-backup.sql
+docker exec -e MYSQL_PWD=restore-only expensewise-restore mysql -uroot expensewise -e \
+  "SELECT (SELECT COUNT(*) FROM users) users, (SELECT COUNT(*) FROM expenses) expenses, (SELECT SUM(amount) FROM expense_shares) shares, (SELECT SUM(amount) FROM repayments) repayments;"
+docker rm -f expensewise-restore
+```
+
+To restore into the Compose stack itself, which replaces all current data:
+
+```bash
+docker compose stop webapp webapi
+docker compose exec -T -e MYSQL_PWD="$DB_PASSWORD" mysql mysql -uroot -e \
+  "DROP DATABASE \`$DB_DATABASE\`; CREATE DATABASE \`$DB_DATABASE\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+docker compose exec -T -e MYSQL_PWD="$DB_PASSWORD" mysql mysql -uroot "$DB_DATABASE" < expensewise-backup.sql
+docker compose up -d
+```
+
+The migration service should then report that no migrations were applied, and signed-in members should see the same balances as before the backup. The backup contains account data and password hashes; store it privately.
+
+## Failure behavior
+
+- **Missing configuration:** Compose refuses to start and names the missing variable, for example `required variable JWT_SIGNING_KEY is missing a value`.
+- **API unavailable:** UI pages show "Unable to load … right now" instead of an empty ledger or group list, and form submissions show an error rather than a confirmation. Check `docker compose logs webapp`.
+- **Database unavailable:** the API returns HTTP 500 problem details and logs the connection error; the UI shows the error on the page. Check `docker compose logs webapi`. Service resumes once MySQL is healthy again; no restart of the API is needed.
+- **Migration failure:** the migration service exits with an error and the API does not start. Check `docker compose logs migrate`.
+
 ## Useful checks
 
 - Inspect service output with `docker compose logs <service>`.
@@ -48,4 +94,4 @@ The named `expensewise-mysql` volume keeps the database across container recreat
 - Inspect schema history under `src/Infrastructure/SqlDatabase/Migrations`.
 - Check the API's Development OpenAPI document at `/openapi/v1.json` when the API is running in Development.
 
-These instructions describe local development only; they are not a production deployment or backup procedure.
+These instructions describe local, trusted use only; they are not a production deployment guide.

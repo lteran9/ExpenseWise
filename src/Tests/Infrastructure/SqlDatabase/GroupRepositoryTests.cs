@@ -244,5 +244,49 @@ namespace Tests.Infrastructure.SqlDatabase
             Assert.Equal("Updated Group", stored!.Name);
             Assert.False(stored.Active);
         }
+
+        [Fact]
+        public async Task GivenExistingGroup_WhenUpdateAsync_ThenPreservesCreatedAt()
+        {
+            var options = CreateInMemoryOptions(nameof(GivenExistingGroup_WhenUpdateAsync_ThenPreservesCreatedAt));
+            var uniqueKey = Guid.NewGuid();
+            var createdAt = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+            await using (var context = new CoreContext(options))
+            {
+                context.Groups.Add(new GroupEntity
+                {
+                    Id = 1,
+                    Name = "Original Group",
+                    UniqueKey = uniqueKey,
+                    OwnerId = 1,
+                    Active = true,
+                    CreatedAt = createdAt,
+                    UpdatedAt = createdAt,
+                    Owner = new UserEntity
+                    {
+                        Id = 1,
+                        FirstName = "Test",
+                        LastName = "Tester",
+                        Email = "sample@test.com",
+                        Phone = "16023334578",
+                        UniqueKey = Guid.NewGuid(),
+                        Active = true
+                    }
+                });
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new GroupRepository(() => new CoreContext(options));
+            var found = await repository.FindByUniqueKeyAsync(uniqueKey);
+            found!.Active = false;
+
+            await repository.UpdateAsync(found);
+
+            await using var verifyContext = new CoreContext(options);
+            var stored = await verifyContext.Groups.SingleAsync(x => x.UniqueKey == uniqueKey);
+            Assert.Equal(createdAt, stored.CreatedAt);
+            Assert.False(stored.Active);
+        }
     }
 }

@@ -139,7 +139,7 @@ else
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
                                 <span>@repayment.SenderName paid @repayment.RecipientName @repayment.Amount.ToString("C") @repayment.Currency</span>
-                                <small class="text-muted">@repayment.OccurredAt.ToString("g")</small>
+                                <small class="text-muted">@repayment.OccurredAt.ToString("g") UTC</small>
                             </div>
                         </li>
                     }
