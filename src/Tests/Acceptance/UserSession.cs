@@ -130,6 +130,9 @@ namespace Tests.Acceptance
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body
                     });
+                    if (!response.ok) {
+                        throw new Error(`POST ${path} returned HTTP ${response.status}.`);
+                    }
                     return await response.text();
                 }",
                 new[] { path, body });
