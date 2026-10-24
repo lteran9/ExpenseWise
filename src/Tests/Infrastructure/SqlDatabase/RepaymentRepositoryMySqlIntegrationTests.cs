@@ -106,11 +106,12 @@ namespace Tests.Infrastructure.SqlDatabase
         {
             foreach (var repaymentWinsFirst in new[] { false, true })
             {
+                var seedOptions = CreateOptions();
+                var seed = await SeedGroupWithDebt(seedOptions);
                 var coordinator = new GroupLockContentionCoordinator();
-                var options = new DbContextOptionsBuilder<CoreContext>(CreateOptions())
+                var options = new DbContextOptionsBuilder<CoreContext>(seedOptions)
                     .AddInterceptors(coordinator)
                     .Options;
-                var seed = await SeedGroupWithDebt(options);
 
                 try
                 {
@@ -167,7 +168,7 @@ namespace Tests.Infrastructure.SqlDatabase
                 finally
                 {
                     coordinator.ReleaseFirstLock();
-                    await Cleanup(options, seed);
+                    await Cleanup(seedOptions, seed);
                 }
             }
         }
