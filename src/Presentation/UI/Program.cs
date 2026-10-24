@@ -51,6 +51,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Phase 1 is USD-only; pin the culture so currency formatting does not depend on the host locale.
+const string displayCulture = "en-US";
+app.UseRequestLocalization(options => options
+    .SetDefaultCulture(displayCulture)
+    .AddSupportedCultures(displayCulture)
+    .AddSupportedUICultures(displayCulture));
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseSession();

@@ -10,8 +10,9 @@ Controller routes use the controller name followed by the action name (for examp
 | --- | --- |
 | `HealthController` | `GET /Health` (public) |
 | `UserController` | `POST /User/Create` and `POST /User/Authenticate` (public); `GET /User/Find` and `PUT /User/Update` (bearer required); `DELETE /User/Delete` (bearer required, currently rejected) |
-| `GroupController` | All actions require a bearer token. List scope comes from the authenticated user; reads require membership; group updates, membership changes, and archival require the organizer. |
-| `ExpenseController` | All actions require a bearer token. `GET /Expense/List?groupKey=...` returns expenses to group members; expense creation is organizer-only; the legacy split action is limited to the authenticated group member. Payment and update handlers remain unavailable. |
+| `GroupController` | All actions require a bearer token. List scope comes from the authenticated user; reads require membership; group updates, membership changes, and archival (`DELETE /Group/Delete`, a soft archive that keeps ledger rows) require the organizer. Archived groups are not returned by reads in Phase 1. |
+| `ExpenseController` | All actions require a bearer token. `GET /Expense/List?groupKey=...` and `GET /Expense/Detail` return expenses and their persisted shares to group members. `POST /Expense/Create` and `POST /Expense/Void` are organizer-only; voiding is rejected once the group has any repayment. `PUT /Expense/Update` is always rejected with "Expense editing is not available yet." |
+| `RepaymentController` | All actions require a bearer token. `GET /Repayment/Ledger?groupKey=...` returns balances, suggested repayments, and repayment history to group members. `POST /Repayment/Record` is organizer-only and idempotent per `idempotencyKey`; self-repayments, overpayments, and non-USD amounts are rejected without writing. |
 
 `POST /User/Authenticate` returns a signed 20-minute bearer token. Send it as `Authorization: Bearer <token>` for protected routes. A request-supplied user key is not an identity: the server derives the actor from the validated token. The token signing key is configured with `Authentication__SigningKey`; see [local operations](../operations/README.md).
 

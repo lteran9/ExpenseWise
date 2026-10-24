@@ -207,5 +207,41 @@ namespace Tests.Infrastructure.SqlDatabase
             Assert.Equal("updated@test.com", stored.Email);
             Assert.Equal("16029998765", stored.Phone);
         }
+
+        [Fact]
+        public async Task GivenExistingUser_WhenUpdateAsync_ThenPreservesCreatedAt()
+        {
+            var options = CreateInMemoryOptions(nameof(GivenExistingUser_WhenUpdateAsync_ThenPreservesCreatedAt));
+            var uniqueKey = Guid.NewGuid();
+            var createdAt = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+            await using (var context = new CoreContext(options))
+            {
+                context.Users.Add(new UserEntity
+                {
+                    Id = 1,
+                    FirstName = "Test",
+                    LastName = "Tester",
+                    Email = "sample@test.com",
+                    Phone = "16023334578",
+                    UniqueKey = uniqueKey,
+                    Active = true,
+                    CreatedAt = createdAt,
+                    UpdatedAt = createdAt
+                });
+                await context.SaveChangesAsync();
+            }
+
+            var repository = new UserRepository(() => new CoreContext(options));
+            var found = await repository.FindByUniqueKeyAsync(uniqueKey);
+            found!.Email = "updated@test.com";
+
+            await repository.UpdateAsync(found);
+
+            await using var verifyContext = new CoreContext(options);
+            var stored = await verifyContext.Users.SingleAsync(x => x.UniqueKey == uniqueKey);
+            Assert.Equal(createdAt, stored.CreatedAt);
+            Assert.Equal("updated@test.com", stored.Email);
+        }
     }
 }

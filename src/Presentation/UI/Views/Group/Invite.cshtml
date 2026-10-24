@@ -10,7 +10,7 @@
       @if (Model?.Group != null)
       {
          <h2>@Model.Group.Name</h2>
-         <form asp-action="Invite" method="post">
+         <form asp-action="Invite" asp-route-key="@Model.Group.UniqueKey" method="post">
             @Html.AntiForgeryToken()
             @Html.ValidationSummary()
 
@@ -32,6 +32,7 @@
             </div>
 
             <input asp-for="Group.UniqueKey" type="hidden" />
+            <input asp-for="Group.Name" type="hidden" />
          </form>
       }
       else

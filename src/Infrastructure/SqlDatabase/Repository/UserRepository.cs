@@ -121,6 +121,7 @@ namespace Infrastructure.SqlDatabase
                 dbEntity.UpdatedAt = DateTime.Now;
 
                 var update = context.Update(dbEntity);
+                update.Property(entity => entity.CreatedAt).IsModified = false;
                 await context.SaveChangesAsync();
                 return _adapter.MapDatabaseToEntity(update.Entity);
             }
@@ -137,6 +138,7 @@ namespace Infrastructure.SqlDatabase
                     // Soft delete
                     dbEntity.Active = false;
                     var update = context.Update(dbEntity);
+                    update.Property(entity => entity.CreatedAt).IsModified = false;
                     await context.SaveChangesAsync();
                     return _adapter.MapDatabaseToEntity(update.Entity);
                 }

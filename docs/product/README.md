@@ -51,7 +51,7 @@ These steps must be possible in the browser, without Swagger, manual SQL, or edi
 - Other members can view their groups and the shared ledger. Nonmembers cannot read or modify a group's data, including through direct API requests.
 - Empty group/expense lists are normal states with a clear next action, not application failures.
 - Duplicate membership is rejected without a server error. Adding a member does not change old expense allocations.
-- Removing members with financial history and deleting accounts with financial history are not supported in Phase 1; reject these actions explicitly. Group archival must retain the ledger.
+- Removing members with financial history and deleting accounts with financial history are not supported in Phase 1; reject these actions explicitly. Group archival must retain the ledger. Known Phase 1 limitation (accepted 2026-10-24): archiving a group keeps all expense, share, and repayment rows, but the archived group then leaves members' group lists and its ledger can no longer be read through the API or UI. Reading archived ledgers belongs to the Phase 2 archival workflow.
 
 Local/trusted deployment limits the deployment target; it does not remove the need for per-user access checks.
 
@@ -63,7 +63,7 @@ Local/trusted deployment limits the deployment target; it does not remove the ne
 - The payer may be included in or excluded from the participants. The person entering the record is not implicitly the payer.
 - An organizer may record an expense paid by another member. Multiple payers for one expense are deferred.
 - Store exact decimal/minor-unit amounts; do not use floating-point money arithmetic.
-- Divide the total in cents. Allocate remainder cents in ascending stable participant-ID order, and persist the resulting shares. For USD 10.00 among three people, the shares are 3.34, 3.33, and 3.33.
+- Divide the total in cents. Allocate remainder cents one at a time to participants in ascending participant unique-key (GUID) order, and persist the resulting shares. The order is stable but not related to names or join order. For USD 10.00 among three people, the shares are 3.34, 3.33, and 3.33. (Wording aligned to the implemented rule on 2026-10-24.)
 - Shares always sum exactly to the expense amount. An empty participant list, duplicate participants, nonmembers, unsupported currency, excess precision, or an out-of-range amount is a visible validation error with no partial write.
 - Saving the expense and all shares is atomic. Repeating the same submission must not create a second expense; intentionally entering a second identical bill remains possible.
 - Creating shares does not mark them paid. The payer's outlay, participants' obligations, and later repayments are separate concepts.
@@ -76,7 +76,7 @@ Package 1.3 does not provide a repayment writer. The no-repayments condition for
 
 ## Confirmed detailed rules for package 1.4
 
-Confirmed on 2026-10-20. Changes must update this specification and its acceptance tests. Repayment suggestions use a deterministic greedy pairing of debtors and creditors in participant-key order, and the server timestamp sets occurrence time. Clients send an idempotency key with each record request. The legacy Pay/settle-all endpoint is removed.
+Confirmed on 2026-10-20. Changes must update this specification and its acceptance tests. Repayment suggestions use a deterministic greedy pairing: repeatedly match the debtor who owes the most with the creditor who is owed the most, for the smaller of the two amounts, breaking ties by display name and then participant unique key (wording aligned to the implemented rule on 2026-10-24). The server timestamp sets occurrence time. Clients send an idempotency key with each record request. The legacy Pay/settle-all endpoint is removed.
 
 ### Balances and manual repayments
 

@@ -82,6 +82,74 @@ namespace Tests.Infrastructure.SqlDatabase
             }
         }
 
+        [MySqlIntegrationFact]
+        public async Task CreateWithSharesAsync_MaximumAmountWithCents_PersistsExactDecimals()
+        {
+            var options = CreateOptions();
+            var seed = await SeedRelations(options);
+
+            try
+            {
+                var expense = BuildExpense(Guid.NewGuid(), seed);
+                expense.Amount = 9999999999999999.99m;
+                expense.Shares =
+                [
+                    new ExpenseShare { Participant = new User { Id = seed.OwnerId, UniqueKey = seed.OwnerKey }, Amount = 3333333333333333.33m },
+                    new ExpenseShare { Participant = new User { Id = seed.ParticipantId, UniqueKey = seed.ParticipantKey }, Amount = 3333333333333333.33m },
+                    new ExpenseShare { Participant = new User { Id = seed.OtherParticipantId, UniqueKey = seed.OtherParticipantKey }, Amount = 3333333333333333.33m }
+                ];
+                var repository = new ExpenseRepository(() => new CoreContext(options));
+
+                await repository.CreateWithSharesAsync(expense, CancellationToken.None);
+
+                await using var context = new CoreContext(options);
+                var stored = await context.Expenses.SingleAsync(item => item.UniqueKey == expense.UniqueKey);
+                var shareAmounts = await context.ExpenseShares
+                    .Where(share => share.ExpenseId == stored.Id)
+                    .Select(share => share.Amount)
+                    .ToListAsync();
+                Assert.Equal(9999999999999999.99m, stored.Amount);
+                Assert.All(shareAmounts, amount => Assert.Equal(3333333333333333.33m, amount));
+                Assert.Equal(stored.Amount, shareAmounts.Sum());
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
+        [MySqlIntegrationFact]
+        public async Task ExpenseShares_ForNonexistentUser_RejectedByForeignKey()
+        {
+            var options = CreateOptions();
+            var seed = await SeedRelations(options);
+
+            try
+            {
+                var expense = BuildExpense(Guid.NewGuid(), seed);
+                var repository = new ExpenseRepository(() => new CoreContext(options));
+                var (created, _) = await repository.CreateWithSharesAsync(expense, CancellationToken.None);
+                await using var context = new CoreContext(options);
+                context.ExpenseShares.Add(new ExpenseShareEntity
+                {
+                    ExpenseId = created.Id,
+                    UserId = int.MaxValue,
+                    Amount = 1m,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                var exception = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+                Assert.Equal(1452, Assert.IsType<MySqlException>(exception.InnerException).Number);
+                await using var verifyContext = new CoreContext(options);
+                Assert.Equal(2, await verifyContext.ExpenseShares.CountAsync(share => share.ExpenseId == created.Id));
+            }
+            finally
+            {
+                await Cleanup(options, seed);
+            }
+        }
+
         private static DbContextOptions<CoreContext> CreateOptions(params IInterceptor[] interceptors)
         {
             var connectionString = new MySqlConnectionStringBuilder(

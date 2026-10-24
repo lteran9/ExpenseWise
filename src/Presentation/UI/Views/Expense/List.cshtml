@@ -16,6 +16,10 @@ else if (!Model.HasLoadedExpenses)
 }
 else
 {
+    @if (Model.IsOrganizer && Model.HasRepayments)
+    {
+        <div class="alert alert-info">Expenses can no longer be voided because repayments have been recorded in this group.</div>
+    }
     @foreach (var expense in Model.Expenses)
     {
         <section class="card box-shadow mb-3">
@@ -30,7 +34,7 @@ else
                     {
                         <span class="badge text-bg-secondary">Voided</span>
                     }
-                    else if (Model.IsOrganizer)
+                    else if (Model.CanVoid)
                     {
                         <form asp-action="Void" method="post">
                             @Html.AntiForgeryToken()

@@ -103,11 +103,15 @@ namespace UI.Controllers
             {
                 var response = await _apiClient.ExpenseListAsync(group, cancellationToken);
                 var groupDetails = await _apiClient.GroupRetrieveAsync(group, cancellationToken);
+                var isOrganizer = groupDetails.OwnerId == CurrentUserId;
+                var hasRepayments = isOrganizer
+                    && (await _apiClient.RepaymentLedgerAsync(group, cancellationToken)).Repayments.Count > 0;
                 return View(new ExpenseLedgerViewModel
                 {
                     GroupKey = response.GroupKey,
                     HasLoadedExpenses = true,
-                    IsOrganizer = groupDetails.OwnerId == CurrentUserId,
+                    IsOrganizer = isOrganizer,
+                    HasRepayments = hasRepayments,
                     Expenses = response.Expenses.Select(expense => new ExpenseLedgerItemViewModel
                     {
                         Key = expense.UniqueKey,

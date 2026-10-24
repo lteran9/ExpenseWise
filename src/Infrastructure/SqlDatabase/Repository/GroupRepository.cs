@@ -157,6 +157,8 @@ namespace Infrastructure.SqlDatabase
             using (var context = _contextFactory())
             {
                 var update = context.Update(dbEntity);
+                // The domain model does not carry CreatedAt; keep the stored value.
+                update.Property(entity => entity.CreatedAt).IsModified = false;
                 await context.SaveChangesAsync();
                 return _adapter.MapDatabaseToEntity(update.Entity);
             }
