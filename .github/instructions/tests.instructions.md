@@ -12,6 +12,7 @@ The solution uses xUnit, AutoFixture (`AutoFixture.Xunit2`), and Moq (`AutoMoq`)
 - **`src/Tests/Regression/UseCases/`**: Tests for MediatR use case handlers.
 - **`src/Tests/Regression/Validators/`**: Tests for FluentValidation validators.
 - **`src/Tests/Infrastructure/`**: Data access and AutoMapper mapping tests.
+- **`src/Tests/Acceptance/`**: Playwright browser tests against the Docker Compose stack. These reference no application projects, use `[AcceptanceFact]` so they skip without `EXPENSEWISE_UI_URL`/`EXPENSEWISE_API_URL`, and are grouped by the `Category` trait (`Scenario`, `AfterRestart`). Drive pages through `UserSession`. See the [operations guide](../../docs/operations/README.md#docker-acceptance-tests).
 
 ## 2. Test Conventions
 

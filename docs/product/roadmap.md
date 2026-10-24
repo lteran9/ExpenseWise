@@ -115,7 +115,7 @@ Known limitations of this release:
 - Archived group ledgers are retained in the database but cannot be read.
 - The UI does not persist data-protection keys, so users must sign in again after the UI container is recreated.
 - Use `down`/`up` rather than `docker compose restart` (see the [operations guide](../operations/README.md)).
-- Browser acceptance is manual and not run in CI.
+- CI automates browser acceptance for scenario A, restart persistence, and the scenario C access checks only. Scenarios B and D and the rest of scenario C were verified manually.
 
 ### Phase 1 release gate
 
@@ -133,7 +133,7 @@ The checklist is initially unchecked intentionally. Link test output, release/co
 - [x] Specification scenarios A-D pass, including the Docker-hosted browser journey.
 - [x] Real-MySQL tests verify migrations, foreign keys, unique constraints, decimal persistence, and atomic writes.
 - [x] Existing regression/infrastructure tests and solution build pass.
-- [ ] CI runs the necessary automated checks, including the Docker acceptance checks required for release. *(CI builds, migrates MySQL, and runs all tests; it has no Docker/browser acceptance job.)*
+- [ ] CI runs the necessary automated checks, including the Docker acceptance checks required for release. *(The `docker-acceptance` job in the [CI workflow](../../.github/workflows/build.yml) runs scenario A, the scenario C access checks, and the restart check against a fresh Compose stack in headless Chromium. It passed in a local rehearsal on 2026-10-24; tick this once it passes on GitHub Actions and link the run.)*
 - [x] Data survives restart; a backup has been restored and reconciled in a separate disposable environment.
 - [x] Configuration errors and API/database outages produce useful errors/logs without false success.
 - [x] Setup, recovery, limitations, and API documentation describe the delivered behavior; UI claims match it.
@@ -171,4 +171,4 @@ Cloud/Azure hosting, mobile clients, multi-currency conversion, and payment-prov
 4. Update this roadmap when work is accepted, not merely when coding starts.
 5. Treat new ideas as deferred by default. Add them to Phase 1 only by explicitly changing the specification and acknowledging the added scope.
 
-**Next action:** Add a CI job for the Docker acceptance checks (or the owner records that manual Docker/browser verification satisfies that gate item), sign off the detailed rules, approve and commit the package 1.5 release-proof changes as the recorded release commit, then complete scenario A unaided using the [operations guide](../operations/README.md).
+**Next action:** Confirm the `docker-acceptance` CI job passes on GitHub Actions and tick the CI gate item. Then sign off the detailed rules, approve the package 1.5 release-proof changes as the recorded release commit, and complete scenario A unaided using the [operations guide](../operations/README.md).

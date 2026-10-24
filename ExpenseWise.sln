@@ -31,10 +31,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "src\Presentation\Api
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "src\Presentation\UI\UI.csproj", "{06602157-5790-4896-9CAA-E298DDC9D2DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acceptance", "src\Tests\Acceptance\Acceptance.csproj", "{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}"
+EndProject
 Global
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -140,6 +139,21 @@ Global
 		{06602157-5790-4896-9CAA-E298DDC9D2DA}.Release|x64.Build.0 = Release|Any CPU
 		{06602157-5790-4896-9CAA-E298DDC9D2DA}.Release|x86.ActiveCfg = Release|Any CPU
 		{06602157-5790-4896-9CAA-E298DDC9D2DA}.Release|x86.Build.0 = Release|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Debug|x64.Build.0 = Debug|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Debug|x86.Build.0 = Debug|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Release|x64.ActiveCfg = Release|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Release|x64.Build.0 = Release|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Release|x86.ActiveCfg = Release|Any CPU
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{22C4E828-82C4-42DF-8A0E-840355DCF201} = {E01A8BDF-A59E-476D-9D2B-6BAE1E5C5E1E}
@@ -150,5 +164,6 @@ Global
 		{A3EA6ED1-3C49-4B63-9C01-ECAA87FFFD2A} = {601DDF8B-05FC-4DC2-BC12-348DB5F8A99C}
 		{C3487310-C7D8-4B25-BE8C-52BE413CEAA5} = {1F22E993-9429-42E0-A424-C7AA5FFBF723}
 		{06602157-5790-4896-9CAA-E298DDC9D2DA} = {1F22E993-9429-42E0-A424-C7AA5FFBF723}
+		{A052C5B3-F0CC-4F81-9FA1-BE80C420351A} = {080C57CA-74C7-490F-BFA1-38A39174E43F}
 	EndGlobalSection
 EndGlobal

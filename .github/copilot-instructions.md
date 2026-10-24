@@ -39,6 +39,7 @@ Dependencies must point strictly inward:
 6. **[src/Tests/](../src/Tests)**:
    - `src/Tests/Regression`: Unit and regression tests for UseCases and FluentValidation validators.
    - `src/Tests/Infrastructure`: Data access, repository, and AutoMapper mapping tests.
+   - `src/Tests/Acceptance`: Black-box Playwright browser tests against the Docker Compose stack; skipped unless `EXPENSEWISE_UI_URL` and `EXPENSEWISE_API_URL` are set.
 
 ## Technology Stack
 
