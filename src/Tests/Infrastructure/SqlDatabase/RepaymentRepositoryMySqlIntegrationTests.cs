@@ -1,8 +1,10 @@
 using Application.UseCases.Ports;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
+using System.Data.Common;
 
 namespace Tests.Infrastructure.SqlDatabase
 {
@@ -100,21 +102,41 @@ namespace Tests.Infrastructure.SqlDatabase
         }
 
         [MySqlIntegrationFact]
-        public async Task VoidAsync_ConcurrentWithRepayment_AppliesExactlyOneOperation()
+        public async Task VoidAsync_ContendedWithRepayment_OperationThatAcquiresGroupLockFirstWins()
         {
-            for (var attempt = 0; attempt < 10; attempt++)
+            foreach (var repaymentWinsFirst in new[] { false, true })
             {
-                var options = CreateOptions();
-                var seed = await SeedGroupWithDebt(options);
+                var seedOptions = CreateOptions();
+                var seed = await SeedGroupWithDebt(seedOptions);
+                var coordinator = new GroupLockContentionCoordinator();
+                var options = new DbContextOptionsBuilder<CoreContext>(seedOptions)
+                    .AddInterceptors(coordinator)
+                    .Options;
 
                 try
                 {
                     var repayments = new RepaymentRepository(() => new CoreContext(options));
                     var expenses = new ExpenseRepository(() => new CoreContext(options));
+                    Task<VoidExpenseOutcome> voidTask;
+                    Task<RecordRepaymentOutcome> repaymentTask;
 
-                    var voidTask = expenses.VoidAsync(seed.ExpenseKey, seed.GroupId, CancellationToken.None);
-                    var repaymentTask = repayments.RecordAsync(
-                        BuildRepayment(Guid.NewGuid(), seed, 5m), ValidateFor(seed, 5m), CancellationToken.None);
+                    if (repaymentWinsFirst)
+                    {
+                        repaymentTask = repayments.RecordAsync(
+                            BuildRepayment(Guid.NewGuid(), seed, 5m), ValidateFor(seed, 5m), CancellationToken.None);
+                        await coordinator.FirstLockAcquired.WaitAsync(TimeSpan.FromSeconds(15));
+                        voidTask = expenses.VoidAsync(seed.ExpenseKey, seed.GroupId, CancellationToken.None);
+                    }
+                    else
+                    {
+                        voidTask = expenses.VoidAsync(seed.ExpenseKey, seed.GroupId, CancellationToken.None);
+                        await coordinator.FirstLockAcquired.WaitAsync(TimeSpan.FromSeconds(15));
+                        repaymentTask = repayments.RecordAsync(
+                            BuildRepayment(Guid.NewGuid(), seed, 5m), ValidateFor(seed, 5m), CancellationToken.None);
+                    }
+
+                    await coordinator.CompetingLockAttempted.WaitAsync(TimeSpan.FromSeconds(15));
+                    coordinator.ReleaseFirstLock();
                     await Task.WhenAll(voidTask, repaymentTask);
 
                     await using var context = new CoreContext(options);
@@ -124,14 +146,29 @@ namespace Tests.Infrastructure.SqlDatabase
                         .SingleAsync();
                     var repaymentCount = await context.Repayments.CountAsync(repayment => repayment.GroupId == seed.GroupId);
 
-                    Assert.NotEqual(voided, repaymentCount == 1);
-                    Assert.InRange(repaymentCount, 0, 1);
-                    Assert.Equal(voided, (await voidTask).Expense != null);
-                    Assert.Equal(repaymentCount == 1, (await repaymentTask).Created);
+                    var voidOutcome = await voidTask;
+                    var repaymentOutcome = await repaymentTask;
+                    if (repaymentWinsFirst)
+                    {
+                        Assert.True(repaymentOutcome.Created);
+                        Assert.True(voidOutcome.BlockedByRepayments);
+                        Assert.Null(voidOutcome.Expense);
+                        Assert.False(voided);
+                        Assert.Equal(1, repaymentCount);
+                    }
+                    else
+                    {
+                        Assert.False(repaymentOutcome.Created);
+                        Assert.False(voidOutcome.BlockedByRepayments);
+                        Assert.NotNull(voidOutcome.Expense);
+                        Assert.True(voided);
+                        Assert.Equal(0, repaymentCount);
+                    }
                 }
                 finally
                 {
-                    await Cleanup(options, seed);
+                    coordinator.ReleaseFirstLock();
+                    await Cleanup(seedOptions, seed);
                 }
             }
         }
@@ -261,5 +298,52 @@ namespace Tests.Infrastructure.SqlDatabase
             int OtherParticipantId,
             Guid OtherParticipantKey,
             Guid ExpenseKey);
+
+        private sealed class GroupLockContentionCoordinator : DbCommandInterceptor
+        {
+            private readonly TaskCompletionSource _firstLockAcquired =
+                new(TaskCreationOptions.RunContinuationsAsynchronously);
+            private readonly TaskCompletionSource _competingLockAttempted =
+                new(TaskCreationOptions.RunContinuationsAsynchronously);
+            private readonly TaskCompletionSource _releaseFirstLock =
+                new(TaskCreationOptions.RunContinuationsAsynchronously);
+            private int _lockAttemptCount;
+
+            public Task FirstLockAcquired => _firstLockAcquired.Task;
+            public Task CompetingLockAttempted => _competingLockAttempted.Task;
+
+            public void ReleaseFirstLock() => _releaseFirstLock.TrySetResult();
+
+            public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
+                DbCommand command,
+                CommandEventData eventData,
+                InterceptionResult<int> result,
+                CancellationToken cancellationToken = default)
+            {
+                if (IsGroupLock(command) && Interlocked.Increment(ref _lockAttemptCount) == 2)
+                {
+                    _competingLockAttempted.TrySetResult();
+                }
+
+                return ValueTask.FromResult(result);
+            }
+
+            public override async ValueTask<int> NonQueryExecutedAsync(
+                DbCommand command,
+                CommandExecutedEventData eventData,
+                int result,
+                CancellationToken cancellationToken = default)
+            {
+                if (IsGroupLock(command) && _firstLockAcquired.TrySetResult())
+                {
+                    await _releaseFirstLock.Task.WaitAsync(TimeSpan.FromSeconds(30), cancellationToken);
+                }
+
+                return result;
+            }
+
+            private static bool IsGroupLock(DbCommand command) =>
+                command.CommandText.Contains("FOR UPDATE", StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
