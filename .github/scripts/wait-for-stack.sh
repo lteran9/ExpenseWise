@@ -8,8 +8,8 @@ api_url="${2:-http://localhost:8081}"
 attempts="${3:-60}"
 
 for ((i = 1; i <= attempts; i++)); do
-  ui_status=$(curl -s -o /dev/null -w '%{http_code}' "$ui_url/" || true)
-  api_status=$(curl -s -o /dev/null -w '%{http_code}' "$api_url/Group/List" || true)
+  ui_status=$(curl --connect-timeout 2 --max-time 5 -s -o /dev/null -w '%{http_code}' "$ui_url/" || true)
+  api_status=$(curl --connect-timeout 2 --max-time 5 -s -o /dev/null -w '%{http_code}' "$api_url/Group/List" || true)
   if [[ "$ui_status" == "200" && "$api_status" == "401" ]]; then
     echo "Stack ready after $i attempt(s)."
     exit 0
