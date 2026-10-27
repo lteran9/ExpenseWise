@@ -163,6 +163,20 @@ Before exposing the system publicly, define an operating owner and deployment re
 
 Cloud/Azure hosting, mobile clients, multi-currency conversion, and payment-provider integration need separate specs if pursued. They do not belong on the critical path to the agreed local release.
 
+### Azure demo deployment
+
+The owner chose to pursue a single public Azure demo environment, provisioned with Terraform, before the Phase 1 release gate closes. The [Azure deployment specification](azure-deployment.md) defines its scope, accepted risks, and the packages below; see the specification for full exit gates. Package 3.0 must be accepted before any other package starts. The demo is not a production service and does not satisfy the public-service requirements above.
+
+| Package | Depends on | Deliverable |
+| --- | --- | --- |
+| 3.0 Specification and ADRs | None | Azure deployment specification and ADRs [0005](../architecture/decisions/0005-azure-container-apps-hosting.md) and [0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md). |
+| 3.1 Application readiness | 3.0 | Production-mode images, forwarded headers and secure cookies, health endpoints, configurable database TLS, and non-root containers, without breaking Compose. |
+| 3.2 Terraform foundation and first release | 3.1 | Terraform for the demo environment, the state container bootstrap, the release script, and a manual first release verified in a browser. |
+| 3.3 Deployment pipeline | 3.2 | GitHub Actions release using OpenID Connect, plus Terraform format and validation checks on pull requests. |
+| 3.4 Azure operations guide | 3.2 | Restore rehearsal, logs, budget, cost controls, secret rotation, and teardown documentation. |
+
+Package 3.0 was accepted by the owner on 2026-10-27. **Next action:** start package 3.1.
+
 ## Maintaining the specification
 
 1. Keep [product scope](README.md) as the source of truth for intended behavior.

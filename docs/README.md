@@ -7,6 +7,7 @@ This directory documents the system design, interfaces, and operational consider
 - [Product scope and definition of done](product/README.md): the agreed Phase 1 boundaries and proposed detailed acceptance criteria.
 - [Current-state assessment](product/current-state.md): built capabilities, gaps, and verification limits.
 - [Delivery roadmap](product/roadmap.md): Docker-first work packages and release gates.
+- [Azure deployment specification](product/azure-deployment.md): accepted Phase 3 Azure demo environment, provisioned with Terraform.
 - [API](api/README.md): HTTP surface and request flow.
 - [Architecture](architecture/README.md): layers, dependencies, and implementation guidance.
 - [Architecture decision records](architecture/decisions/README.md): accepted decisions and their consequences. Read the relevant ADRs before proposing changes that affect architecture.
