@@ -62,7 +62,7 @@ flowchart LR
 | Logs | Log Analytics workspace | Container console and system logs, 30-day retention. |
 | Cost alerting | Resource group budget | Monthly budget with email alerts at 80% and 100% of actual cost. Budgets only notify, after a cost-data delay of hours or more; they never stop resources. |
 
-Resource names follow `<type>-expensewise-dev`, with a short random suffix for globally unique names (registry, Key Vault, and MySQL server). Every resource carries `application`, `environment`, `managed_by`, and `owner` tags.
+Resource names follow `<type>-expensewise-dev`, with a short random suffix for globally unique names (registry, Key Vault, and MySQL server). The registry is an exception: use `acrexpensewisedev<suffix>` with an alphanumeric suffix because Azure Container Registry names allow only alphanumeric characters. Every resource carries `application`, `environment`, `managed_by`, and `owner` tags.
 
 The Container Apps environment is new and dedicated to ExpenseWise. Existing resources of other projects in the subscription are not modified or reused, except for the Terraform state container described in [ADR 0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md).
 
