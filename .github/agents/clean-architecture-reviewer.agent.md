@@ -12,7 +12,7 @@ Ensure that all code changes, new classes, and references strictly respect Clean
 ## Architecture Rules
 1. **Dependency Inward Flow**:
    - `src/Core/Entites` (`Core.Entities`): MUST NEVER depend on or reference any other project in the solution or third-party persistence/web frameworks.
-   - `src/Application/UseCases` (`Application.UseCases`): May only depend on `Core.Entities`. It MUST NEVER reference `Infrastructure` (EF Core, Dapper, SQL), `Presentation` (ASP.NET Core controllers), or UI projects.
+   - `src/Application/UseCases` (`Application.UseCases`): May only depend on `Core.Entities`. It MUST NEVER reference `Infrastructure` (EF Core, MySQL client, SQL), `Presentation` (ASP.NET Core controllers), or UI projects.
    - `Infrastructure`: Implements ports defined in `Application.UseCases.Ports`. It must not bypass ports.
    - `Presentation`: Thin presentation layer. Must not contain direct database queries or business domain rules. All operations go through `IMediator`.
 2. **CQRS & Use Case Consistency**:
@@ -20,7 +20,7 @@ Ensure that all code changes, new classes, and references strictly respect Clean
    - Requests must implement `IRequest<ResponseWrapper<TResponse>>`.
    - FluentValidation validators must be placed in `src/Application/UseCases/FluentValidation/`.
 3. **Security & Data Access**:
-   - Dapper queries must use parameterization (never string interpolation or concatenation).
+   - Raw SQL must be parameterized: use EF Core's `FromSql`, `ExecuteSql`, or `ExecuteSqlInterpolatedAsync`, and never build SQL by concatenation or pass interpolated strings to `FromSqlRaw` or `ExecuteSqlRaw`.
 
 ## Review Checklist
 - Check for forbidden `using` directives (e.g. `using Microsoft.EntityFrameworkCore;` or `using Infrastructure.*` in `src/Application/UseCases`).

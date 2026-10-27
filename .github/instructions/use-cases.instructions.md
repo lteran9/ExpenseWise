@@ -70,5 +70,5 @@ namespace Application.UseCases
 - `Ports/` must contain only interfaces. Do not add records, enums, classes, or DTOs there, even when a port method returns them.
 - Place supporting types used by a single use case in that use case's slice file in the `Application.UseCases` namespace. Place types shared by several use cases in their own file at the root of `src/Application/UseCases/`.
 - Keep business decisions, such as whether a reused idempotency key matches the original submission, in the use case. Ports should report facts (for example, `CreateWithSharesAsync` returns the stored expense and whether it was newly created), not enforce business rules.
-- Never reference Entity Framework Core (`CoreContext`), Dapper, or presentation types inside `Application.UseCases`.
+- Never reference Entity Framework Core (`CoreContext`), database client libraries, or presentation types inside `Application.UseCases`.
 - Rely solely on domain entities in `Core.Entities`.
