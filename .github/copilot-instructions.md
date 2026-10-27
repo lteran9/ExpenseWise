@@ -30,7 +30,7 @@ Dependencies must point strictly inward:
 1. **[src/Core/Entites/](../src/Core/Entites)** (`Core.Entities`): Domain models and entities (e.g., `Expense`, `Group`, `User`, `Split`). Zero external dependencies.
 2. **[src/Application/UseCases/](../src/Application/UseCases)** (`Application.UseCases`): Business logic, use cases, CQRS commands/queries, FluentValidation validators, and port interfaces (`Application.UseCases.Ports`, which contains interfaces only). Depends only on `Core`.
 3. **[src/Infrastructure/](../src/Infrastructure)**:
-   - `src/Infrastructure/SqlDatabase`: EF Core MySQL context (`CoreContext`), Dapper queries, repository implementations, and AutoMapper profiles.
+   - `src/Infrastructure/SqlDatabase`: EF Core MySQL context (`CoreContext`), EF Core queries, repository implementations, and AutoMapper profiles.
    - `src/Infrastructure/OpenAPI`: OpenAPI specification / generated contract components.
 4. **[src/Configuration/DependencyConfiguration/](../src/Configuration/DependencyConfiguration)**: Service registration and dependency injection wiring.
 5. **[src/Presentation/](../src/Presentation)**:
@@ -46,7 +46,7 @@ Dependencies must point strictly inward:
 - **Framework**: .NET 10.0 (C# 13+) with `<Nullable>enable</Nullable>`.
 - **Mediation**: MediatR CQRS handlers inheriting from `BaseRequestHandler<TRequest, TResponse>`.
 - **Validation**: FluentValidation with `AbstractValidator<TRequest>`.
-- **Data Access**: Entity Framework Core with MySQL (`Pomelo.EntityFrameworkCore.MySql`) and Dapper.
+- **Data Access**: Entity Framework Core with Oracle's MySQL provider (`MySql.EntityFrameworkCore`, configured with `UseMySQL` and `MySql.Data.MySqlClient`).
 - **Mapping**: AutoMapper for entity/DTO mapping.
 - **Testing**: xUnit, AutoFixture (`AutoFixture.Xunit2`), and Moq (`AutoMoq`).
 

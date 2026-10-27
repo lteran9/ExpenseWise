@@ -14,8 +14,7 @@ Phase 1 targets local Docker Compose, registered participants, organizer-recorde
 - [AutoMapper](https://docs.automapper.org/en/stable/Getting-started.html)
 - [FluentValidation](https://docs.fluentvalidation.net/en/latest/)
 - [Moq](https://github.com/devlooped/moq)
-- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
-- [Dapper](https://github.com/DapperLib/Dapper/)
+- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) with [MySQL Connector/NET](https://dev.mysql.com/doc/connector-net/en/connector-net-entityframework-core.html) (`MySql.EntityFrameworkCore`)
 - [Docker](https://www.docker.com/support/)
 
 ## High Level Design
@@ -96,14 +95,14 @@ docker compose up --build -d webapp
    - `src/Application/` — Use cases, request validators, MediatR handlers
    - `src/Configuration/` — Dependency-injection composition and service registration
    - `src/Core/` — Domain entities and value objects
-   - `src/Infrastructure/` — Database adapters, EF/Dapper, generated OpenAPI client
+   - `src/Infrastructure/` — Database adapters, EF Core, generated OpenAPI client
    - `src/Presentation/` — API and UI entrypoints and controllers
    - `src/Tests/` — Unit and integration tests
 
 - **Architecture & Patterns:**
    - CQRS/MediatR for application flows
    - FluentValidation for request validation
-   - EF Core and Dapper for data access
+   - EF Core with MySQL for data access
    - AutoMapper for mapping DTOs
 
 - **Build & Test:**
