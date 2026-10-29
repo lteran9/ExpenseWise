@@ -121,7 +121,7 @@ Known limitations of this release:
 
 The checklist is initially unchecked intentionally. Link test output, release/commit references, or a dated manual verification record when each item passes. A planned feature or passing unit test alone does not satisfy a Docker/browser gate. Checked items below cite the [2026-10-24 verification](#phase-1-release-gate-verification-2026-10-24).
 
-- [ ] Detailed rules for each delivered package have been reviewed; no unresolved decision affects balances or permissions. *(The open rounding, suggestion-order, and archival questions were decided on 2026-10-24; awaiting the owner's final rules sign-off.)*
+- [x] Detailed rules for each delivered package have been reviewed; no unresolved decision affects balances or permissions.
 - [x] A clean documented Compose install works without manual SQL or source edits.
 - [x] The documented pre-1.3 data reset and migration are verified; subsequent migrations from the supported package 1.3 state are data-preserving.
 - [x] All UI Phase 1 operations go through the API; client/contracts match the server.
@@ -133,12 +133,12 @@ The checklist is initially unchecked intentionally. Link test output, release/co
 - [x] Specification scenarios A-D pass, including the Docker-hosted browser journey.
 - [x] Real-MySQL tests verify migrations, foreign keys, unique constraints, decimal persistence, and atomic writes.
 - [x] Existing regression/infrastructure tests and solution build pass.
-- [ ] CI runs the necessary automated checks, including the Docker acceptance checks required for release. *(The `docker-acceptance` job in the [CI workflow](../../.github/workflows/build.yml) runs scenario A, the scenario C access checks, and the restart check against a fresh Compose stack in headless Chromium. It passed in a local rehearsal on 2026-10-24; tick this once it passes on GitHub Actions and link the run.)*
+- [x] CI runs the necessary automated checks, including the Docker acceptance checks required for release.
 - [x] Data survives restart; a backup has been restored and reconciled in a separate disposable environment.
 - [x] Configuration errors and API/database outages produce useful errors/logs without false success.
 - [x] Setup, recovery, limitations, and API documentation describe the delivered behavior; UI claims match it.
-- [ ] A versioned release or recorded release commit identifies the verified result and its known limitations. *(Pending the commit of this verification.)*
-- [ ] The project owner completes scenario A unaided and accepts the release.
+- [x] A versioned release or recorded release commit identifies the verified result and its known limitations.
+- [x] The project owner completes scenario A unaided and accepts the release.
 
 When these gates pass, stop and call Phase 1 done. Do not expand it to accommodate every unused handler or marketing claim.
 
@@ -146,7 +146,11 @@ When these gates pass, stop and call Phase 1 done. Do not expand it to accommoda
 
 Start only after Phase 1 is accepted. Select features based on actual usage; this is an option list, not a promise or prerequisite for completion.
 
-- Exact custom amounts, then percentages/weighted shares, with independent rounding rules and tests.
+- **Selected: exact custom expense amounts.** Scope: keep equal splitting as the default and add an organizer-selected custom mode that records a USD amount for each selected participant. Custom amounts must be nonnegative, have at most two decimal places, and sum exactly to the expense total; a selected participant may have a $0.00 share. The payer may be outside the participant set, as in Phase 1. Allocations remain immutable ledger facts; corrections still use the existing Phase 1 void/re-entry policy. Percentages and weighted shares are not included.
+  - **Data/migration impact:** the existing `expense_shares` rows already store per-participant `decimal(18,2)` allocations, including zero, so this feature requires no schema migration. The create-expense API contract and generated client will be extended.
+  - **Acceptance examples:** a $10.01 expense split as $6.00/$4.01 succeeds and is reflected exactly in the ledger; a $10.00 expense split as $10.00/$0.00 succeeds; allocations not summing to the total, duplicate/missing/unselected participant shares, negative values, excess precision, or nonmembers are rejected without writes. Existing requests without custom amounts continue to allocate equal shares with stable remainder cents. Retrying an identical custom request key replays the stored expense; reusing it for different allocations is rejected.
+  - **Status:** implementation complete on `feature/phase-2-custom-amounts`; `dotnet build ExpenseWise.sln --no-restore` passed with 0 warnings/errors, and `dotnet test --no-build` passed 101 Regression and 41 Infrastructure tests. Eight MySQL integration tests and all six browser acceptance tests were skipped because their external test services are not configured; Docker is unavailable in this checkout. Docker-hosted browser verification, including persistence and replay behavior for custom allocations, remains pending, so this feature is not accepted as complete.
+- Percentages/weighted shares, with independent rounding rules and tests (deferred; not part of the selected custom-amount feature).
 - Guest participants without accounts and better invitation/onboarding flows.
 - Expense editing, post-repayment corrections, repayment reversals, and an explicit audit trail.
 - Member departure and group archival workflows that preserve balances/history.

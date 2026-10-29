@@ -46,9 +46,17 @@ namespace Application.UseCases
                     CreatedBy = group.Owner,
                     Payer = new User { UniqueKey = request.PayerKey },
                     UniqueKey = request.IdempotencyKey,
-                    Shares = AllocateShares(
-                        request.Amount,
-                        request.ParticipantKeys.Select(key => new User { UniqueKey = key }).ToList())
+                    Shares = request.UseCustomAmounts
+                        ? request.CustomShares!
+                            .Select(share => new ExpenseShare
+                            {
+                                Amount = share.Amount,
+                                Participant = new User { UniqueKey = share.ParticipantKey }
+                            })
+                            .ToList()
+                        : AllocateShares(
+                            request.Amount,
+                            request.ParticipantKeys.Select(key => new User { UniqueKey = key }).ToList())
                 };
 
                 var existing = await _expenseRepository.FindByUniqueKeyAsync(request.IdempotencyKey, cancellationToken);
@@ -158,6 +166,8 @@ namespace Application.UseCases
         public decimal Amount { get; set; }
         public Guid PayerKey { get; set; }
         public List<Guid> ParticipantKeys { get; set; } = [];
+        public bool UseCustomAmounts { get; set; }
+        public List<CreateExpenseShare>? CustomShares { get; set; } = [];
         public Guid IdempotencyKey { get; set; }
 
         public Guid ActorKey { get; set; }
@@ -175,5 +185,11 @@ namespace Application.UseCases
         public int Id { get; set; }
         public Guid UniqueKey { get; set; }
         public bool Replayed { get; set; }
+    }
+
+    public class CreateExpenseShare
+    {
+        public Guid ParticipantKey { get; set; }
+        public decimal Amount { get; set; }
     }
 }

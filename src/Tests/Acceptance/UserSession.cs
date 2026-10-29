@@ -103,6 +103,36 @@ namespace Tests.Acceptance
             await SubmitAsync("Add Expense");
         }
 
+        public async Task<string> RecordCustomExpenseAsync(
+            Guid groupKey,
+            string description,
+            decimal amount,
+            TestUser payer,
+            params (TestUser Participant, decimal Amount)[] shares)
+        {
+            await GotoAsync($"/Expense/Create?group={groupKey}");
+            await Page.Locator("#Description").FillAsync(description);
+            await Page.Locator("#Amount").FillAsync(Money(amount));
+            await Page.Locator("#PayerKey").SelectOptionAsync(new SelectOptionValue { Label = payer.Name });
+            foreach (var checkbox in await Page.Locator("input[name=ParticipantKeys]").AllAsync())
+            {
+                await checkbox.UncheckAsync();
+            }
+
+            await Page.Locator("#custom-split").CheckAsync();
+            foreach (var share in shares)
+            {
+                await Page.GetByLabel(share.Participant.Name, new PageGetByLabelOptions { Exact = true }).CheckAsync();
+                await Page.GetByLabel($"Custom amount for {share.Participant.Name}", new PageGetByLabelOptions { Exact = true })
+                    .FillAsync(Money(share.Amount));
+            }
+
+            var submission = await Page.EvaluateAsync<string>(
+                "() => new URLSearchParams(new FormData(document.querySelector('form[action=\"/Expense/Create\"]'))).toString()");
+            await SubmitAsync("Add Expense");
+            return submission;
+        }
+
         /// <summary>
         /// Records a repayment through the confirmation dialog and returns the exact form body that was submitted,
         /// so a test can replay the same submission.

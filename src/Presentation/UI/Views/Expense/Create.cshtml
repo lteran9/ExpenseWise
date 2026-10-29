@@ -50,6 +50,32 @@
                </div>
             }
          </fieldset>
+         <fieldset class="mb-3">
+            <legend class="form-label">Split amounts</legend>
+            <div class="form-check">
+               <input class="form-check-input" type="radio" name="UseCustomAmounts" id="equal-split" value="false"
+                      checked="@(!Model.UseCustomAmounts)" />
+               <label class="form-check-label" for="equal-split">Split equally</label>
+            </div>
+            <div class="form-check">
+               <input class="form-check-input" type="radio" name="UseCustomAmounts" id="custom-split" value="true"
+                      checked="@Model.UseCustomAmounts" aria-controls="custom-amounts" />
+               <label class="form-check-label" for="custom-split">Enter custom amounts</label>
+            </div>
+            <div id="custom-amounts" class="mt-3" hidden="@(!Model.UseCustomAmounts)">
+               <p>Enter a USD amount for each selected participant. Amounts must add up to the expense total; $0.00 is allowed.</p>
+               @for (var index = 0; index < Model.Members.Count; index++)
+               {
+                  var member = Model.Members[index];
+                  <div class="mb-2">
+                     <label class="form-label" for="custom-amount-@member.Key">Custom amount for @member.Name</label>
+                     <input class="form-control" type="number" min="0" step="0.01"
+                            name="CustomAmounts[@member.Key]" id="custom-amount-@member.Key"
+                            value="@Model.CustomAmounts.GetValueOrDefault(member.Key)" />
+                  </div>
+               }
+            </div>
+         </fieldset>
          <div class="d-grid mb-3">
             <button type="submit" class="btn btn-primary">Add Expense</button>
          </div>
@@ -63,3 +89,12 @@
       }
    </div>
 </div>
+
+<script>
+   document.querySelectorAll('input[name="UseCustomAmounts"]').forEach((input) => {
+      input.addEventListener("change", () => {
+         document.getElementById("custom-amounts").hidden =
+            document.getElementById("custom-split").checked === false;
+      });
+   });
+</script>

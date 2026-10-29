@@ -1,6 +1,6 @@
 # Product scope and definition of done
 
-Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and share rules for package 1.3 were confirmed on 2026-10-19; repayment rules for package 1.4 were confirmed on 2026-10-20.
+Status: Phase 1 boundaries were confirmed on 2026-10-16. Account, identity, group, and permission rules for package 1.2 were confirmed on 2026-10-17. Expense and share rules for package 1.3 were confirmed on 2026-10-19; repayment rules for package 1.4 were confirmed on 2026-10-20. Exact custom expense amounts were selected for Phase 2 on 2026-10-27.
 
 - [Current-state assessment](current-state.md): what exists and the evidence behind the gaps.
 - [Delivery roadmap](roadmap.md): ordered work packages and release gates.
@@ -147,9 +147,21 @@ Given registered group members Alice, Bob, and Cara, with Alice as organizer:
 - Restore a backup into a separate disposable test database and reconcile its balances and record counts.
 - An unavailable API/database results in visible errors and useful logs, not a false confirmation or an empty-looking ledger.
 
+### Selected Phase 2 behavior: exact custom expense amounts
+
+Equal splitting remains the default. In custom mode, the organizer enters a USD allocation for every selected participant. Each allocation is nonnegative, has at most two decimal places, and all allocations sum exactly to the expense total; a selected participant may have a $0.00 allocation. Existing payer, authorization, idempotency, and immutable-share rules continue to apply. Percentages and weighted shares are not included.
+
+Acceptance examples:
+
+- A $10.01 expense with allocations of $6.00 and $4.01 is saved and displayed exactly.
+- A $10.00 expense with allocations of $10.00 and $0.00 is saved and displayed exactly.
+- A mismatch, negative or over-precision amount, duplicate/missing participant allocation, or nonmember allocation is rejected without a write.
+- Requests using the existing equal-split contract still produce the stable remainder-cent allocation described in scenario B.
+- Replaying an identical custom request key does not duplicate the expense; reusing the key for different allocations is rejected.
+
 ## Explicitly outside Phase 1
 
-Guests without accounts; custom amounts, percentage or weighted splits; line-item receipt splitting; tax/tip calculators (enter the final bill total instead); multiple payers per expense; multiple currencies; FX; real payment collection; bank integration; receipt uploads/OCR; notifications; password reset/email verification; mobile apps; advanced debt optimization; public/cloud hosting; and unrestricted financial-history edits.
+Guests without accounts; percentage or weighted splits; line-item receipt splitting; tax/tip calculators (enter the final bill total instead); multiple payers per expense; multiple currencies; FX; real payment collection; bank integration; receipt uploads/OCR; notifications; password reset/email verification; mobile apps; advanced debt optimization; public/cloud hosting; and unrestricted financial-history edits.
 
 Remove or qualify existing UI claims for these capabilities until they are implemented.
 

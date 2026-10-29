@@ -2615,6 +2615,12 @@ namespace OpenAPI
         [System.Text.Json.Serialization.JsonPropertyName("participantKeys")]
         public System.Collections.Generic.ICollection<System.Guid> ParticipantKeys { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("useCustomAmounts")]
+        public bool UseCustomAmounts { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customShares")]
+        public System.Collections.Generic.ICollection<CreateExpenseShareInput> CustomShares { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("idempotencyKey")]
         public System.Guid IdempotencyKey { get; set; }
 
@@ -2632,6 +2638,18 @@ namespace OpenAPI
 
         [System.Text.Json.Serialization.JsonPropertyName("replayed")]
         public bool Replayed { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CreateExpenseShareInput
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("participantKey")]
+        public System.Guid ParticipantKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amount")]
+        public decimal Amount { get; set; }
 
     }
 
