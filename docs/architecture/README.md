@@ -34,6 +34,7 @@ flowchart LR
 
 - Dependencies point inward: Core should not depend on Application, Infrastructure, or Presentation.
 - Application declares ports; Infrastructure implements them. Wire implementations in the composition layer rather than from use cases.
+- Keep port interfaces in `Application/UseCases/Ports` and shared application supporting types at the `Application/UseCases` root. `GroupMembershipConflictException` is a framework-independent signal from a repository's write-time membership/history check; `CreateExpense` and `DeleteMember` translate it into a validation response when state changes after their initial checks. Unexpected persistence failures are not classified as membership conflicts.
 - Keep controllers and views focused on presentation concerns. Put business decisions in use cases and domain concepts.
 - Follow the existing request/response and validation conventions described in [ADR 0002](decisions/0002-mediatr-use-case-boundary.md).
 - Check [the decision index](decisions/README.md) before changing an established architectural choice.

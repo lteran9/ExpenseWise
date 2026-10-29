@@ -111,6 +111,43 @@ namespace Tests.Regression.UseCases
         }
 
         [Fact]
+        public async Task DeleteMember_WhenHistoryConflictsAtWriteTime_ReturnsValidationError()
+        {
+            var groupKey = Guid.NewGuid();
+            var actorKey = Guid.NewGuid();
+            var member = new User { UniqueKey = Guid.NewGuid() };
+            const string message = "Members with expense or repayment history cannot be removed from the group.";
+            var repository = new Mock<IGroupRepository>();
+            repository.Setup(value => value.FindByUniqueKeyAsync(groupKey))
+                .ReturnsAsync(new Group
+                {
+                    Id = 10,
+                    UniqueKey = groupKey,
+                    Owner = new User { UniqueKey = actorKey },
+                    Members = [member]
+                });
+            repository.Setup(value => value.RemoveMemberAsync(It.IsAny<MemberOf>()))
+                .ThrowsAsync(new GroupMembershipConflictException(message));
+            var expenseRepository = new Mock<IExpenseRepository>();
+            expenseRepository.Setup(value => value.GetGroupExpenses(10)).ReturnsAsync([]);
+            var repaymentRepository = new Mock<IRepaymentRepository>();
+            repaymentRepository.Setup(value => value.GetGroupRepaymentsAsync(10, CancellationToken.None))
+                .ReturnsAsync([]);
+            var useCase = new DeleteMember(repository.Object, expenseRepository.Object, repaymentRepository.Object);
+
+            var response = await useCase.Handle(new DeleteMemberRequest
+            {
+                GroupKey = groupKey,
+                MemberKey = member.UniqueKey,
+                ActorKey = actorKey
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Equal(message, Assert.Single(response.ValidationMessages!));
+            repository.Verify(value => value.RemoveMemberAsync(It.IsAny<MemberOf>()), Times.Once);
+        }
+
+        [Fact]
         public async Task DeleteMember_WhenMemberHasRepaymentHistory_DoesNotRemoveMember()
         {
             var groupKey = Guid.NewGuid();

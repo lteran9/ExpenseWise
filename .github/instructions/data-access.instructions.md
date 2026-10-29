@@ -10,12 +10,13 @@ This project handles persistence using Entity Framework Core with Oracle's MySQL
 ## 1. Repositories and Ports
 
 - Repository implementations in `src/Infrastructure/SqlDatabase/Repository/` must implement the port interfaces defined in `Application.UseCases.Ports`.
+- Ports are domain-specific (for example, `IGroupRepository`). Add intention-revealing methods such as `ListAsync(Guid userKey)` to the relevant port instead of introducing generic query ports or query-by-example contracts.
 - Use AutoMapper to map between domain entities in `Core.Entities` and EF database entities in `Infrastructure.SqlDatabase.EntityFramework.Models`.
 - Keep AutoMapper profiles in `src/Infrastructure/SqlDatabase/Configuration/AutoMapper/`.
 
 ## 2. Queries and Raw SQL
 
-- Keep custom query implementations under `src/Infrastructure/SqlDatabase/Query/`.
+- Implement read queries inside the repository that implements the corresponding port.
 - Prefer EF Core LINQ queries. Use raw SQL only when LINQ cannot express the operation, such as a row lock.
 - Always parameterize raw SQL to prevent SQL injection. Use `FromSql`, `ExecuteSql`, or `ExecuteSqlInterpolatedAsync`, which convert interpolated values into parameters. Never build SQL by string concatenation, and never pass interpolated strings to `FromSqlRaw` or `ExecuteSqlRaw`:
   ```csharp

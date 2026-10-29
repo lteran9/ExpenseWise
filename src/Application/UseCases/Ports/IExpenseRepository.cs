@@ -10,6 +10,9 @@ namespace Application.UseCases.Ports
         /// <summary>
         /// Creates the expense and its shares, or returns the expense already stored under the same unique key.
         /// </summary>
+        /// <exception cref="GroupMembershipConflictException">
+        /// The payer or a participant is no longer an active group member at write time.
+        /// </exception>
         Task<(Expense Expense, bool Created)> CreateWithSharesAsync(Expense expense, CancellationToken cancellationToken);
         Task<Expense?> FindByUniqueKeyAsync(Guid uniqueKey, CancellationToken cancellationToken);
         /// <summary>

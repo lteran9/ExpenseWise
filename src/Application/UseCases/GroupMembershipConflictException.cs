@@ -1,9 +1,10 @@
 using System;
 
-namespace Application.UseCases.Ports
+namespace Application.UseCases
 {
     /// <summary>
-    /// Raised when group membership changed after a request was validated and the write is no longer allowed.
+    /// Raised when a write-time check detects that group membership or member history
+    /// no longer permits an operation that passed the use case's initial validation.
     /// </summary>
     public class GroupMembershipConflictException : Exception
     {

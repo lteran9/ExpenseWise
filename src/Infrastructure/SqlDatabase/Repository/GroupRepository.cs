@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Core.Entities;
+using Application.UseCases;
 using Application.UseCases.Ports;
 using MySql.Data.MySqlClient;
 

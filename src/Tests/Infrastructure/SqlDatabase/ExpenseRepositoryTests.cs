@@ -1,5 +1,5 @@
 using System;
-using Application.UseCases.Ports;
+using Application.UseCases;
 using System.Threading.Tasks;
 using Core.Entities;
 using Infrastructure.SqlDatabase;
