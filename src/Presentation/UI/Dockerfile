@@ -25,7 +25,8 @@ COPY --from=build /app/publish .
 EXPOSE 8080
 
 # Set environment variables
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Production
 ENV HTTP_PORTS=8080
+USER $APP_UID
 
 ENTRYPOINT ["dotnet", "UI.dll"]

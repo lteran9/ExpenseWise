@@ -186,7 +186,17 @@ The owner chose to pursue a single public Azure demo environment, provisioned wi
 | 3.3 Deployment pipeline | 3.2 | GitHub Actions release using OpenID Connect, plus Terraform format and validation checks on pull requests. |
 | 3.4 Azure operations guide | 3.2 | Restore rehearsal, logs, budget, cost controls, secret rotation, and teardown documentation. |
 
-Package 3.0 was accepted by the owner on 2026-10-27. **Next action:** start package 3.1.
+Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate passed on 2026-10-29; see the [verification record](#package-31-application-readiness-verification-2026-10-29). **Next action:** start package 3.2.
+
+### Package 3.1 application-readiness verification (2026-10-29)
+
+- On `feature/phase-3.1-application-readiness`, `dotnet build ExpenseWise.sln --no-restore` succeeded with 0 warnings/errors. The Regression suite passed 103 tests; Infrastructure passed 52 tests, including all eight real-MySQL integration tests against a separate migrated test database.
+- Built and started the Compose stack with a fresh isolated volume and non-default ports. The migration service completed; API and UI liveness returned HTTP 200, database readiness returned HTTP 200, the existing `/Health` response was unchanged, and Development OpenAPI returned HTTP 200.
+- Ran the Compose browser acceptance tests in their required sequence: all seven `Category=Scenario` tests passed; after `docker compose down`/`up` without removing the volume, the `Category=AfterRestart` persistence test passed. The browser check confirmed the session and authentication cookies are Secure when `X-Forwarded-Proto: https` is forwarded.
+- Production-mode runs of both built images confirmed they use UID 1654 (`app`). The API liveness/readiness endpoints returned HTTP 200 and both `/openapi/v1.json` and `/swagger/index.html` returned HTTP 404. The UI returned HTTP 200 with a `Strict-Transport-Security` header when a non-local hostname and forwarded HTTPS were supplied.
+- Stopping MySQL made API readiness return HTTP 503 while liveness remained HTTP 200; readiness returned HTTP 200 after MySQL recovered.
+- Database TLS configuration was verified against `MySql.Data.MySqlClient.MySqlConnectionStringBuilder`: an omitted setting preserves the provider default, `VerifyFull` is accepted, and an unsupported value fails clearly. Certificate trust/handshake against Azure Database for MySQL Flexible Server has not yet been verified; select the Azure value in package 3.2 only after testing against that server.
+- The Compose stack and its isolated volumes and test containers were removed after verification.
 
 ## Maintaining the specification
 

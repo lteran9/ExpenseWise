@@ -20,13 +20,34 @@ namespace Tests.Acceptance
 
         public IPage Page { get; }
 
-        public static async Task<UserSession> OpenAsync(IBrowser browser, string traceName)
+        public async Task<bool> HasSecureAuthenticationAndSessionCookiesAsync()
+        {
+            var cookies = await _context.CookiesAsync();
+            var authenticationCookies = cookies
+                .Where(cookie => cookie.Name is ".AspNetCore.Cookies" or ".AspNetCore.Session")
+                .ToList();
+            return authenticationCookies.Count == 2
+                && authenticationCookies.All(cookie => cookie.Secure);
+        }
+
+        public static async Task<UserSession> OpenAsync(
+            IBrowser browser,
+            string traceName,
+            bool forwardHttps = false)
         {
             var context = await browser.NewContextAsync(new BrowserNewContextOptions
             {
                 BaseURL = AcceptanceSettings.UiUrl,
                 Locale = "en-US"
             });
+            if (forwardHttps)
+            {
+                await context.SetExtraHTTPHeadersAsync(new Dictionary<string, string>
+                {
+                    ["X-Forwarded-Proto"] = "https"
+                });
+            }
+
             await context.Tracing.StartAsync(new TracingStartOptions { Screenshots = true, Snapshots = true });
 
             var page = await context.NewPageAsync();

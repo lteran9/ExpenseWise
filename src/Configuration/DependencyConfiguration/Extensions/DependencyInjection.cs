@@ -73,6 +73,18 @@ namespace ExpenseWise.DependencyConfiguration
                 Password = configuration["Database:Password"]!
             };
 
+            if (configuration["Database:SslMode"] is { } sslModeSetting)
+            {
+                if (!Enum.TryParse<MySqlSslMode>(sslModeSetting, ignoreCase: true, out var sslMode)
+                    || !Enum.IsDefined(sslMode))
+                {
+                    throw new InvalidOperationException(
+                        "Database:SslMode must be a supported MySqlSslMode value.");
+                }
+
+                connectionStringBuilder.SslMode = sslMode;
+            }
+
             return connectionStringBuilder.ConnectionString;
         }
 

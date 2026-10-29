@@ -10,6 +10,7 @@ services:
       Database__Name: "${DB_DATABASE:?DB_DATABASE must be set}"
       Database__Username: "${DB_USERNAME:?DB_USERNAME must be set}"
       Database__Password: "${DB_PASSWORD:?DB_PASSWORD must be set}"
+      ASPNETCORE_ENVIRONMENT: Development
       Authentication__SigningKey: "${JWT_SIGNING_KEY:?JWT_SIGNING_KEY must be set}"
     ports:
       - '${API_PORT:-8081}:8081'
@@ -42,6 +43,7 @@ services:
       dockerfile: src/Presentation/UI/Dockerfile
     image: "expensewise-ui-1:latest"
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
       ExpenseWiseApi__BaseUrl: "http://webapi:8081/"
       Database__Host: mysql
       Database__Port: "3306"
