@@ -149,7 +149,7 @@ Start only after Phase 1 is accepted. Select features based on actual usage; thi
 - **Selected: exact custom expense amounts.** Scope: keep equal splitting as the default and add an organizer-selected custom mode that records a USD amount for each selected participant. Custom amounts must be nonnegative, have at most two decimal places, and sum exactly to the expense total; a selected participant may have a $0.00 share. The payer may be outside the participant set, as in Phase 1. Allocations remain immutable ledger facts; corrections still use the existing Phase 1 void/re-entry policy. Percentages and weighted shares are not included.
   - **Data/migration impact:** the existing `expense_shares` rows already store per-participant `decimal(18,2)` allocations, including zero, so this feature requires no schema migration. The create-expense API contract and generated client will be extended.
   - **Acceptance examples:** a $10.01 expense split as $6.00/$4.01 succeeds and is reflected exactly in the ledger; a $10.00 expense split as $10.00/$0.00 succeeds; allocations not summing to the total, duplicate/missing/unselected participant shares, negative values, excess precision, or nonmembers are rejected without writes. Existing requests without custom amounts continue to allocate equal shares with stable remainder cents. Retrying an identical custom request key replays the stored expense; reusing it for different allocations is rejected.
-  - **Status:** implementation complete on `feature/phase-2-custom-amounts`; `dotnet build ExpenseWise.sln --no-restore` passed with 0 warnings/errors, and `dotnet test --no-build` passed 101 Regression and 41 Infrastructure tests. Eight MySQL integration tests and all six browser acceptance tests were skipped because their external test services are not configured; Docker is unavailable in this checkout. Docker-hosted browser verification, including persistence and replay behavior for custom allocations, remains pending, so this feature is not accepted as complete.
+  - **Status:** implementation and selected-feature exit gate complete. The [2026-10-29 verification](#phase-2-custom-amounts-verification-2026-10-29) records the Docker-hosted browser acceptance evidence.
 - Percentages/weighted shares, with independent rounding rules and tests (deferred; not part of the selected custom-amount feature).
 - Guest participants without accounts and better invitation/onboarding flows.
 - Expense editing, post-repayment corrections, repayment reversals, and an explicit audit trail.
@@ -158,6 +158,13 @@ Start only after Phase 1 is accepted. Select features based on actual usage; thi
 - Receipt attachments, line items, tax/tip allocation, or reminders only if needed.
 
 Exit gate for any selected feature: written scope, data/migration impact, acceptance examples, end-to-end verification, and updated documentation. Unselected items remain deferred.
+
+### Phase 2 custom-amounts verification (2026-10-29)
+
+- `dotnet build ExpenseWise.sln --no-restore` succeeded with 0 warnings/errors. `dotnet test ExpenseWise.sln --no-build` passed 101 Regression and 41 Infrastructure tests; eight MySQL integration tests and six browser acceptance tests were skipped because their test-service environment variables were not set for that suite run.
+- Started an isolated Compose project (`ewphase2`) with a fresh MySQL volume, non-default ports, and the migration service. MySQL became healthy, migration exited successfully, and the UI returned HTTP 200.
+- Ran `dotnet test src/Tests/Acceptance/Acceptance.csproj --no-build --filter FullyQualifiedName~CustomAmountSplitTests` against the Docker-hosted UI/API. The browser flow recorded a $10.01 expense split $6.00/$4.01 and a $10.00 expense split $10.00/$0.00. It replayed the original browser form with the same idempotency key and verified the ledger still contained exactly two expenses with those persisted shares.
+- The Compose project and its isolated volume were removed after verification. The other browser acceptance scenarios and MySQL integration checks were not run as part of this targeted Phase 2 verification.
 
 ## Phase 3: Optional public/self-hosted service
 
