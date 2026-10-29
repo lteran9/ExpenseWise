@@ -31,6 +31,7 @@ namespace UI.Controllers
             };
             await PopulateMembersAsync(model, cancellationToken);
             model.ParticipantKeys = model.Members.Select(member => member.Key).ToList();
+            PopulateCustomAmounts(model);
             return View(model);
         }
 
@@ -41,6 +42,7 @@ namespace UI.Controllers
             if (!ModelState.IsValid)
             {
                 await PopulateMembersAsync(model, cancellationToken);
+                PopulateCustomAmounts(model);
                 return View(model);
             }
 
@@ -52,6 +54,16 @@ namespace UI.Controllers
                     {
                         ModelState.AddModelError(string.Empty, "The expense form expired. Reload it and try again.");
                         await PopulateMembersAsync(model, cancellationToken);
+                        PopulateCustomAmounts(model);
+                        return View(model);
+                    }
+
+                    if (model.UseCustomAmounts
+                        && model.ParticipantKeys.Any(key => model.CustomAmounts?.ContainsKey(key) != true))
+                    {
+                        ModelState.AddModelError(string.Empty, "Enter a custom amount for every selected participant.");
+                        await PopulateMembersAsync(model, cancellationToken);
+                        PopulateCustomAmounts(model);
                         return View(model);
                     }
 
@@ -63,6 +75,14 @@ namespace UI.Controllers
                         GroupKey = model.GroupKey,
                         PayerKey = model.PayerKey,
                         ParticipantKeys = model.ParticipantKeys,
+                        UseCustomAmounts = model.UseCustomAmounts,
+                        CustomShares = model.UseCustomAmounts
+                            ? model.ParticipantKeys.Select(key => new CreateExpenseShareInput
+                            {
+                                ParticipantKey = key,
+                                Amount = model.CustomAmounts![key]
+                            }).ToList()
+                            : [],
                         IdempotencyKey = model.IdempotencyKey
                     }, cancellationToken);
 
@@ -92,6 +112,7 @@ namespace UI.Controllers
             }
 
             await PopulateMembersAsync(model, cancellationToken);
+            PopulateCustomAmounts(model);
             return View(model);
         }
 
@@ -195,6 +216,7 @@ namespace UI.Controllers
                     Key = member.UniqueKey,
                     Name = member.Name
                 }).ToList();
+                PopulateCustomAmounts(model);
             }
             catch (ApiException ex)
             {
@@ -205,6 +227,15 @@ namespace UI.Controllers
             {
                 _logger.LogError(ex, "The API could not be reached while loading group members.");
                 ModelState.AddModelError(string.Empty, "Unable to load group members right now. Please try again.");
+            }
+        }
+
+        private static void PopulateCustomAmounts(ExpenseViewModel model)
+        {
+            model.CustomAmounts ??= [];
+            foreach (var member in model.Members)
+            {
+                model.CustomAmounts.TryAdd(member.Key, 0m);
             }
         }
     }

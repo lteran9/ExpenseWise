@@ -86,6 +86,142 @@ namespace Tests.Regression.UseCases
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
+        [Fact]
+        public async Task CreateExpense_WithCustomAmounts_StoresExactSharesIncludingZero()
+        {
+            var owner = Member(Guid.NewGuid(), 1);
+            var participant = Member(Guid.NewGuid(), 2);
+            var groupKey = Guid.NewGuid();
+            var groupRepository = GroupRepository(groupKey, owner, owner, participant);
+            var expenseRepository = new Mock<IExpenseRepository>();
+            expenseRepository
+                .Setup(repository => repository.CreateWithSharesAsync(It.IsAny<Expense>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Expense expense, CancellationToken _) => (expense, true));
+            var useCase = new CreateExpense(expenseRepository.Object, groupRepository.Object);
+
+            var response = await useCase.Handle(new CreateExpenseRequest
+            {
+                ActorKey = owner.UniqueKey,
+                GroupKey = groupKey,
+                IdempotencyKey = Guid.NewGuid(),
+                Description = "Dinner",
+                Currency = "USD",
+                Amount = 10.01m,
+                PayerKey = owner.UniqueKey,
+                ParticipantKeys = [owner.UniqueKey, participant.UniqueKey],
+                UseCustomAmounts = true,
+                CustomShares =
+                [
+                    new CreateExpenseShare { ParticipantKey = owner.UniqueKey, Amount = 10.01m },
+                    new CreateExpenseShare { ParticipantKey = participant.UniqueKey, Amount = 0m }
+                ]
+            }, CancellationToken.None);
+
+            Assert.True(response.Succeeded);
+            expenseRepository.Verify(repository => repository.CreateWithSharesAsync(
+                It.Is<Expense>(expense =>
+                    expense.Shares.Sum(share => share.Amount) == 10.01m
+                    && expense.Shares.Single(share => share.Participant.UniqueKey == owner.UniqueKey).Amount == 10.01m
+                    && expense.Shares.Single(share => share.Participant.UniqueKey == participant.UniqueKey).Amount == 0m),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateExpense_WithCustomAmountsThatDoNotReconcile_ReturnsValidationErrorWithoutWriting()
+        {
+            var expenseRepository = new Mock<IExpenseRepository>();
+            var useCase = new CreateExpense(expenseRepository.Object, Mock.Of<IGroupRepository>());
+            var participantKey = Guid.NewGuid();
+
+            var response = await useCase.Handle(new CreateExpenseRequest
+            {
+                ActorKey = Guid.NewGuid(),
+                GroupKey = Guid.NewGuid(),
+                IdempotencyKey = Guid.NewGuid(),
+                Description = "Expense",
+                Currency = "USD",
+                Amount = 10m,
+                PayerKey = participantKey,
+                ParticipantKeys = [participantKey],
+                UseCustomAmounts = true,
+                CustomShares = [new CreateExpenseShare { ParticipantKey = participantKey, Amount = 9.99m }]
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("sum exactly to the expense total", response.ValidationMessages!.Single());
+            expenseRepository.Verify(repository => repository.CreateWithSharesAsync(
+                It.IsAny<Expense>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData("-0.01", "Custom amounts must be nonnegative USD amounts with at most two decimal places.")]
+        [InlineData("1.001", "Custom amounts must be nonnegative USD amounts with at most two decimal places.")]
+        public async Task CreateExpense_WithInvalidCustomShareAmount_ReturnsValidationErrorWithoutWriting(
+            string amount,
+            string expectedMessage)
+        {
+            var expenseRepository = new Mock<IExpenseRepository>();
+            var useCase = new CreateExpense(expenseRepository.Object, Mock.Of<IGroupRepository>());
+            var participantKey = Guid.NewGuid();
+
+            var response = await useCase.Handle(new CreateExpenseRequest
+            {
+                ActorKey = Guid.NewGuid(),
+                GroupKey = Guid.NewGuid(),
+                IdempotencyKey = Guid.NewGuid(),
+                Description = "Expense",
+                Currency = "USD",
+                Amount = 10m,
+                PayerKey = participantKey,
+                ParticipantKeys = [participantKey],
+                UseCustomAmounts = true,
+                CustomShares =
+                [
+                    new CreateExpenseShare
+                    {
+                        ParticipantKey = participantKey,
+                        Amount = decimal.Parse(amount, System.Globalization.CultureInfo.InvariantCulture)
+                    }
+                ]
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains(expectedMessage, response.ValidationMessages!);
+            expenseRepository.Verify(repository => repository.CreateWithSharesAsync(
+                It.IsAny<Expense>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateExpense_WithCustomSharesForDifferentParticipants_ReturnsValidationErrorWithoutWriting()
+        {
+            var expenseRepository = new Mock<IExpenseRepository>();
+            var useCase = new CreateExpense(expenseRepository.Object, Mock.Of<IGroupRepository>());
+            var participantKey = Guid.NewGuid();
+
+            var response = await useCase.Handle(new CreateExpenseRequest
+            {
+                ActorKey = Guid.NewGuid(),
+                GroupKey = Guid.NewGuid(),
+                IdempotencyKey = Guid.NewGuid(),
+                Description = "Expense",
+                Currency = "USD",
+                Amount = 10m,
+                PayerKey = participantKey,
+                ParticipantKeys = [participantKey],
+                UseCustomAmounts = true,
+                CustomShares =
+                [
+                    new CreateExpenseShare { ParticipantKey = participantKey, Amount = 5m },
+                    new CreateExpenseShare { ParticipantKey = Guid.NewGuid(), Amount = 5m }
+                ]
+            }, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("Provide exactly one custom amount for each selected participant.", response.ValidationMessages!);
+            expenseRepository.Verify(repository => repository.CreateWithSharesAsync(
+                It.IsAny<Expense>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
         [Theory]
         [InlineData("EUR", "10", "Only USD expenses are supported.")]
         [InlineData("USD", "10.001", "Expense amounts may have at most two decimal places.")]
@@ -188,6 +324,67 @@ namespace Tests.Regression.UseCases
             Assert.True(response.Succeeded);
             Assert.Equal(77, response.Result!.Id);
             Assert.True(response.Result.Replayed);
+        }
+
+        [Fact]
+        public async Task CreateExpense_WhenKeyReusedWithSameCustomShares_ReturnsReplayedExpense()
+        {
+            var owner = Member(Guid.NewGuid(), 1);
+            var participant = Member(Guid.NewGuid(), 2);
+            var groupKey = Guid.NewGuid();
+            var request = Request(owner, groupKey, owner.UniqueKey, [owner.UniqueKey, participant.UniqueKey]);
+            request.UseCustomAmounts = true;
+            request.CustomShares =
+            [
+                new CreateExpenseShare { ParticipantKey = owner.UniqueKey, Amount = 10m },
+                new CreateExpenseShare { ParticipantKey = participant.UniqueKey, Amount = 5.25m }
+            ];
+            var expenseRepository = new Mock<IExpenseRepository>();
+            expenseRepository
+                .Setup(repository => repository.CreateWithSharesAsync(It.IsAny<Expense>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Expense expense, CancellationToken _) => (StoredCopy(expense, expense.Amount), false));
+            var useCase = new CreateExpense(
+                expenseRepository.Object,
+                GroupRepository(groupKey, owner, owner, participant).Object);
+
+            var response = await useCase.Handle(request, CancellationToken.None);
+
+            Assert.True(response.Succeeded);
+            Assert.Equal(77, response.Result!.Id);
+            Assert.True(response.Result.Replayed);
+        }
+
+        [Fact]
+        public async Task CreateExpense_WhenKeyReusedWithDifferentCustomShares_ReturnsInvalid()
+        {
+            var owner = Member(Guid.NewGuid(), 1);
+            var participant = Member(Guid.NewGuid(), 2);
+            var groupKey = Guid.NewGuid();
+            var request = Request(owner, groupKey, owner.UniqueKey, [owner.UniqueKey, participant.UniqueKey]);
+            request.UseCustomAmounts = true;
+            request.CustomShares =
+            [
+                new CreateExpenseShare { ParticipantKey = owner.UniqueKey, Amount = 10m },
+                new CreateExpenseShare { ParticipantKey = participant.UniqueKey, Amount = 5.25m }
+            ];
+            var expenseRepository = new Mock<IExpenseRepository>();
+            expenseRepository
+                .Setup(repository => repository.CreateWithSharesAsync(It.IsAny<Expense>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Expense expense, CancellationToken _) =>
+                {
+                    var stored = StoredCopy(expense, expense.Amount);
+                    stored.Shares.Single(share => share.Participant.UniqueKey == owner.UniqueKey).Amount = 10.01m;
+                    stored.Shares.Single(share => share.Participant.UniqueKey == participant.UniqueKey).Amount = 5.24m;
+                    return (stored, false);
+                });
+            var useCase = new CreateExpense(
+                expenseRepository.Object,
+                GroupRepository(groupKey, owner, owner, participant).Object);
+
+            var response = await useCase.Handle(request, CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Contains("request key was already used for different expense details", response.ValidationMessages!.Single());
         }
 
         [Fact]

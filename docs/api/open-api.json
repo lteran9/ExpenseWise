@@ -2067,6 +2067,17 @@
             },
             "additionalProperties": false
           },
+          "useCustomAmounts": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "customShares": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateExpenseShareInput"
+            },
+            "additionalProperties": false
+          },
           "idempotencyKey": {
             "type": "string",
             "additionalProperties": false,
@@ -2091,6 +2102,22 @@
           "replayed": {
             "type": "boolean",
             "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseShareInput": {
+        "type": "object",
+        "properties": {
+          "participantKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "decimal"
           }
         },
         "additionalProperties": false

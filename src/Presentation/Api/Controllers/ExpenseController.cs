@@ -96,6 +96,16 @@ namespace Api.Controllers
                     GroupKey = input.GroupKey,
                     PayerKey = input.PayerKey,
                     ParticipantKeys = input.ParticipantKeys,
+                    UseCustomAmounts = input.UseCustomAmounts,
+                    CustomShares = input.CustomShares?
+                        .Select(share => share is null
+                            ? new CreateExpenseShare { ParticipantKey = Guid.Empty, Amount = -1m }
+                            : new CreateExpenseShare
+                            {
+                                ParticipantKey = share.ParticipantKey,
+                                Amount = share.Amount
+                            })
+                        .ToList(),
                     IdempotencyKey = input.IdempotencyKey
                 };
                 var response = await _mediator.Send(request, cancellationToken);

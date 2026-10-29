@@ -4,9 +4,9 @@ A tool for tracking expenses and balances on a group level for varied occasions.
 
 ## Project status and completion plan
 
-The foundation is implemented, but the Docker-hosted expense-to-settlement journey is not yet verified or complete. Start with the [current-state assessment](docs/product/current-state.md), [Phase 1 specification](docs/product/README.md), and [delivery roadmap](docs/product/roadmap.md).
+Phase 1 is marked accepted in the delivery roadmap. The selected Phase 2 custom-amount feature is implemented on the current feature branch, with Docker-hosted acceptance verification still pending. Start with the [current-state assessment](docs/product/current-state.md), [product specification](docs/product/README.md), and [delivery roadmap](docs/product/roadmap.md).
 
-Phase 1 targets local Docker Compose, registered participants, organizer-recorded USD expenses, equal splits among selected people, and manual repayment tracking. It does not process payments or target public hosting.
+Phase 1 targets local Docker Compose, registered participants, organizer-recorded USD expenses, equal splits among selected people, and manual repayment tracking. Phase 2 custom USD allocations are implemented on the current feature branch, with Docker-hosted acceptance verification pending. ExpenseWise does not process payments or target public hosting.
 
 ## Dependencies
 

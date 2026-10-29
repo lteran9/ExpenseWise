@@ -16,6 +16,8 @@ namespace UI.Models
         public Guid PayerKey { get; set; }
         public Guid IdempotencyKey { get; set; }
         public List<Guid> ParticipantKeys { get; set; } = [];
+        public bool UseCustomAmounts { get; set; }
+        public Dictionary<Guid, decimal> CustomAmounts { get; set; } = [];
         public List<ExpenseMemberOptionViewModel> Members { get; set; } = [];
 
         public ExpenseViewModel()
