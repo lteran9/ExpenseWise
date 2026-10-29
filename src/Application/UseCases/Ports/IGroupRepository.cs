@@ -14,6 +14,9 @@ namespace Application.UseCases.Ports
         Task<Group?> UpdateAsync(Group group);
         Task<Group?> DeleteAsync(Group group);
         Task<MemberOf?> AddMemberAsync(MemberOf member);
+        /// <exception cref="GroupMembershipConflictException">
+        /// The member has expense or repayment history at write time.
+        /// </exception>
         Task<MemberOf?> RemoveMemberAsync(MemberOf member);
     }
 }

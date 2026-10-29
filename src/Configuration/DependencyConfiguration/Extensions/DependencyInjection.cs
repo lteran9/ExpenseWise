@@ -1,6 +1,4 @@
 using Application.UseCases.Ports;
-using Application.UseCases;
-using Core.Entities;
 using Infrastructure.SqlDatabase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,7 +35,6 @@ namespace ExpenseWise.DependencyConfiguration
             serviceCollection.AddScoped<IExpenseRepository, ExpenseRepository>();
             serviceCollection.AddScoped<IRepaymentRepository, RepaymentRepository>();
             serviceCollection.AddScoped<IPasswordRepository, PasswordRepository>();
-            serviceCollection.AddScoped<IQueryPort<MemberOf>, QueryAdapter>();
 
             return serviceCollection;
         }

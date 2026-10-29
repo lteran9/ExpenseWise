@@ -442,6 +442,29 @@ namespace Tests.Regression.UseCases
             Assert.Contains("request key was already used", response.ValidationMessages!.Single());
         }
 
+        [Fact]
+        public async Task CreateExpense_WhenMembershipConflictsAtWriteTime_ReturnsValidationError()
+        {
+            var owner = Member(Guid.NewGuid(), 1);
+            var groupKey = Guid.NewGuid();
+            const string message = "The payer and every participant must still be members of the group.";
+            var expenseRepository = new Mock<IExpenseRepository>();
+            expenseRepository
+                .Setup(repository => repository.CreateWithSharesAsync(It.IsAny<Expense>(), CancellationToken.None))
+                .ThrowsAsync(new GroupMembershipConflictException(message));
+            var useCase = new CreateExpense(
+                expenseRepository.Object,
+                GroupRepository(groupKey, owner, owner).Object);
+
+            var response = await useCase.Handle(
+                Request(owner, groupKey, owner.UniqueKey, [owner.UniqueKey]), CancellationToken.None);
+
+            Assert.False(response.Succeeded);
+            Assert.Equal(message, Assert.Single(response.ValidationMessages!));
+            expenseRepository.Verify(repository => repository.CreateWithSharesAsync(
+                It.IsAny<Expense>(), CancellationToken.None), Times.Once);
+        }
+
         private static Expense StoredCopy(Expense requested, decimal amount) => new()
         {
             Id = 77,
