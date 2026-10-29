@@ -98,12 +98,13 @@ namespace Api.Controllers
                     ParticipantKeys = input.ParticipantKeys,
                     UseCustomAmounts = input.UseCustomAmounts,
                     CustomShares = input.CustomShares?
-                        .Where(share => share is not null)
-                        .Select(share => new CreateExpenseShare
-                        {
-                            ParticipantKey = share.ParticipantKey,
-                            Amount = share.Amount
-                        })
+                        .Select(share => share is null
+                            ? new CreateExpenseShare { ParticipantKey = Guid.Empty, Amount = -1m }
+                            : new CreateExpenseShare
+                            {
+                                ParticipantKey = share.ParticipantKey,
+                                Amount = share.Amount
+                            })
                         .ToList(),
                     IdempotencyKey = input.IdempotencyKey
                 };
