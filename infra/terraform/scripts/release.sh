@@ -103,13 +103,13 @@ az containerapp update \
   --resource-group "$resource_group" \
   --image "$registry_server/expensewise-api:$commit_sha" \
   --output none
-"$script_dir/wait-for-app.sh" "$resource_group" "$api_app"
+"$script_dir/wait-for-app.sh" "$resource_group" "$api_app" "$registry_server/expensewise-api:$commit_sha"
 az containerapp update \
   --name "$ui_app" \
   --resource-group "$resource_group" \
   --image "$registry_server/expensewise-ui:$commit_sha" \
   --output none
-"$script_dir/wait-for-app.sh" "$resource_group" "$ui_app"
+"$script_dir/wait-for-app.sh" "$resource_group" "$ui_app" "$registry_server/expensewise-ui:$commit_sha"
 
 ui_url=$(terraform -chdir="$terraform_dir" output -raw container_app_ui_url)
 echo "Release $commit_sha completed. Verify the public browser journey at $ui_url."
