@@ -18,8 +18,8 @@ command -v az >/dev/null || { echo "Azure CLI (az) is required." >&2; exit 1; }
 command -v terraform >/dev/null || { echo "Terraform is required." >&2; exit 1; }
 az account show >/dev/null 2>&1 || { echo "Run 'az login' and select the intended subscription first." >&2; exit 1; }
 
-current_sha=$(git -C "$repo_root" rev-parse "$commit_sha^{commit}")
-[[ "$current_sha" == "$commit_sha" ]] || { echo "Git did not resolve the requested full commit SHA." >&2; exit 1; }
+current_sha=$(git -C "$repo_root" rev-parse HEAD)
+[[ "$current_sha" == "$commit_sha" ]] || { echo "The requested SHA must be the checked-out commit." >&2; exit 1; }
 if [[ -n "$(git -C "$repo_root" status --porcelain)" ]]; then
   echo "Refusing to release from a dirty working tree." >&2
   exit 1
