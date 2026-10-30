@@ -23,3 +23,9 @@
 **/values.dev.yaml
 LICENSE
 README.md
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/backend.hcl
+**/dev.local.tfvars
+**/*.plan

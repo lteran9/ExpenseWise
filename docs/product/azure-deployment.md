@@ -13,7 +13,7 @@ ExpenseWise is deployed as a portfolio demonstration, not as a service for real 
 | Environments | One `dev` environment. No `prod`. |
 | Audience and domain | Public portfolio demo; use the Azure-generated hostname, no custom domain. |
 | Database network | Private network access only. |
-| Region and Terraform state | `westus3`; store state in a new container in an existing storage account shared with another of the owner's projects (see [ADR 0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md)). |
+| Region and Terraform state | `westus3`; store state in a dedicated ExpenseWise resource group and storage account (see [ADR 0007](../architecture/decisions/0007-dedicated-expensewise-terraform-state.md)). |
 | UI scale | One UI replica; no shared session or key store. |
 | Sequencing | Accept this specification and its ADRs before any infrastructure or application change for Phase 3. |
 
@@ -64,7 +64,7 @@ flowchart LR
 
 Resource names follow `<type>-expensewise-dev`, with a short random suffix for globally unique names (registry, Key Vault, and MySQL server). The registry is an exception: use `acrexpensewisedev<suffix>` with an alphanumeric suffix because Azure Container Registry names allow only alphanumeric characters. Every resource carries `application`, `environment`, `managed_by`, and `owner` tags.
 
-The Container Apps environment is new and dedicated to ExpenseWise. Existing resources of other projects in the subscription are not modified or reused, except for the Terraform state container described in [ADR 0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md).
+The Container Apps environment and Terraform state storage are dedicated to ExpenseWise. Existing resources of other projects in the subscription are not modified or reused.
 
 ## Configuration and secrets
 
@@ -110,7 +110,7 @@ These changes must be made and tested in package 3.1, without breaking the local
 
 ### Infrastructure as code
 
-The Terraform choice and state handling are recorded in [ADR 0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md). Terraform lives in `infra/terraform` as one root module split into files by concern. It pins Terraform and provider versions and commits the dependency lock file. Non-secret dev values are committed in `dev.tfvars`; backend settings are supplied from an uncommitted `backend.hcl`.
+The Terraform choice and state handling are recorded in [ADR 0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md) and its replacement, [ADR 0007](../architecture/decisions/0007-dedicated-expensewise-terraform-state.md). Terraform lives in `infra/terraform` as one root module split into files by concern. It pins Terraform and provider versions and commits the dependency lock file. Non-secret dev values are committed in `dev.tfvars`; backend settings are supplied from an uncommitted `backend.hcl`. A separate bootstrap script creates the dedicated state resource group and storage account before the main Terraform backend is initialized.
 
 Terraform owns the infrastructure, including the Container Apps and jobs, but ignores the container image of each app and job. The release process owns images so that deployments do not fight Terraform.
 
@@ -118,6 +118,21 @@ Bootstrapping the first apply must account for two constraints:
 
 - Container Apps and jobs need a valid image when they are created. Terraform creates every app and job with a public placeholder image pinned by digest, and its health probes must not block the placeholder from starting. The first release replaces the placeholders.
 - Azure role assignments propagate eventually, and Terraform's dependency ordering does not wait for them. Identities, Key Vault, secrets, and role assignments are created first; workloads that reference Key Vault secrets or the registry are created only after access has been confirmed, using a bounded wait or retry. A first-release registry pull that fails for authorization reasons must fail clearly rather than loop.
+
+### Manual first release and staged provisioning
+
+The first Terraform apply creates the network, database, registry, vault, identities, and role assignments while `enable_workloads` remains `false`. This separates role creation from Container Apps startup so the first workload revision does not race Azure RBAC propagation.
+
+1. Sign in with the owner identity and select the intended subscription.
+2. Run [`bootstrap-state.sh`](../../infra/terraform/scripts/bootstrap-state.sh). It creates or verifies the dedicated `rg-expensewise-tfstate` resource group, generates a globally unique storage account name, applies the state-retention and deletion protections, creates the private `expensewise-tfstate` container, and writes the ignored `backend.hcl`. The bootstrap identity needs permission to create the resource group, storage account, container, and lock. The identity running Terraform needs `Storage Blob Data Contributor` on the container.
+3. Create ignored `infra/terraform/dev.local.tfvars` containing the private budget-alert recipient, for example `budget_contact_email = "owner@example.com"`. Do not commit this file or put real account identifiers in tracked configuration.
+4. From `infra/terraform`, run `terraform init -reconfigure -backend-config=backend.hcl`, then create and inspect a plan using both `dev.tfvars` and `dev.local.tfvars` (for example, `terraform plan -var-file=dev.tfvars -var-file=dev.local.tfvars -out=first.plan` followed by `terraform show first.plan`). Only the owner applies a plan after reviewing it.
+5. After the first apply, run [`wait-for-role-assignments.sh`](../../infra/terraform/scripts/wait-for-role-assignments.sh). It checks that all configured ACR and Key Vault role assignments are visible before continuing.
+6. Add `enable_workloads = true` to the ignored local vars file, create and review a second plan, and have the owner apply it. This creates the apps and manual jobs with pinned public placeholder images.
+7. Once the Terraform branch is committed and the working tree is clean, run [`release.sh`](../../infra/terraform/scripts/release.sh) with the full commit SHA. It builds immutable SHA-tagged app images, runs the database-user job and migration job in order, and updates the API before the UI. Any failed job stops before either app is changed.
+8. After the first release replaces the placeholders, set `enable_probes = true` in the ignored vars file. Review and apply that Terraform plan, then confirm the next plan is empty. The deployment exit gate still requires the live network/HTTPS checks and the browser scenario and persistence checks in the package acceptance criteria.
+
+Plan files contain Terraform's sensitive values and are ignored by Git. Keep them private and remove them when they are no longer needed. No infrastructure is provisioned merely by running `terraform init`, `fmt`, or `validate`.
 
 ### Release sequence
 

@@ -1,0 +1,11 @@
+location                    = "westus3"
+environment                 = "dev"
+resource_group_name         = "rg-expensewise-dev"
+virtual_network_cidr        = "10.40.0.0/16"
+container_apps_subnet_cidr  = "10.40.0.0/23"
+mysql_subnet_cidr           = "10.40.2.0/24"
+mysql_sku_name              = "B_Standard_B1ms"
+mysql_storage_size_gb       = 20
+mysql_backup_retention_days = 7
+monthly_budget_usd          = 40
+owner_tag                   = "ExpenseWise owner"

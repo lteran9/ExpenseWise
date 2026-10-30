@@ -58,6 +58,51 @@ namespace Tests.Infrastructure.SqlDatabase
         }
 
         [Fact]
+        public void ConfigureDependencies_WithSslMode_ConfiguresMySqlDataConnection()
+        {
+            var configuration = CreateConfiguration("VerifyFull");
+            var services = new ServiceCollection();
+            services.ConfigureDependencies(configuration);
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<CoreContext>>();
+            using var context = contextFactory.CreateDbContext();
+
+            var connectionString = new MySqlConnectionStringBuilder(
+                context.Database.GetDbConnection().ConnectionString);
+
+            Assert.Equal(MySqlSslMode.VerifyFull, connectionString.SslMode);
+        }
+
+        [Fact]
+        public void ConfigureDependencies_WithUnsupportedSslMode_ThrowsClearError()
+        {
+            var configuration = CreateConfiguration("NotARealMode");
+            var services = new ServiceCollection();
+
+            var exception = Assert.Throws<InvalidOperationException>(
+                () => services.ConfigureDependencies(configuration));
+
+            Assert.Contains("Database:SslMode", exception.Message);
+        }
+
+        [Fact]
+        public void ConfigureDependencies_WithoutSslMode_PreservesMySqlDefault()
+        {
+            var configuration = CreateConfiguration();
+            var services = new ServiceCollection();
+            services.ConfigureDependencies(configuration);
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<CoreContext>>();
+            using var context = contextFactory.CreateDbContext();
+            var connectionString = new MySqlConnectionStringBuilder(
+                context.Database.GetDbConnection().ConnectionString);
+
+            Assert.Equal(new MySqlConnectionStringBuilder().SslMode, connectionString.SslMode);
+        }
+
+        [Fact]
         public void CoreContextModel_MapsExpenseSharesAndProtectsHistoryReferences()
         {
             var options = new DbContextOptionsBuilder<CoreContext>()
@@ -82,6 +127,26 @@ namespace Tests.Infrastructure.SqlDatabase
                 index.IsUnique &&
                 index.Properties.Select(property => property.Name)
                     .SequenceEqual([nameof(ExpenseShareEntity.ExpenseId), nameof(ExpenseShareEntity.UserId)]));
+        }
+
+        private static IConfiguration CreateConfiguration(string? sslMode = null)
+        {
+            var settings = new Dictionary<string, string?>
+            {
+                ["Database:Host"] = "mysql",
+                ["Database:Port"] = "3306",
+                ["Database:Name"] = "expensewise",
+                ["Database:Username"] = "expense",
+                ["Database:Password"] = "test-password"
+            };
+            if (sslMode is not null)
+            {
+                settings["Database:SslMode"] = sslMode;
+            }
+
+            return new ConfigurationBuilder()
+                .AddInMemoryCollection(settings)
+                .Build();
         }
     }
 }

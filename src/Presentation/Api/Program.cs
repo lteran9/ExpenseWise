@@ -1,11 +1,13 @@
-﻿using System.Text.Json.Serialization;
+using Api.Authentication;
+using Api.Health;
 using ExpenseWise.DependencyConfiguration;
 using Infrastructure.SqlDatabase;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Api.Authentication;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json.Serialization;
 
 var migrateOnly = args.Contains("--migrate", StringComparer.Ordinal);
 var builderArgs = args.Where(argument => argument != "--migrate").ToArray();
@@ -32,6 +34,9 @@ builder.Services.AddOpenApi(options =>
 builder.Services
    .ConfigureDependencies(builder.Configuration)
    .RegisterUseCases();
+builder.Services
+    .AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database", tags: ["ready"]);
 
 if (!migrateOnly)
 {
@@ -78,11 +83,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// TODO: Only enable HTTPS redirection when not in local environment
-// app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/health/live", () => Results.Ok()).AllowAnonymous();
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+}).AllowAnonymous();
 
 app.MapControllers();
 
