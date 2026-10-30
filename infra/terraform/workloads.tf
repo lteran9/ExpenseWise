@@ -183,9 +183,8 @@ resource "azurerm_container_app" "ui" {
         for_each = var.enable_probes ? [1] : []
 
         content {
-          transport = "HTTP"
+          transport = "TCP"
           port      = 8080
-          path      = "/health/live"
 
           initial_delay    = 20
           interval_seconds = 10
