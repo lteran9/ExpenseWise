@@ -186,7 +186,7 @@ The owner chose to pursue a single public Azure demo environment, provisioned wi
 | 3.3 Deployment pipeline | 3.2 | GitHub Actions release using OpenID Connect, plus Terraform format and validation checks on pull requests. |
 | 3.4 Azure operations guide | 3.2 | Restore rehearsal, logs, budget, cost controls, secret rotation, and teardown documentation. |
 
-Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate passed on 2026-10-29; see the [verification record](#package-31-application-readiness-verification-2026-10-29). **Next action:** start package 3.2.
+Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate passed on 2026-10-29; see the [verification record](#package-31-application-readiness-verification-2026-10-29). Package 3.2 implementation is underway; see the [Terraform validation record](#package-32-terraform-foundation-progress).
 
 ### Package 3.1 application-readiness verification (2026-10-29)
 
@@ -197,6 +197,15 @@ Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate pas
 - Stopping MySQL made API readiness return HTTP 503 while liveness remained HTTP 200; readiness returned HTTP 200 after MySQL recovered.
 - Database TLS configuration was verified against `MySql.Data.MySqlClient.MySqlConnectionStringBuilder`: an omitted setting preserves the provider default, `VerifyFull` is accepted, and an unsupported value fails clearly. Certificate trust/handshake against Azure Database for MySQL Flexible Server has not yet been verified; select the Azure value in package 3.2 only after testing against that server.
 - The Compose stack and its isolated volumes and test containers were removed after verification.
+
+### Package 3.2 Terraform foundation progress
+
+- Work is on `feature/phase-3.2-terraform-first-release`, based on the completed Phase 3.1 branch. The Terraform root, workload identities and role assignments, private network/database, registry and Key Vault, manual jobs, state bootstrap, and manual release scripts have been scaffolded.
+- Terraform 1.16.4 with the pinned AzureRM 4.81.0 and Random 3.8.1 providers passes `terraform fmt -check -recursive` and `terraform validate`; all shell scripts pass `bash -n`.
+- The dedicated state backend was bootstrapped and its protection settings verified. [ADR 0007](../architecture/decisions/0007-dedicated-expensewise-terraform-state.md) is accepted and supersedes the shared-account design in ADR 0006.
+- The first-stage apply was partial, creating 22 managed resources. MySQL provisioning failed with `ProvisionNotSupportedForRegion` in `westus3`; the subscription's MySQL SKU catalog returned no entries for that region. Azure normalizes the Container Apps subnet delegation action to `Microsoft.Network/virtualNetworks/subnets/join/action`, now matched in configuration to avoid recurring drift.
+- On 2026-10-30, the owner authorized direct Azure CLI deletion of both ExpenseWise resource groups. The application group was deleted first, then the state deletion lock and backend group. Both groups are verified absent; other projects were untouched. The Key Vault remains soft-deleted until its retention period expires; it was not purged.
+- Deployment is paused pending a new subscription and a supported region. The old remote state and saved plans cannot be reused. No Container Apps/jobs or first-release browser checks were completed. Package 3.2 remains incomplete; retry requires selecting the subscription, reviewing the region decision, bootstrapping a new backend, and reviewing a fresh plan before any apply.
 
 ## Maintaining the specification
 
