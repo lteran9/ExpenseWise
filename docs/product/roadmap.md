@@ -186,7 +186,7 @@ The owner chose to pursue a single public Azure demo environment, provisioned wi
 | 3.3 Deployment pipeline | 3.2 | GitHub Actions release using OpenID Connect. |
 | 3.4 Azure operations guide | 3.2 | Restore rehearsal, logs, budget, cost controls, secret rotation, and teardown documentation. |
 
-Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate passed on 2026-10-29; see the [verification record](#package-31-application-readiness-verification-2026-10-29). Package 3.2 implementation is underway; see the [Terraform validation record](#package-32-terraform-foundation-progress).
+Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate passed on 2026-10-29; see the [verification record](#package-31-application-readiness-verification-2026-10-29). Package 3.2 implementation is underway; see the [Terraform validation record](#package-32-terraform-foundation-progress) and the [exit-gate verification](#package-32-exit-gate-verification-2026-11-13).
 
 ### Package 3.1 application-readiness verification (2026-10-29)
 
@@ -225,6 +225,17 @@ Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate pas
   - The 38-addition plan was discarded.
 - After the redesign, `make tf-check` steps passed again: three mock-provider test runs, and Checkov with 0 failed checks. Read-only plans from empty state for the three first-deployment stages add 5 resources (budget and registry), 41 (everything except the apps and budget), and 45 (everything).
 - Stopped before applying the application infrastructure. The application resource groups remain absent. The next step is to commit, then follow the first-deployment runbook in the [Azure deployment specification](azure-deployment.md#manual-first-deployment), with owner review of each plan. Package 3.2 and its live acceptance checks remain incomplete.
+
+### Package 3.2 exit-gate verification (2026-11-13)
+
+- The first release was deployed from commit `093d5f3`, later amended to `67cddd9` with identical contents. Both apps run images tagged `093d5f3`, and the database-user and migration jobs both succeeded before the apps were created. Commit `f26ad57` changed only the UI's API URL, so it needed no new images. Its application code matches the deployed images.
+- Met on the live stack: MySQL public network access is disabled. The internal API is not served from the internet: its hostname resolves to the environment's public IP, where the gateway returns 404. Plain HTTP to the UI returns 301 to HTTPS with no content. A second plan shows no changes.
+- Met in a browser: `ScenarioATests` completed scenario A against the Azure UI in headless Chromium, including exact balances at every step (42 seconds). After both revisions were restarted, `RestartPersistenceTests` signed in again and found the same ledger, expenses, shares, repayments, and zero balances.
+- Found and fixed during deployment and acceptance:
+  - The manual jobs planned an in-place update on every run until they declared the `Consumption` workload profile (`093d5f3`).
+  - Scenario A's first run failed at registration with HTTP 405. The UI called the internal API over `http://`, and with insecure connections disabled the port-80 redirect likely turned the POST into a GET. The UI now calls the internal name over HTTPS (`f26ad57`), and a mock test requires it.
+  - The secret role assignments were scoped to secret versions. They now use the versionless secret (`42b890f`).
+- Open: `make tf-check` has not passed on the final files. Formatting, validation, and the mock tests pass, but Checkov needs Docker, which was not running. Package 3.2 stays incomplete until `make tf-check` passes on the final commit.
 
 ## Maintaining the specification
 

@@ -185,7 +185,7 @@ resource "azurerm_container_app" "ui" {
 
       env {
         name  = "ExpenseWiseApi__BaseUrl"
-        value = "http://${azurerm_container_app.api.name}.internal.${azurerm_container_app_environment.expensewise.default_domain}/"
+        value = "https://${azurerm_container_app.api.name}.internal.${azurerm_container_app_environment.expensewise.default_domain}/"
       }
 
       liveness_probe {

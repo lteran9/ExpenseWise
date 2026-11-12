@@ -264,6 +264,11 @@ run "environment" {
   }
 
   assert {
+    condition     = startswith(one([for setting in azurerm_container_app.ui.template[0].container[0].env : setting.value if setting.name == "ExpenseWiseApi__BaseUrl"]), "https://")
+    error_message = "The UI must call the API over HTTPS; plain HTTP is redirected to HTTPS, which breaks POST requests."
+  }
+
+  assert {
     condition = (
       one(azurerm_container_app.api.template[0].container[0].liveness_probe).path == "/health/live" &&
       one(azurerm_container_app.api.template[0].container[0].readiness_probe).path == "/health/ready" &&
