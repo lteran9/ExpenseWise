@@ -1,77 +1,46 @@
 resource "azurerm_container_registry" "expensewise" {
+  #checkov:skip=CKV_AZURE_139:Basic SKU has no private endpoints; pulls require Microsoft Entra RBAC (ADR 0005).
+  #checkov:skip=CKV_AZURE_163:Defender for Containers scanning is a paid plan this demo does not justify.
+  #checkov:skip=CKV_AZURE_164:Content trust requires Premium SKU and Notary v1 is retired.
+  #checkov:skip=CKV_AZURE_165:Geo-replication requires Premium SKU; the demo runs in one region.
+  #checkov:skip=CKV_AZURE_166:Quarantine requires Premium SKU.
+  #checkov:skip=CKV_AZURE_167:Untagged manifest retention requires Premium SKU.
+  #checkov:skip=CKV_AZURE_233:Zone redundancy requires Premium SKU.
+  #checkov:skip=CKV_AZURE_237:Dedicated data endpoints require Premium SKU.
   name                          = "acrexpensewisedev${local.name_suffix}"
-  resource_group_name           = azurerm_resource_group.expensewise.name
-  location                      = azurerm_resource_group.expensewise.location
+  resource_group_name           = azurerm_resource_group.shared.name
+  location                      = azurerm_resource_group.shared.location
   sku                           = "Basic"
   admin_enabled                 = false
   public_network_access_enabled = true
   tags                          = local.tags
 }
 
-resource "azurerm_key_vault" "expensewise" {
-  name                          = "kv-expensewise-${var.environment}-${local.name_suffix}"
-  location                      = azurerm_resource_group.expensewise.location
-  resource_group_name           = azurerm_resource_group.expensewise.name
-  tenant_id                     = data.azurerm_client_config.current.tenant_id
-  sku_name                      = "standard"
-  rbac_authorization_enabled    = true
-  purge_protection_enabled      = false
-  soft_delete_retention_days    = 7
-  public_network_access_enabled = true
-  tags                          = local.tags
-}
-
-data "azurerm_client_config" "current" {}
-
-resource "azurerm_key_vault_secret" "mysql_admin_password" {
-  name         = "mysql-admin-password"
-  value        = random_password.mysql_admin.result
-  key_vault_id = azurerm_key_vault.expensewise.id
-  content_type = "ExpenseWise MySQL administrator password"
-  tags         = local.tags
-}
-
-resource "azurerm_key_vault_secret" "mysql_application_password" {
-  name         = "mysql-application-password"
-  value        = random_password.mysql_application.result
-  key_vault_id = azurerm_key_vault.expensewise.id
-  content_type = "ExpenseWise least-privilege application password"
-  tags         = local.tags
-}
-
-resource "azurerm_key_vault_secret" "jwt_signing_key" {
-  name         = "jwt-signing-key"
-  value        = random_password.jwt_signing.result
-  key_vault_id = azurerm_key_vault.expensewise.id
-  content_type = "ExpenseWise API signing key"
-  tags         = local.tags
-}
-
 resource "azurerm_user_assigned_identity" "ui" {
   name                = "id-expensewise-ui-${var.environment}"
-  location            = azurerm_resource_group.expensewise.location
-  resource_group_name = azurerm_resource_group.expensewise.name
+  location            = azurerm_resource_group.apps.location
+  resource_group_name = azurerm_resource_group.apps.name
   tags                = local.tags
 }
 
 resource "azurerm_user_assigned_identity" "api" {
   name                = "id-expensewise-api-${var.environment}"
-  location            = azurerm_resource_group.expensewise.location
-  resource_group_name = azurerm_resource_group.expensewise.name
+  location            = azurerm_resource_group.apps.location
+  resource_group_name = azurerm_resource_group.apps.name
   tags                = local.tags
 }
 
 resource "azurerm_user_assigned_identity" "migration" {
   name                = "id-expensewise-migration-${var.environment}"
-  location            = azurerm_resource_group.expensewise.location
-  resource_group_name = azurerm_resource_group.expensewise.name
+  location            = azurerm_resource_group.apps.location
+  resource_group_name = azurerm_resource_group.apps.name
   tags                = local.tags
 }
 
 resource "azurerm_user_assigned_identity" "database_user" {
   name                = "id-expensewise-dbuser-${var.environment}"
-  location            = azurerm_resource_group.expensewise.location
-  resource_group_name = azurerm_resource_group.expensewise.name
+  location            = azurerm_resource_group.apps.location
+  resource_group_name = azurerm_resource_group.apps.name
   tags                = local.tags
 }
 

@@ -8,11 +8,6 @@ variable "environment" {
   type        = string
 }
 
-variable "resource_group_name" {
-  description = "Dedicated resource group owned by ExpenseWise."
-  type        = string
-}
-
 variable "virtual_network_cidr" {
   description = "Address space for the dedicated ExpenseWise virtual network."
   type        = string
@@ -44,12 +39,12 @@ variable "mysql_backup_retention_days" {
 }
 
 variable "monthly_budget_usd" {
-  description = "Monthly resource-group budget amount in USD; the budget alerts but does not stop spend."
+  description = "Monthly subscription budget amount in USD; the budget alerts but does not stop spend."
   type        = number
 }
 
 variable "budget_contact_email" {
-  description = "Owner email for budget alerts. Set in untracked dev.local.tfvars."
+  description = "Owner email for budget alerts. Set in the ignored local.auto.tfvars."
   type        = string
   sensitive   = true
 
@@ -60,7 +55,7 @@ variable "budget_contact_email" {
 }
 
 variable "owner_tag" {
-  description = "Owner tag value; set to a non-personal team or portfolio label."
+  description = "Owner tag value for all taggable Terraform-managed resources."
   type        = string
 }
 

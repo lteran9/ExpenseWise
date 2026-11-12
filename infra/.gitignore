@@ -1,0 +1,9 @@
+# Provider lock files and environments/*.backend.hcl are committed; state,
+# plans, and local inputs are not.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.auto.tfvars
+crash.log
+crash.*.log

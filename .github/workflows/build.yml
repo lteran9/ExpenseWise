@@ -51,6 +51,21 @@ jobs:
           Database__Password: integration-test
         run: dotnet test --no-build --verbosity normal
 
+  infrastructure:
+    name: Terraform checks and IaC scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.16.4
+          terraform_wrapper: false
+
+      # Credential-free: fmt, validate, mock-provider tests, and Checkov.
+      # Infrastructure plans and applies run only from the owner's reviewed flow.
+      - name: Check Terraform
+        run: make tf-check
+
   docker-acceptance:
     needs: build
     runs-on: ubuntu-latest

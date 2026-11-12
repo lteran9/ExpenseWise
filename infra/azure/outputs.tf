@@ -1,6 +1,16 @@
-output "resource_group_name" {
-  description = "Resource group containing the ExpenseWise demo."
-  value       = azurerm_resource_group.expensewise.name
+output "resource_group_names" {
+  description = "Resource groups containing the ExpenseWise demo, by category."
+  value = {
+    network = azurerm_resource_group.network.name
+    data    = azurerm_resource_group.data.name
+    shared  = azurerm_resource_group.shared.name
+    apps    = azurerm_resource_group.apps.name
+  }
+}
+
+output "apps_resource_group_name" {
+  description = "Resource group containing the Container Apps environment, apps, jobs, and workload identities."
+  value       = azurerm_resource_group.apps.name
 }
 
 output "container_registry_name" {

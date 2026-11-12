@@ -4,11 +4,29 @@ locals {
   app_database_user  = "expensewise_app"
 }
 
+resource "azurerm_container_app_environment" "expensewise" {
+  name                               = "cae-expensewise-${var.environment}"
+  location                           = azurerm_resource_group.apps.location
+  resource_group_name                = azurerm_resource_group.apps.name
+  infrastructure_subnet_id           = azurerm_subnet.container_apps.id
+  logs_destination                   = "log-analytics"
+  log_analytics_workspace_id         = azurerm_log_analytics_workspace.expensewise.id
+  zone_redundancy_enabled            = false
+  infrastructure_resource_group_name = "ME_expensewise_${var.environment}"
+
+  workload_profile {
+    name                  = "Consumption"
+    workload_profile_type = "Consumption"
+  }
+
+  tags = local.tags
+}
+
 resource "azurerm_container_app" "api" {
   count                        = var.enable_workloads ? 1 : 0
   name                         = "ca-expensewise-api-${var.environment}"
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
-  resource_group_name          = azurerm_resource_group.expensewise.name
+  resource_group_name          = azurerm_resource_group.apps.name
   revision_mode                = "Single"
   workload_profile_name        = "Consumption"
 
@@ -138,7 +156,7 @@ resource "azurerm_container_app" "ui" {
   count                        = var.enable_workloads ? 1 : 0
   name                         = "ca-expensewise-ui-${var.environment}"
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
-  resource_group_name          = azurerm_resource_group.expensewise.name
+  resource_group_name          = azurerm_resource_group.apps.name
   revision_mode                = "Single"
   workload_profile_name        = "Consumption"
 
@@ -209,8 +227,8 @@ resource "azurerm_container_app" "ui" {
 resource "azurerm_container_app_job" "database_user" {
   count                        = var.enable_workloads ? 1 : 0
   name                         = "job-expensewise-dbuser-${var.environment}"
-  location                     = azurerm_resource_group.expensewise.location
-  resource_group_name          = azurerm_resource_group.expensewise.name
+  location                     = azurerm_resource_group.apps.location
+  resource_group_name          = azurerm_resource_group.apps.name
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
   replica_timeout_in_seconds   = 300
   replica_retry_limit          = 1
@@ -302,8 +320,8 @@ resource "azurerm_container_app_job" "database_user" {
 resource "azurerm_container_app_job" "migration" {
   count                        = var.enable_workloads ? 1 : 0
   name                         = "job-expensewise-migration-${var.environment}"
-  location                     = azurerm_resource_group.expensewise.location
-  resource_group_name          = azurerm_resource_group.expensewise.name
+  location                     = azurerm_resource_group.apps.location
+  resource_group_name          = azurerm_resource_group.apps.name
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
   replica_timeout_in_seconds   = 900
   replica_retry_limit          = 0

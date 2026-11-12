@@ -1,6 +1,6 @@
 # ADR 0006: Terraform infrastructure as code with shared remote state
 
-- Status: Superseded by [ADR 0007](0007-dedicated-expensewise-terraform-state.md)
+- Status: Superseded by [ADR 0007](0007-dedicated-expensewise-terraform-state.md); `infra/terraform` layout replaced by [ADR 0009](0009-terraform-bootstrap-and-environment-roots.md)
 - Date: 2026-10-27
 
 ## Context

@@ -25,7 +25,7 @@ if [[ -n "$(git -C "$repo_root" status --porcelain)" ]]; then
   exit 1
 fi
 
-resource_group=$(terraform -chdir="$terraform_dir" output -raw resource_group_name)
+resource_group=$(terraform -chdir="$terraform_dir" output -raw apps_resource_group_name)
 registry=$(terraform -chdir="$terraform_dir" output -raw container_registry_name)
 api_app=$(terraform -chdir="$terraform_dir" output -raw container_app_api_name)
 ui_app=$(terraform -chdir="$terraform_dir" output -raw container_app_ui_name)
@@ -57,7 +57,7 @@ az acr build \
 az acr build \
   --registry "$registry" \
   --image "expensewise-mysql-client:$commit_sha" \
-  --file infra/terraform/mysql-client/Dockerfile \
+  --file infra/azure/mysql-client/Dockerfile \
   --build-arg "MYSQL_BASE_IMAGE=$registry_server/mysql-client-base:8.0.44" \
   "$repo_root"
 

@@ -10,7 +10,9 @@ These ADRs capture decisions visible in the current repository so that contribut
 | [0003: Relational persistence with EF Core and MySQL](0003-efcore-mysql-persistence.md) | Keep SQL access behind application ports and implement it in infrastructure. | Accepted |
 | [0005: Azure Container Apps hosting for the demo environment](0005-azure-container-apps-hosting.md) | Host the UI and an internal-only API on Container Apps with private MySQL Flexible Server. | Accepted |
 | [0006: Terraform infrastructure as code with shared remote state](0006-terraform-infrastructure-as-code.md) | Provision Azure with Terraform, storing state in a dedicated container of a shared storage account. | Superseded by ADR 0007 |
-| [0007: Dedicated Terraform state storage for ExpenseWise](0007-dedicated-expensewise-terraform-state.md) | Isolate Terraform state in an ExpenseWise-owned resource group and storage account. | Accepted |
+| [0007: Dedicated Terraform state storage for ExpenseWise](0007-dedicated-expensewise-terraform-state.md) | Isolate Terraform state in an ExpenseWise-owned resource group and storage account. | Accepted; amended by ADR 0009 |
+| [0008: Resource groups by lifecycle category](0008-resource-groups-by-lifecycle.md) | Split the demo into network, data, shared, and apps resource groups with a subscription-scoped budget. | Accepted |
+| [0009: Terraform bootstrap and environment roots](0009-terraform-bootstrap-and-environment-roots.md) | Bootstrap state with its own Terraform root, keep per-environment inputs in `infra/azure/environments`, and check Terraform in CI. | Accepted |
 
 ## Writing or changing a decision
 
