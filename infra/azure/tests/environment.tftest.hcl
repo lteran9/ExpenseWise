@@ -63,8 +63,9 @@ mock_provider "azurerm" {
 
   mock_resource "azurerm_key_vault_secret" {
     defaults = {
-      versionless_id = "https://kv-test.vault.azure.net/secrets/test"
-      resource_id    = "/subscriptions/00000000-0000-0000-0000-000000000003/resourceGroups/rg-test/providers/Microsoft.KeyVault/vaults/kv-test/secrets/test/versions/1"
+      versionless_id          = "https://kv-test.vault.azure.net/secrets/test"
+      resource_id             = "/subscriptions/00000000-0000-0000-0000-000000000003/resourceGroups/rg-test/providers/Microsoft.KeyVault/vaults/kv-test/secrets/test/versions/1"
+      resource_versionless_id = "/subscriptions/00000000-0000-0000-0000-000000000003/resourceGroups/rg-test/providers/Microsoft.KeyVault/vaults/kv-test/secrets/test"
     }
   }
 
@@ -220,9 +221,9 @@ run "environment" {
         azurerm_role_assignment.migration_mysql_admin,
         azurerm_role_assignment.database_user_mysql_admin,
         azurerm_role_assignment.database_user_app_password,
-      ] : assignment.role_definition_name == "Key Vault Secrets User" && strcontains(assignment.scope, "/secrets/")
+      ] : assignment.role_definition_name == "Key Vault Secrets User" && strcontains(assignment.scope, "/secrets/") && !strcontains(assignment.scope, "/versions/")
     ])
-    error_message = "Secret read access must be scoped to individual secrets."
+    error_message = "Secret read access must be scoped to individual secrets, not secret versions."
   }
 
   assert {
