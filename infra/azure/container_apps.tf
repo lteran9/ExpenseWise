@@ -216,6 +216,7 @@ resource "azurerm_container_app_job" "database_user" {
   location                     = azurerm_resource_group.apps.location
   resource_group_name          = azurerm_resource_group.apps.name
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
+  workload_profile_name        = "Consumption"
   replica_timeout_in_seconds   = 300
   replica_retry_limit          = 1
   manual_trigger_config {
@@ -306,6 +307,7 @@ resource "azurerm_container_app_job" "migration" {
   location                     = azurerm_resource_group.apps.location
   resource_group_name          = azurerm_resource_group.apps.name
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
+  workload_profile_name        = "Consumption"
   replica_timeout_in_seconds   = 900
   replica_retry_limit          = 0
   manual_trigger_config {
