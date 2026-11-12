@@ -24,7 +24,7 @@ repo_root=$(git -C "$terraform_dir" rev-parse --show-toplevel)
 terraform_bin=${TERRAFORM:-terraform}
 
 command -v az >/dev/null || { echo "Azure CLI (az) is required." >&2; exit 1; }
-command -v "$terraform_bin" >/dev/null || { echo "Terraform is required; set TERRAFORM to the pinned binary." >&2; exit 1; }
+command -v "$terraform_bin" >/dev/null || { echo "Terraform is required on PATH; set TERRAFORM to use another binary." >&2; exit 1; }
 az account show >/dev/null 2>&1 || { echo "Run 'az login' and select the intended subscription first." >&2; exit 1; }
 
 current_sha=$(git -C "$repo_root" rev-parse HEAD)

@@ -21,7 +21,7 @@ The owner observed that, in a dedicated subscription, one group containing every
   | `rg-expensewise-shared-dev` | Container Registry, Key Vault and its secrets, Log Analytics workspace | Shared by the workloads; holds images, credentials, and logs that must survive application redeployment. |
   | `rg-expensewise-apps-dev` | Container Apps environment, UI and API apps, manual jobs, and workload managed identities | Changes with each release; can be recreated without touching data or network. |
 
-- Keep the dedicated `rg-expensewise-tfstate` group from ADR 0007 unchanged. The Azure-managed `ME_expensewise_dev` infrastructure group created by the Container Apps environment remains owned by the platform.
+- Keep the dedicated `rg-expensewise-tfstate` group from ADR 0007 unchanged. The Azure-managed `me_expensewise_dev` infrastructure group created by the Container Apps environment remains owned by the platform.
 - Manage all four groups from the existing single Terraform root and state. Cross-group dependencies use resource IDs; no resource is shared through name lookups.
 - Replace the resource-group budget with one subscription-scoped monthly budget with the same amount and 80% and 100% actual-cost alerts. Because the subscription is dedicated to ExpenseWise, it covers the four application groups, the state group, and the managed infrastructure group.
 - Scope the package 3.3 deployment identity to the apps group plus the registry permissions needed to build and import images. It receives no role on the network or data groups or on other shared resources.

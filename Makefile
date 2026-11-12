@@ -1,6 +1,5 @@
 # Azure infrastructure (see docs/product/azure-deployment.md).
-# Terraform is pinned to 1.16.4; point TERRAFORM at that binary if the default
-# terraform on PATH is a different version.
+# Uses the terraform on PATH (latest release); set TERRAFORM to use another binary.
 
 .PHONY: tf-fmt tf-validate tf-test tf-scan tf-check tf-init tf-plan tf-apply \
 	azure-images azure-database-jobs azure-release

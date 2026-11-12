@@ -58,7 +58,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: 1.16.4
           terraform_wrapper: false
 
       # Credential-free: fmt, validate, mock-provider tests, and Checkov.
