@@ -21,6 +21,19 @@ resource "azurerm_key_vault" "expensewise" {
   tags                          = local.tags
 }
 
+# The identity running Terraform writes secrets; workloads only read them.
+resource "azurerm_role_assignment" "deployer_secrets_officer" {
+  scope                = azurerm_key_vault.expensewise.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
+resource "time_sleep" "deployer_rbac_propagation" {
+  create_duration = "60s"
+
+  depends_on = [azurerm_role_assignment.deployer_secrets_officer]
+}
+
 resource "azurerm_key_vault_secret" "mysql_admin_password" {
   #checkov:skip=CKV_AZURE_41:Rotation is manual with terraform apply -replace (ADR 0006); no fixed expiry.
   name         = "mysql-admin-password"
@@ -28,6 +41,8 @@ resource "azurerm_key_vault_secret" "mysql_admin_password" {
   key_vault_id = azurerm_key_vault.expensewise.id
   content_type = "ExpenseWise MySQL administrator password"
   tags         = local.tags
+
+  depends_on = [time_sleep.deployer_rbac_propagation]
 }
 
 resource "azurerm_key_vault_secret" "mysql_application_password" {
@@ -37,6 +52,8 @@ resource "azurerm_key_vault_secret" "mysql_application_password" {
   key_vault_id = azurerm_key_vault.expensewise.id
   content_type = "ExpenseWise least-privilege application password"
   tags         = local.tags
+
+  depends_on = [time_sleep.deployer_rbac_propagation]
 }
 
 resource "azurerm_key_vault_secret" "jwt_signing_key" {
@@ -46,4 +63,6 @@ resource "azurerm_key_vault_secret" "jwt_signing_key" {
   key_vault_id = azurerm_key_vault.expensewise.id
   content_type = "ExpenseWise API signing key"
   tags         = local.tags
+
+  depends_on = [time_sleep.deployer_rbac_propagation]
 }

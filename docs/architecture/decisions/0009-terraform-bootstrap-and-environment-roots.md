@@ -1,6 +1,6 @@
 # ADR 0009: Terraform bootstrap and environment roots
 
-- Status: Accepted
+- Status: Accepted; `tf-plan` rollout flags and staged-workload tests amended by [ADR 0010](0010-commit-sha-image-rollout.md)
 - Date: 2026-11-13
 - Amends: [ADR 0007](0007-dedicated-expensewise-terraform-state.md) (state bootstrap mechanism, container name, and backend configuration) and replaces the `infra/terraform` layout from [ADR 0006](0006-terraform-infrastructure-as-code.md). Related: [ADR 0008](0008-resource-groups-by-lifecycle.md).
 

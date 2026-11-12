@@ -2,11 +2,15 @@
 # Terraform is pinned to 1.16.4; point TERRAFORM at that binary if the default
 # terraform on PATH is a different version.
 
-.PHONY: tf-fmt tf-validate tf-test tf-scan tf-check tf-init tf-plan tf-apply
+.PHONY: tf-fmt tf-validate tf-test tf-scan tf-check tf-init tf-plan tf-apply \
+	azure-images azure-database-jobs azure-release
 
 TERRAFORM ?= terraform
 TF_ENV ?= dev
 TF_DIR := infra/azure
+IMAGE_TAG ?= $(shell git rev-parse HEAD)
+TF_TARGETS ?=
+RELEASE = TERRAFORM=$(TERRAFORM) $(TF_DIR)/scripts/release.sh $(IMAGE_TAG)
 CHECKOV_IMAGE := bridgecrew/checkov:3.3.24@sha256:395ab21f8dc5d457f05001598638a98d142a98e264d610650c084d0ef2e1b4a5
 
 tf-fmt:
@@ -36,17 +40,21 @@ tf-init:
 		-backend-config=environments/$(TF_ENV).backend.hcl \
 		-backend-config=storage_account_name=$(TF_STATE_ACCOUNT)
 
-# The staged rollout requires choosing both flags explicitly, so a plan never
-# removes running workloads by falling back to the variable defaults. Save the
-# plan for review; tf-apply applies exactly that reviewed plan.
+# Save the plan for review; tf-apply applies exactly that reviewed plan.
+# TF_TARGETS limits the plan to the first-deployment stages (see the runbook).
 tf-plan:
-	@test "$(ENABLE_WORKLOADS)" = true -o "$(ENABLE_WORKLOADS)" = false || \
-		{ echo "Set ENABLE_WORKLOADS=true or false for the deployment stage."; exit 1; }
-	@test "$(ENABLE_PROBES)" = true -o "$(ENABLE_PROBES)" = false || \
-		{ echo "Set ENABLE_PROBES=true or false for the deployment stage."; exit 1; }
 	umask 077 && $(TERRAFORM) -chdir=$(TF_DIR) plan -var-file=environments/$(TF_ENV).tfvars \
-		-var=enable_workloads=$(ENABLE_WORKLOADS) -var=enable_probes=$(ENABLE_PROBES) \
-		-out=$(TF_ENV).tfplan
+		-var=image_tag=$(IMAGE_TAG) $(addprefix -target=,$(TF_TARGETS)) -out=$(TF_ENV).tfplan
 
 tf-apply:
 	$(TERRAFORM) -chdir=$(TF_DIR) apply $(TF_ENV).tfplan
+
+# Release stages run from the clean checkout of IMAGE_TAG; images build in Azure.
+azure-images:
+	$(RELEASE) images
+
+azure-database-jobs:
+	$(RELEASE) database-jobs
+
+azure-release:
+	$(RELEASE)

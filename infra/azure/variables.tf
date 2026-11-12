@@ -59,14 +59,12 @@ variable "owner_tag" {
   type        = string
 }
 
-variable "enable_workloads" {
-  description = "Create Container Apps and jobs after the identity and registry permissions have propagated."
-  type        = bool
-  default     = false
-}
+variable "image_tag" {
+  description = "Git commit SHA tag of the registry images that new apps and jobs start with; later releases change images outside Terraform."
+  type        = string
 
-variable "enable_probes" {
-  description = "Enable application health probes after deploying the real application images."
-  type        = bool
-  default     = false
+  validation {
+    condition     = can(regex("^[0-9a-f]{40}$", var.image_tag))
+    error_message = "image_tag must be a full lowercase Git commit SHA."
+  }
 }

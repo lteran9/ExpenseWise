@@ -1,6 +1,7 @@
 locals {
-  placeholder_image  = "mcr.microsoft.com/azuredocs/containerapps-helloworld@sha256:7ab9698944af677cf77ae67d0a5c54595609e93adeb42babc154b9380a565539"
-  mysql_client_image = "docker.io/library/mysql@sha256:9c3380eac945af0736031b200027f581925927c81e010056214a4bd6b6693714"
+  api_image          = "${azurerm_container_registry.expensewise.login_server}/expensewise-api:${var.image_tag}"
+  ui_image           = "${azurerm_container_registry.expensewise.login_server}/expensewise-ui:${var.image_tag}"
+  mysql_client_image = "${azurerm_container_registry.expensewise.login_server}/expensewise-mysql-client:${var.image_tag}"
   app_database_user  = "expensewise_app"
 }
 
@@ -23,7 +24,6 @@ resource "azurerm_container_app_environment" "expensewise" {
 }
 
 resource "azurerm_container_app" "api" {
-  count                        = var.enable_workloads ? 1 : 0
   name                         = "ca-expensewise-api-${var.environment}"
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
   resource_group_name          = azurerm_resource_group.apps.name
@@ -69,7 +69,7 @@ resource "azurerm_container_app" "api" {
 
     container {
       name   = "api"
-      image  = local.placeholder_image
+      image  = local.api_image
       cpu    = 0.25
       memory = "0.5Gi"
 
@@ -108,30 +108,24 @@ resource "azurerm_container_app" "api" {
         value = "Required"
       }
 
-      dynamic "liveness_probe" {
-        for_each = var.enable_probes ? [1] : []
+      liveness_probe {
+        transport = "HTTP"
+        port      = 8081
+        path      = "/health/live"
 
-        content {
-          transport = "HTTP"
-          port      = 8081
-          path      = "/health/live"
-
-          initial_delay    = 20
-          interval_seconds = 10
-        }
+        initial_delay    = 20
+        interval_seconds = 10
       }
 
-      dynamic "readiness_probe" {
-        for_each = var.enable_probes ? [1] : []
+      # Readiness checks the database as the application user, so the
+      # database-user job must have run before the API is first created.
+      readiness_probe {
+        transport = "HTTP"
+        port      = 8081
+        path      = "/health/ready"
 
-        content {
-          transport = "HTTP"
-          port      = 8081
-          path      = "/health/ready"
-
-          initial_delay    = 30
-          interval_seconds = 15
-        }
+        initial_delay    = 30
+        interval_seconds = 15
       }
     }
   }
@@ -143,9 +137,7 @@ resource "azurerm_container_app" "api" {
   }
 
   depends_on = [
-    azurerm_role_assignment.acr_pull,
-    azurerm_role_assignment.api_mysql_password,
-    azurerm_role_assignment.api_jwt_signing_key,
+    time_sleep.app_rbac_propagation,
     azurerm_mysql_flexible_server_configuration.require_tls
   ]
 
@@ -153,7 +145,6 @@ resource "azurerm_container_app" "api" {
 }
 
 resource "azurerm_container_app" "ui" {
-  count                        = var.enable_workloads ? 1 : 0
   name                         = "ca-expensewise-ui-${var.environment}"
   container_app_environment_id = azurerm_container_app_environment.expensewise.id
   resource_group_name          = azurerm_resource_group.apps.name
@@ -188,25 +179,21 @@ resource "azurerm_container_app" "ui" {
 
     container {
       name   = "ui"
-      image  = local.placeholder_image
+      image  = local.ui_image
       cpu    = 0.25
       memory = "0.5Gi"
 
       env {
         name  = "ExpenseWiseApi__BaseUrl"
-        value = "http://${azurerm_container_app.api[0].name}.internal.${azurerm_container_app_environment.expensewise.default_domain}/"
+        value = "http://${azurerm_container_app.api.name}.internal.${azurerm_container_app_environment.expensewise.default_domain}/"
       }
 
-      dynamic "liveness_probe" {
-        for_each = var.enable_probes ? [1] : []
+      liveness_probe {
+        transport = "TCP"
+        port      = 8080
 
-        content {
-          transport = "TCP"
-          port      = 8080
-
-          initial_delay    = 20
-          interval_seconds = 10
-        }
+        initial_delay    = 20
+        interval_seconds = 10
       }
     }
   }
@@ -218,14 +205,13 @@ resource "azurerm_container_app" "ui" {
   }
 
   depends_on = [
-    azurerm_role_assignment.acr_pull
+    time_sleep.app_rbac_propagation
   ]
 
   tags = local.tags
 }
 
 resource "azurerm_container_app_job" "database_user" {
-  count                        = var.enable_workloads ? 1 : 0
   name                         = "job-expensewise-dbuser-${var.environment}"
   location                     = azurerm_resource_group.apps.location
   resource_group_name          = azurerm_resource_group.apps.name
@@ -309,16 +295,13 @@ resource "azurerm_container_app_job" "database_user" {
   }
 
   depends_on = [
-    azurerm_role_assignment.acr_pull,
-    azurerm_role_assignment.database_user_mysql_admin,
-    azurerm_role_assignment.database_user_app_password
+    time_sleep.app_rbac_propagation
   ]
 
   tags = local.tags
 }
 
 resource "azurerm_container_app_job" "migration" {
-  count                        = var.enable_workloads ? 1 : 0
   name                         = "job-expensewise-migration-${var.environment}"
   location                     = azurerm_resource_group.apps.location
   resource_group_name          = azurerm_resource_group.apps.name
@@ -349,7 +332,7 @@ resource "azurerm_container_app_job" "migration" {
   template {
     container {
       name    = "migration"
-      image   = local.placeholder_image
+      image   = local.api_image
       cpu     = 0.25
       memory  = "0.5Gi"
       command = ["dotnet", "Api.dll"]
@@ -394,8 +377,7 @@ resource "azurerm_container_app_job" "migration" {
   }
 
   depends_on = [
-    azurerm_role_assignment.acr_pull,
-    azurerm_role_assignment.migration_mysql_admin,
+    time_sleep.app_rbac_propagation,
     azurerm_mysql_flexible_server_configuration.require_tls
   ]
 

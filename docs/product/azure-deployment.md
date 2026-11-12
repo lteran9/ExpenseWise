@@ -117,6 +117,8 @@ Each workload has its own user-assigned managed identity, so a compromise of the
 | Migration job | `AcrPull` | Administrator password |
 | Database user job | `AcrPull` | Administrator password, application user password |
 
+Owner on the subscription grants no Key Vault data access. Terraform therefore gives the identity that runs it `Key Vault Secrets Officer` on the vault so that it can write the generated secrets. Workloads only read secrets.
+
 Anyone allowed to start or change the migration or database user jobs can run a different image or command with administrator credentials. The deployment identity in package 3.3 is therefore treated as a database-administrator trust boundary: its role is scoped to the ExpenseWise apps resource group and the registry, and releases run in a protected GitHub environment that only `master` can use.
 
 ## Application readiness requirements
@@ -134,7 +136,7 @@ These changes must be made and tested in package 3.1, without breaking the local
 
 ### Infrastructure as code
 
-The Terraform choice and state handling are recorded in [ADR 0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md), its replacement [ADR 0007](../architecture/decisions/0007-dedicated-expensewise-terraform-state.md), and the layout in [ADR 0009](../architecture/decisions/0009-terraform-bootstrap-and-environment-roots.md). Terraform has two roots:
+The Terraform choice and state handling are recorded in [ADR 0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md), its replacement [ADR 0007](../architecture/decisions/0007-dedicated-expensewise-terraform-state.md), and the layout in [ADR 0009](../architecture/decisions/0009-terraform-bootstrap-and-environment-roots.md), and the first-deployment rollout in [ADR 0010](../architecture/decisions/0010-commit-sha-image-rollout.md). Terraform has two roots:
 
 - [`infra/bootstrap`](../../infra/bootstrap) creates the dedicated state resource group, storage account, `tfstate-<environment>` containers, and delete lock. It keeps its own state locally; that file is ignored by Git, and the owner keeps a private copy.
 - [`infra/azure`](../../infra/azure) is the environment, one root split into files by concern. Committed per-environment inputs live in `environments/<environment>.tfvars` and `environments/<environment>.backend.hcl`. The storage account name is supplied at `init`, the subscription comes from `ARM_SUBSCRIPTION_ID`, and private inputs go in the ignored `local.auto.tfvars`. Release scripts are in `scripts/`, and the database user job image is in `mysql-client/`.
@@ -143,25 +145,29 @@ Both roots pin Terraform 1.16.4 and exact provider versions and commit their dep
 
 Terraform owns the infrastructure, including the Container Apps and jobs, but ignores the container image of each app and job. The release process owns images so that deployments do not fight Terraform.
 
-Bootstrapping the first apply must account for two constraints:
+Bootstrapping the first apply must account for three constraints:
 
-- Container Apps and jobs need a valid image when they are created. Terraform creates every app and job with a public placeholder image pinned by digest, and its health probes must not block the placeholder from starting. The first release replaces the placeholders.
-- Azure role assignments propagate eventually, and Terraform's dependency ordering does not wait for them. Identities, Key Vault, secrets, and role assignments are created first; workloads that reference Key Vault secrets or the registry are created only after access has been confirmed, using a bounded wait or retry. A first-release registry pull that fails for authorization reasons must fail clearly rather than loop.
+- Container Apps and jobs need a pullable image when they are created. Terraform creates every app and job from the registry images tagged with `image_tag`, a full Git commit SHA (never `latest`). Those images must therefore be built before the apps and jobs are created.
+- The API readiness probe checks the database as the application user, which exists only after the database user job has run. The API is therefore created only after the database user and migration jobs succeed.
+- Azure role assignments propagate eventually, and Terraform's dependency ordering does not wait for them. Terraform waits 60 seconds after granting itself Key Vault access before writing secrets, and 60 seconds after the workload role assignments before creating any app or job. If a create still fails with an authorization error, wait a few minutes, then plan and apply again.
 
-### Manual first release and staged provisioning
+### Manual first deployment
 
-The first Terraform apply creates the network, database, registry, vault, identities, and role assignments while `enable_workloads` remains `false`. This separates role creation from Container Apps startup so the first workload revision does not race Azure RBAC propagation.
+The first deployment uses targeted plans so that each step has what it needs. Run every step from the same clean commit. `IMAGE_TAG` defaults to the checked-out commit and selects the images that Terraform creates the apps and jobs with.
 
-1. Sign in with the owner identity, select the intended subscription, and export it as `ARM_SUBSCRIPTION_ID`. For a new subscription, register the Container Apps resource provider with `az provider register --namespace Microsoft.App --wait`; it is not included in the pinned AzureRM provider's default registration set. Put the pinned Terraform first on `PATH`, because the scripts below call `terraform` directly.
+1. Sign in with the owner identity, select the intended subscription, and export it as `ARM_SUBSCRIPTION_ID`. For a new subscription, register the Container Apps resource provider with `az provider register --namespace Microsoft.App --wait`; it is not included in the pinned AzureRM provider's default registration set. Pass `TERRAFORM=<path>` to every `make` command when the pinned Terraform is not the `terraform` on `PATH`; the release script uses the same binary.
 2. Run `terraform -chdir=infra/bootstrap init`, then `terraform -chdir=infra/bootstrap plan -out=bootstrap.tfplan`. Review the plan, apply it with `terraform -chdir=infra/bootstrap apply bootstrap.tfplan`, and record the `storage_account_name` output. The bootstrap identity needs permission to create the resource group, storage account, role assignment, and lock; the root grants that identity `Storage Blob Data Contributor` on each state container. Allow a minute for the role assignment to propagate, and back up `infra/bootstrap/terraform.tfstate` privately.
 3. Create ignored `infra/azure/local.auto.tfvars` containing the private budget-alert recipient, for example `budget_contact_email = "owner@example.com"`. Do not commit this file or put real account identifiers in tracked configuration.
-4. Run `make tf-init TF_STATE_ACCOUNT=<storage_account_name>`, then `make tf-plan ENABLE_WORKLOADS=false ENABLE_PROBES=false`. Inspect the saved plan with `terraform -chdir=infra/azure show dev.tfplan`. Only the owner applies a plan, with `make tf-apply`, after reviewing it.
-5. After the first apply, run [`wait-for-role-assignments.sh`](../../infra/azure/scripts/wait-for-role-assignments.sh). It checks that all configured ACR and Key Vault role assignments are visible before continuing.
-6. Run `make tf-plan ENABLE_WORKLOADS=true ENABLE_PROBES=false`, review it, and have the owner apply it. This creates the apps and manual jobs with pinned public placeholder images.
-7. Once the Terraform branch is committed and the working tree is clean, run [`release.sh`](../../infra/azure/scripts/release.sh) with the full commit SHA. It builds immutable SHA-tagged app images, runs the database-user job and migration job in order, and updates the API before the UI. Any failed job stops before either app is changed.
-8. After the first release replaces the placeholders, run `make tf-plan ENABLE_WORKLOADS=true ENABLE_PROBES=true`. Review and apply that plan, then confirm the next plan with the same flags is empty. The deployment exit gate still requires the live network/HTTPS checks and the browser scenario and persistence checks in the package acceptance criteria.
+4. Commit the changes to be deployed so that the working tree is clean, then run `make tf-init TF_STATE_ACCOUNT=<storage_account_name>`.
+5. Create the budget and registry with `make tf-plan TF_TARGETS="azurerm_consumption_budget_subscription.monthly azurerm_container_registry.expensewise"`. Inspect the saved plan with `terraform -chdir=infra/azure show dev.tfplan`. Only the owner applies a plan, with `make tf-apply`, after reviewing it. Terraform warns that resource targeting is in effect; this is expected here and in step 7.
+6. Run `make azure-images`. It imports the pinned MySQL client base image, then builds the API, UI, and MySQL client images in the registry, tagged with the commit SHA.
+7. Create the jobs and their dependencies with `make tf-plan TF_TARGETS="azurerm_container_app_job.database_user azurerm_container_app_job.migration"`, review the plan, and apply it with `make tf-apply`. This creates the network, database, vault and secrets, identities and role assignments, Container Apps environment, and both jobs, but not the apps.
+8. Run `make azure-database-jobs`. It runs the database user job, then the migration job, and stops if either fails.
+9. Run `make tf-plan` without targets, review the plan, and apply it. This creates the API and UI from the same images; the API becomes ready because the application user and schema now exist. Confirm that the next `make tf-plan` shows no changes. The deployment exit gate still requires the live network/HTTPS checks and the browser scenario and persistence checks in the package acceptance criteria.
 
-`make tf-plan` requires both flags so that a plan never removes running workloads or probes by falling back to the variable defaults. Plan files contain Terraform's sensitive values and are ignored by Git. Keep them private and remove them when they are no longer needed. No infrastructure is provisioned merely by running `terraform init`, `fmt`, `validate`, `test`, or `make tf-check`.
+For later releases, commit and run `make azure-release`. It runs [`release.sh`](../../infra/azure/scripts/release.sh) for the checked-out commit: it builds the images, runs the database user job and then the migration job, and updates the API before the UI. Any failed job stops before either app is changed. Terraform ignores the images of the apps and jobs, so a plan after a release stays empty.
+
+Plan files contain Terraform's sensitive values and are ignored by Git. Keep them private and remove them when they are no longer needed. No infrastructure is provisioned merely by running `terraform init`, `fmt`, `validate`, `test`, or `make tf-check`.
 
 If both the application resources and their state backend were deleted, recreate the backend with `infra/bootstrap` and use `make tf-init`, which reconfigures the backend; do not migrate the old state or reuse saved plans. The monthly budget starts on the first day of the month in which it is first applied, recorded by a `time_static` resource, so no budget dates need editing.
 

@@ -95,3 +95,18 @@ resource "azurerm_role_assignment" "database_user_app_password" {
   principal_id         = azurerm_user_assigned_identity.database_user.principal_id
   principal_type       = "ServicePrincipal"
 }
+
+# Azure RBAC assignments take a short time to propagate; Container Apps and jobs
+# that pull images and resolve secrets before then fail to provision.
+resource "time_sleep" "app_rbac_propagation" {
+  create_duration = "60s"
+
+  depends_on = [
+    azurerm_role_assignment.acr_pull,
+    azurerm_role_assignment.api_mysql_password,
+    azurerm_role_assignment.api_jwt_signing_key,
+    azurerm_role_assignment.migration_mysql_admin,
+    azurerm_role_assignment.database_user_mysql_admin,
+    azurerm_role_assignment.database_user_app_password,
+  ]
+}

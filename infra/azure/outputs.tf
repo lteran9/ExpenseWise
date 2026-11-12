@@ -38,67 +38,27 @@ output "mysql_server_fqdn" {
   value       = azurerm_mysql_flexible_server.expensewise.fqdn
 }
 
-output "workload_role_assignments" {
-  description = "Role assignment scopes required by workload identities."
-  value = concat(
-    [
-      for _, assignment in azurerm_role_assignment.acr_pull : {
-        principal_id = assignment.principal_id
-        scope        = assignment.scope
-        role         = "AcrPull"
-      }
-    ],
-    [
-      {
-        principal_id = azurerm_user_assigned_identity.api.principal_id
-        scope        = azurerm_role_assignment.api_mysql_password.scope
-        role         = "Key Vault Secrets User"
-      },
-      {
-        principal_id = azurerm_user_assigned_identity.api.principal_id
-        scope        = azurerm_role_assignment.api_jwt_signing_key.scope
-        role         = "Key Vault Secrets User"
-      },
-      {
-        principal_id = azurerm_user_assigned_identity.migration.principal_id
-        scope        = azurerm_role_assignment.migration_mysql_admin.scope
-        role         = "Key Vault Secrets User"
-      },
-      {
-        principal_id = azurerm_user_assigned_identity.database_user.principal_id
-        scope        = azurerm_role_assignment.database_user_mysql_admin.scope
-        role         = "Key Vault Secrets User"
-      },
-      {
-        principal_id = azurerm_user_assigned_identity.database_user.principal_id
-        scope        = azurerm_role_assignment.database_user_app_password.scope
-        role         = "Key Vault Secrets User"
-      }
-    ]
-  )
-}
-
 output "container_app_ui_name" {
   description = "UI Container App name."
-  value       = var.enable_workloads ? azurerm_container_app.ui[0].name : null
+  value       = azurerm_container_app.ui.name
 }
 
 output "container_app_ui_url" {
   description = "Public HTTPS URL for the UI."
-  value       = var.enable_workloads ? "https://${azurerm_container_app.ui[0].ingress[0].fqdn}" : null
+  value       = "https://${azurerm_container_app.ui.ingress[0].fqdn}"
 }
 
 output "container_app_api_name" {
   description = "Internal API Container App name."
-  value       = var.enable_workloads ? azurerm_container_app.api[0].name : null
+  value       = azurerm_container_app.api.name
 }
 
 output "database_user_job_name" {
   description = "Manual job that establishes the least-privilege MySQL application user."
-  value       = var.enable_workloads ? azurerm_container_app_job.database_user[0].name : null
+  value       = azurerm_container_app_job.database_user.name
 }
 
 output "migration_job_name" {
   description = "Manual EF Core migration job."
-  value       = var.enable_workloads ? azurerm_container_app_job.migration[0].name : null
+  value       = azurerm_container_app_job.migration.name
 }

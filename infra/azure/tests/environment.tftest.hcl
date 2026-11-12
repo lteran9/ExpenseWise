@@ -107,15 +107,11 @@ mock_provider "time" {
 
 variables {
   budget_contact_email = "alerts@example.com"
+  image_tag            = "0123456789abcdef0123456789abcdef01234567"
 }
 
-run "foundation" {
+run "environment" {
   command = apply
-
-  variables {
-    enable_workloads = false
-    enable_probes    = false
-  }
 
   assert {
     condition = (
@@ -152,6 +148,11 @@ run "foundation" {
         azurerm_user_assigned_identity.api.resource_group_name,
         azurerm_user_assigned_identity.migration.resource_group_name,
         azurerm_user_assigned_identity.database_user.resource_group_name,
+        azurerm_container_app.api.resource_group_name,
+        azurerm_container_app.ui.resource_group_name,
+        azurerm_container_app_job.database_user.resource_group_name,
+        azurerm_container_app_job.migration.resource_group_name,
+        output.apps_resource_group_name,
       ] : name == azurerm_resource_group.apps.name],
     ))
     error_message = "Each resource must live in its lifecycle resource group (ADR 0008)."
@@ -226,77 +227,59 @@ run "foundation" {
 
   assert {
     condition = (
-      length(azurerm_container_app.api) == 0 &&
-      length(azurerm_container_app.ui) == 0 &&
-      length(azurerm_container_app_job.database_user) == 0 &&
-      length(azurerm_container_app_job.migration) == 0 &&
-      output.container_app_ui_url == null
+      azurerm_role_assignment.deployer_secrets_officer.scope == azurerm_key_vault.expensewise.id &&
+      azurerm_role_assignment.deployer_secrets_officer.role_definition_name == "Key Vault Secrets Officer" &&
+      azurerm_role_assignment.deployer_secrets_officer.principal_id == data.azurerm_client_config.current.object_id
     )
-    error_message = "The first stage must not create Container Apps or jobs."
-  }
-}
-
-run "workloads" {
-  command = apply
-
-  variables {
-    enable_workloads = true
-    enable_probes    = false
-  }
-
-  assert {
-    condition = alltrue([
-      for name in [
-        azurerm_container_app.api[0].resource_group_name,
-        azurerm_container_app.ui[0].resource_group_name,
-        azurerm_container_app_job.database_user[0].resource_group_name,
-        azurerm_container_app_job.migration[0].resource_group_name,
-        output.apps_resource_group_name,
-      ] : name == azurerm_resource_group.apps.name
-    ])
-    error_message = "Container Apps and jobs must live in the apps resource group."
+    error_message = "The identity running Terraform needs Key Vault Secrets Officer on the vault to write secrets."
   }
 
   assert {
     condition = (
-      !azurerm_container_app.api[0].ingress[0].external_enabled &&
-      azurerm_container_app.ui[0].ingress[0].external_enabled &&
-      !azurerm_container_app.ui[0].ingress[0].allow_insecure_connections
+      time_sleep.deployer_rbac_propagation.create_duration == "60s" &&
+      time_sleep.app_rbac_propagation.create_duration == "60s"
+    )
+    error_message = "Secrets and workloads must wait for Azure RBAC propagation."
+  }
+
+  assert {
+    condition = (
+      azurerm_container_app.api.template[0].container[0].image == "acrtest.azurecr.io/expensewise-api:${var.image_tag}" &&
+      azurerm_container_app.ui.template[0].container[0].image == "acrtest.azurecr.io/expensewise-ui:${var.image_tag}" &&
+      azurerm_container_app_job.migration.template[0].container[0].image == "acrtest.azurecr.io/expensewise-api:${var.image_tag}" &&
+      azurerm_container_app_job.database_user.template[0].container[0].image == "acrtest.azurecr.io/expensewise-mysql-client:${var.image_tag}"
+    )
+    error_message = "Apps and jobs must start from the commit-tagged images in the registry."
+  }
+
+  assert {
+    condition = (
+      !azurerm_container_app.api.ingress[0].external_enabled &&
+      azurerm_container_app.ui.ingress[0].external_enabled &&
+      !azurerm_container_app.ui.ingress[0].allow_insecure_connections &&
+      startswith(output.container_app_ui_url, "https://")
     )
     error_message = "Only the UI may be public, over HTTPS; the API stays internal."
   }
 
   assert {
     condition = (
-      length(azurerm_container_app.api[0].template[0].container[0].liveness_probe) == 0 &&
-      length(azurerm_container_app.api[0].template[0].container[0].readiness_probe) == 0 &&
-      length(azurerm_container_app.ui[0].template[0].container[0].liveness_probe) == 0
+      one(azurerm_container_app.api.template[0].container[0].liveness_probe).path == "/health/live" &&
+      one(azurerm_container_app.api.template[0].container[0].readiness_probe).path == "/health/ready" &&
+      one(azurerm_container_app.ui.template[0].container[0].liveness_probe).transport == "TCP"
     )
-    error_message = "Probes must stay off until the real images are released."
-  }
-
-  assert {
-    condition     = startswith(output.container_app_ui_url, "https://")
-    error_message = "The UI URL output must be HTTPS."
+    error_message = "The API needs liveness and readiness probes and the UI a liveness probe."
   }
 }
 
-run "probes" {
-  command = apply
+run "rejects_latest_image_tag" {
+  command = plan
 
   variables {
-    enable_workloads = true
-    enable_probes    = true
+    image_tag = "latest"
   }
 
-  assert {
-    condition = (
-      one(azurerm_container_app.api[0].template[0].container[0].liveness_probe).path == "/health/live" &&
-      one(azurerm_container_app.api[0].template[0].container[0].readiness_probe).path == "/health/ready" &&
-      length(azurerm_container_app.ui[0].template[0].container[0].liveness_probe) == 1
-    )
-    error_message = "Enabling probes must add API liveness and readiness probes and a UI liveness probe."
-  }
+  expect_failures = [var.image_tag]
 }
 
 run "rejects_invalid_budget_email" {
