@@ -85,6 +85,9 @@ resource "time_sleep" "app_rbac_propagation" {
 
   # Recreated secret role assignments need the same wait, so their IDs are tracked.
   triggers = {
+    acr_pull_role_assignments = join(",", [
+      for assignment in azurerm_role_assignment.acr_pull : assignment.id
+    ])
     secret_role_assignments = join(",", [
       azurerm_role_assignment.api_mysql_password.id,
       azurerm_role_assignment.api_jwt_signing_key.id,
