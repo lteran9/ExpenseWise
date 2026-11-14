@@ -145,8 +145,9 @@ Both roots pin exact provider versions, commit their dependency lock files, and 
 
 Terraform owns the infrastructure, including the Container Apps and jobs, but ignores the container image of each app and job. The release process owns images so that deployments do not fight Terraform.
 
-Bootstrapping the first apply must account for three constraints:
+Bootstrapping the first apply must account for four constraints:
 
+- The bootstrap storage account disables shared-key access and uses Entra ID for Blob operations. Its container-scoped data role cannot be granted until the container exists, so first create the account, temporarily grant the owner account-scoped Blob access, and remove that grant after the container role propagates.
 - Container Apps and jobs need a pullable image when they are created. Terraform creates every app and job from the registry images tagged with `image_tag`, a full Git commit SHA (never `latest`). Those images must therefore be built before the apps and jobs are created.
 - The API readiness probe checks the database as the application user, which exists only after the database user job has run. The API is therefore created only after the database user and migration jobs succeed.
 - Azure role assignments propagate eventually, and Terraform's dependency ordering does not wait for them. Terraform waits 60 seconds after granting itself Key Vault access before writing secrets, and 60 seconds after the workload role assignments before creating any app or job. If a create still fails with an authorization error, wait a few minutes, then plan and apply again.
@@ -156,14 +157,28 @@ Bootstrapping the first apply must account for three constraints:
 The first deployment uses targeted plans so that each step has what it needs. Run every step from the same clean commit. `IMAGE_TAG` defaults to the checked-out commit and selects the images that Terraform creates the apps and jobs with.
 
 1. Sign in with the owner identity, select the intended subscription, and export it as `ARM_SUBSCRIPTION_ID`. For a new subscription, register the Container Apps resource provider with `az provider register --namespace Microsoft.App --wait`; it is not included in the pinned AzureRM provider's default registration set. Pass `TERRAFORM=<path>` to every `make` command only when you want a binary other than the `terraform` on `PATH`; the release script uses the same binary.
-2. Run `terraform -chdir=infra/bootstrap init`, then `terraform -chdir=infra/bootstrap plan -out=bootstrap.tfplan`. Review the plan, apply it with `terraform -chdir=infra/bootstrap apply bootstrap.tfplan`, and record the `storage_account_name` output. The bootstrap identity needs permission to create the resource group, storage account, role assignment, and lock; the root grants that identity `Storage Blob Data Contributor` on each state container. Allow a minute for the role assignment to propagate, and back up `infra/bootstrap/terraform.tfstate` privately.
-3. Create ignored `infra/azure/local.auto.tfvars` containing the private budget-alert recipient, for example `budget_contact_email = "owner@example.com"`. Do not commit this file or put real account identifiers in tracked configuration.
-4. Commit the changes to be deployed so that the working tree is clean, then run `make tf-init TF_STATE_ACCOUNT=<storage_account_name>`.
-5. Create the budget and registry with `make tf-plan TF_TARGETS="azurerm_consumption_budget_subscription.monthly azurerm_container_registry.expensewise"`. Inspect the saved plan with `terraform -chdir=infra/azure show dev.tfplan`. Only the owner applies a plan, with `make tf-apply`, after reviewing it. Terraform warns that resource targeting is in effect; this is expected here and in step 7.
-6. Run `make azure-images`. It imports the pinned MySQL client base image, then builds the API, UI, and MySQL client images in the registry, tagged with the commit SHA.
-7. Create the jobs and their dependencies with `make tf-plan TF_TARGETS="azurerm_container_app_job.database_user azurerm_container_app_job.migration"`, review the plan, and apply it with `make tf-apply`. This creates the network, database, vault and secrets, identities and role assignments, Container Apps environment, and both jobs, but not the apps.
-8. Run `make azure-database-jobs`. It runs the database user job, then the migration job, and stops if either fails.
-9. Run `make tf-plan` without targets, review the plan, and apply it. This creates the API and UI from the same images; the API becomes ready because the application user and schema now exist. Confirm that the next `make tf-plan` shows no changes. The deployment exit gate still requires the live network/HTTPS checks and the browser scenario and persistence checks in the package acceptance criteria.
+2. Run `terraform -chdir=infra/bootstrap init`. The storage account must exist before its containers can be created: with Entra ID data-plane authorization enabled, the bootstrap identity does not yet have Blob permissions, and the container-scoped role assignment cannot be created until its container exists. First create only the account and its prerequisites with `terraform -chdir=infra/bootstrap plan -target=azurerm_storage_account.state -out=bootstrap-storage.tfplan`; review and apply it with `terraform -chdir=infra/bootstrap apply bootstrap-storage.tfplan`.
+3. Temporarily grant the signed-in owner identity `Storage Blob Data Contributor` on the storage account so Terraform can create the containers. Capture the assignment ID to remove this broader grant after the container-scoped assignment is active:
+   ```sh
+   set -e
+   STORAGE_ACCOUNT_NAME=$(terraform -chdir=infra/bootstrap output -raw storage_account_name)
+   STATE_ACCOUNT_ID=$(az storage account show --name "$STORAGE_ACCOUNT_NAME" --resource-group rg-expensewise-tfstate --query id -o tsv)
+   OWNER_OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
+   TEMP_ROLE_ASSIGNMENT_ID=$(az role assignment create \
+     --assignee-object-id "$OWNER_OBJECT_ID" \
+     --assignee-principal-type User \
+     --role "Storage Blob Data Contributor" \
+     --scope "$STATE_ACCOUNT_ID" \
+     --query id -o tsv)
+   ```
+   Allow a minute for the role assignment to propagate. Then run the normal `terraform -chdir=infra/bootstrap plan -out=bootstrap.tfplan`, review it, and apply it with `terraform -chdir=infra/bootstrap apply bootstrap.tfplan`. Record the `storage_account_name` output, allow the container-scoped role assignment to propagate, and remove the temporary account-scoped grant with `az role assignment delete --ids "$TEMP_ROLE_ASSIGNMENT_ID"`. Back up `infra/bootstrap/terraform.tfstate` privately.
+4. Create ignored `infra/azure/local.auto.tfvars` containing the private budget-alert recipient, for example `budget_contact_email = "owner@example.com"`. Do not commit this file or put real account identifiers in tracked configuration.
+5. Commit the changes to be deployed so that the working tree is clean, then run `make tf-init TF_STATE_ACCOUNT=<storage_account_name>`.
+6. Create the budget and registry with `make tf-plan TF_TARGETS="azurerm_consumption_budget_subscription.monthly azurerm_container_registry.expensewise"`. Inspect the saved plan with `terraform -chdir=infra/azure show dev.tfplan`. Only the owner applies a plan, with `make tf-apply`, after reviewing it. Terraform warns that resource targeting is in effect; this is expected here and in step 8.
+7. Run `make azure-images`. It imports the pinned MySQL client base image, then builds the API, UI, and MySQL client images in the registry, tagged with the commit SHA.
+8. Create the jobs and their dependencies with `make tf-plan TF_TARGETS="azurerm_container_app_job.database_user azurerm_container_app_job.migration"`, review the plan, and apply it with `make tf-apply`. This creates the network, database, vault and secrets, identities and role assignments, Container Apps environment, and both jobs, but not the apps.
+9. Run `make azure-database-jobs`. It runs the database user job, then the migration job, and stops if either fails.
+10. Run `make tf-plan` without targets, review the plan, and apply it. This creates the API and UI from the same images; the API becomes ready because the application user and schema now exist. Confirm that the next `make tf-plan` shows no changes. The deployment exit gate still requires the live network/HTTPS checks and the browser scenario and persistence checks in the package acceptance criteria.
 
 For later releases, commit and run `make azure-release`. It runs [`release.sh`](../../infra/azure/scripts/release.sh) for the checked-out commit: it builds the images, runs the database user job and then the migration job, and updates the API before the UI. Any failed job stops before either app is changed. Terraform ignores the images of the apps and jobs, so a plan after a release stays empty.
 
