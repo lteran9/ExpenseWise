@@ -15,7 +15,6 @@ namespace UI.Filters
 
                 if (!string.IsNullOrEmpty(rawJson))
                 {
-                    // FIX: Deserialize the raw JSON string back into the dictionary
                     var errors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(rawJson);
 
                     if (errors != null)

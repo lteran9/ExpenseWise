@@ -22,7 +22,6 @@ namespace UI.Filters
                             kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
                         );
 
-                    // FIX: Serialize the dictionary to a string before storing it
                     controller.TempData["DeserializedModelStateErrors"] = JsonSerializer.Serialize(errors);
                 }
             }

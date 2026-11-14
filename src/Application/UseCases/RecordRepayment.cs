@@ -101,6 +101,8 @@ namespace Application.UseCases
         }
     }
 
+    public sealed record RecordRepaymentOutcome(Repayment? Repayment, bool Created, string? RejectionReason);
+
     public class RecordRepaymentRequest : IRequest<ResponseWrapper<RecordRepaymentResponse>>
     {
         public Guid ActorKey { get; set; }

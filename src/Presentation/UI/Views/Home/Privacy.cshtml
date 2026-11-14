@@ -4,11 +4,55 @@
 <h1>@ViewData["Title"]</h1>
 
 <p>
-   ExpenseWise runs on the Docker host where you install it. Your name, email address, phone number, password hash,
-   groups, expenses, and recorded repayments are stored only in that installation's MySQL database.
+   ExpenseWise helps groups keep shared expense and repayment records. This page describes information handled by the
+   application. Each ExpenseWise service is managed by the person or organization operating it. If someone else
+   operates the service you use, contact them about their privacy practices.
+</p>
+
+<h2>Information stored</h2>
+<p>ExpenseWise stores information needed to provide its account and group ledger features, including:</p>
+<ul>
+   <li>
+      Account details such as your name, email address, phone number, and country code. Email is used to sign in;
+      phone number and country code are used when a group organizer adds an existing user to a group.
+   </li>
+   <li>
+      Your password is used to protect your account and is not stored in readable form.
+   </li>
+   <li>
+      Group details such as the group name, optional start and end dates, organizer, and members.
+   </li>
+   <li>
+      Expense and repayment records. These include expense descriptions and amounts, payers, people who recorded
+      expenses, participant shares, repayment amounts, senders and recipients, and when repayments were recorded.
+   </li>
+</ul>
+
+<h2>How information is used and shared</h2>
+<p>
+   The application uses account information to let users sign in, and group and ledger information to show group
+   activity and calculate balances. Members of a group can see that group's members, expenses, shares, balances, and
+   repayment history. Group organizers can add existing users and record expenses and repayments. Adding a member
+   does not send an invitation message.
 </p>
 <p>
-   ExpenseWise does not process payments, send notifications, or share data with third parties. Group members can see
-   the group's members, expenses, balances, and repayment history. The person who operates the installation controls
-   its database and backups.
+   ExpenseWise is a ledger, not a payment service. It does not move or verify money. Repayment entries are records
+   entered in the application; any actual transfer happens outside ExpenseWise. The application does not send email
+   or text-message notifications.
+</p>
+
+<h2>Storage and service providers</h2>
+<p>
+   Account and ledger information is kept by the operator of the ExpenseWise service you use. The application also
+   uses necessary sign-in information to keep you signed in.
+</p>
+<p>
+   The operator may use service providers to host, maintain, or monitor the service. Those providers may process
+   information as part of providing their services. Contact the operator to learn which providers are involved and how
+   their practices apply to your information.
+</p>
+<p>
+   The service may collect information to help keep it operating and address problems. The operator controls who can
+   access stored information and copies, as well as how long they are kept. Archiving a group does not delete its
+   ledger records. Contact the operator with questions about access to or removal of your data.
 </p>
