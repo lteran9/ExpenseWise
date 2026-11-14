@@ -13,7 +13,7 @@ resource "azurerm_container_app_environment" "expensewise" {
   logs_destination                   = "log-analytics"
   log_analytics_workspace_id         = azurerm_log_analytics_workspace.expensewise.id
   zone_redundancy_enabled            = false
-  infrastructure_resource_group_name = "me_expensewise_${var.environment}"
+  infrastructure_resource_group_name = "ME_expensewise_${var.environment}"
 
   workload_profile {
     name                  = "Consumption"
