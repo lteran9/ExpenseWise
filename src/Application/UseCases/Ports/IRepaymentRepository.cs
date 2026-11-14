@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Application.UseCases;
 using Core.Entities;
 
 namespace Application.UseCases.Ports
@@ -22,8 +23,4 @@ namespace Application.UseCases.Ports
             Func<GroupLedger, string?> validateAgainstLedger,
             CancellationToken cancellationToken);
     }
-
-    public sealed record GroupLedgerSnapshot(GroupLedger Ledger, List<Repayment> Repayments);
-
-    public sealed record RecordRepaymentOutcome(Repayment? Repayment, bool Created, string? RejectionReason);
 }
