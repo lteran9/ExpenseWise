@@ -27,4 +27,5 @@ README.md
 **/*.tfstate
 **/*.tfstate.*
 **/*.auto.tfvars
+**/*.plan
 **/*.tfplan
