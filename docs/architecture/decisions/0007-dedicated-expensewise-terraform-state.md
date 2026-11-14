@@ -1,6 +1,6 @@
 # ADR 0007: Dedicated Terraform state storage for ExpenseWise
 
-- Status: Accepted
+- Status: Accepted; bootstrap mechanism, container name, and backend configuration amended by [ADR 0009](0009-terraform-bootstrap-and-environment-roots.md)
 - Date: 2026-10-29
 - Supersedes: [ADR 0006](0006-terraform-infrastructure-as-code.md) if accepted
 

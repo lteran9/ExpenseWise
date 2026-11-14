@@ -182,11 +182,11 @@ The owner chose to pursue a single public Azure demo environment, provisioned wi
 | --- | --- | --- |
 | 3.0 Specification and ADRs | None | Azure deployment specification and ADRs [0005](../architecture/decisions/0005-azure-container-apps-hosting.md) and [0006](../architecture/decisions/0006-terraform-infrastructure-as-code.md). |
 | 3.1 Application readiness | 3.0 | Production-mode images, forwarded headers and secure cookies, health endpoints, configurable database TLS, and non-root containers, without breaking Compose. |
-| 3.2 Terraform foundation and first release | 3.1 | Terraform for the demo environment, the state container bootstrap, the release script, and a manual first release verified in a browser. |
-| 3.3 Deployment pipeline | 3.2 | GitHub Actions release using OpenID Connect, plus Terraform format and validation checks on pull requests. |
+| 3.2 Terraform foundation and first release | 3.1 | Terraform for the demo environment, the state bootstrap root, credential-free Terraform checks in CI, the release script, and a manual first release verified in a browser. |
+| 3.3 Deployment pipeline | 3.2 | GitHub Actions release using OpenID Connect. |
 | 3.4 Azure operations guide | 3.2 | Restore rehearsal, logs, budget, cost controls, secret rotation, and teardown documentation. |
 
-Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate passed on 2026-10-29; see the [verification record](#package-31-application-readiness-verification-2026-10-29). Package 3.2 implementation is underway; see the [Terraform validation record](#package-32-terraform-foundation-progress).
+Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate passed on 2026-10-29; see the [verification record](#package-31-application-readiness-verification-2026-10-29). Package 3.2 implementation is underway; see the [Terraform validation record](#package-32-terraform-foundation-progress) and the [exit-gate verification](#package-32-exit-gate-verification-2026-11-13).
 
 ### Package 3.1 application-readiness verification (2026-10-29)
 
@@ -205,7 +205,37 @@ Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate pas
 - The dedicated state backend was bootstrapped and its protection settings verified. [ADR 0007](../architecture/decisions/0007-dedicated-expensewise-terraform-state.md) is accepted and supersedes the shared-account design in ADR 0006.
 - The first-stage apply was partial, creating 22 managed resources. MySQL provisioning failed with `ProvisionNotSupportedForRegion` in `westus3`; the subscription's MySQL SKU catalog returned no entries for that region. Azure normalizes the Container Apps subnet delegation action to `Microsoft.Network/virtualNetworks/subnets/join/action`, now matched in configuration to avoid recurring drift.
 - On 2026-10-30, the owner authorized direct Azure CLI deletion of both ExpenseWise resource groups. The application group was deleted first, then the state deletion lock and backend group. Both groups are verified absent; other projects were untouched. The Key Vault remains soft-deleted until its retention period expires; it was not purged.
-- Deployment is paused pending a new subscription and a supported region. The old remote state and saved plans cannot be reused. No Container Apps/jobs or first-release browser checks were completed. Package 3.2 remains incomplete; retry requires selecting the subscription, reviewing the region decision, bootstrapping a new backend, and reviewing a fresh plan before any apply.
+- At the end of that attempt, deployment was paused pending a new subscription and a supported region. The old remote state and saved plans cannot be reused. No Container Apps/jobs or first-release browser checks were completed. Package 3.2 remained incomplete; retry required selecting the subscription, reviewing the region decision, bootstrapping a new backend, and reviewing a fresh plan before any apply.
+
+### Package 3.2 deployment restart (2026-11-13)
+
+- The owner selected a new subscription and retained `westus3`. Its MySQL SKU catalog lists `Standard_B1ms`; this confirms a supported offering, not guaranteed provisioning capacity.
+- Created a fresh dedicated state backend and verified `Standard_GRS`, HTTPS/TLS 1.2, disabled shared-key authorization and public blob access, a private state container, versioning, 30-day blob/container retention, and the resource-group deletion lock. Granted the Terraform identity `Storage Blob Data Contributor` only on the state container and verified data access after RBAC propagation.
+- Initialized the fresh backend with `terraform init -reconfigure`, without migrating old state. The backend contains no managed application resources. The new subscription's `Microsoft.App` provider was registered explicitly in addition to AzureRM's default registrations.
+- Used Terraform 1.16.4 with the existing provider lock file; `terraform fmt -check -recursive` and `terraform validate` passed. Moved the new monthly budget's start date to November 1 so it falls within the deployment month.
+- Generated and inspected an ignored first-stage plan targeting the new subscription. It includes private B1ms MySQL in `westus3`, with `enable_workloads = false` and `enable_probes = false`.
+- Before applying, the owner split the single application resource group into network, data, shared, and apps groups and replaced the resource-group budget with a $40 monthly subscription budget ([ADR 0008](../architecture/decisions/0008-resource-groups-by-lifecycle.md)). The release script now reads the apps group from the `apps_resource_group_name` output. The regenerated plan had 37 additions, each verified to be in its intended group.
+- The owner then restructured Terraform into an `infra/bootstrap` root with local state and an `infra/azure` environment root with committed `environments/dev.tfvars` and `dev.backend.hcl`, mock-provider tests, root Make targets, and a credential-free CI `infrastructure` job running Checkov ([ADR 0009](../architecture/decisions/0009-terraform-bootstrap-and-environment-roots.md)). The budget start date is now recorded by `time_static` at first apply.
+- Verified the script-created state blob was empty (serial 1, no resources), removed its lock, and deleted that state group. `infra/bootstrap` recreated `rg-expensewise-tfstate` with the ADR 0007 settings, the private `tfstate-dev` container, a container-scoped `Storage Blob Data Contributor` assignment for the owner, and the deletion lock; a second bootstrap plan showed no changes. `make tf-init` initialized the new backend without migrating state.
+- `make tf-check` steps passed: formatting, validation of both roots, four mock-provider test runs, and Checkov 3.3.24 with 0 failed checks (accepted trade-offs are documented skips). `make tf-plan ENABLE_WORKLOADS=false ENABLE_PROBES=false` produced **38 additions, 0 changes, 0 destructions**. All resources are in their intended groups, all 19 taggable resources carry owner `Luis Teran`, and MySQL public access is disabled.
+- Reviewing that plan before applying it found that Owner grants no Key Vault data access, so writing the generated secrets would fail with HTTP 403. The owner adopted the pattern from their other Terraform project ([ADR 0010](../architecture/decisions/0010-commit-sha-image-rollout.md)):
+  - Terraform grants its identity `Key Vault Secrets Officer` and waits 60 seconds before writing secrets.
+  - Workloads wait 60 seconds after their role assignments.
+  - Apps and jobs start from commit-SHA-tagged images, with probes always on, replacing the placeholder rollout and the `ENABLE_*` flags.
+  - The 38-addition plan was discarded.
+- After the redesign, `make tf-check` steps passed again: three mock-provider test runs, and Checkov with 0 failed checks. Read-only plans from empty state for the three first-deployment stages add 5 resources (budget and registry), 41 (everything except the apps and budget), and 45 (everything).
+- Stopped before applying the application infrastructure. The application resource groups remain absent. The next step is to commit, then follow the first-deployment runbook in the [Azure deployment specification](azure-deployment.md#manual-first-deployment), with owner review of each plan. Package 3.2 and its live acceptance checks remain incomplete.
+
+### Package 3.2 exit-gate verification (2026-11-13)
+
+- The first release was deployed from commit `093d5f3`, later amended to `67cddd9` with identical contents. Both apps run images tagged `093d5f3`, and the database-user and migration jobs both succeeded before the apps were created. Commit `f26ad57` changed only the UI's API URL, so it needed no new images. Its application code matches the deployed images.
+- Met on the live stack: MySQL public network access is disabled. The internal API is not served from the internet: its hostname resolves to the environment's public IP, where the gateway returns 404. Plain HTTP to the UI returns 301 to HTTPS with no content. A second plan shows no changes.
+- Met in a browser: `ScenarioATests` completed scenario A against the Azure UI in headless Chromium, including exact balances at every step (42 seconds). After both revisions were restarted, `RestartPersistenceTests` signed in again and found the same ledger, expenses, shares, repayments, and zero balances.
+- Found and fixed during deployment and acceptance:
+  - The manual jobs planned an in-place update on every run until they declared the `Consumption` workload profile (`093d5f3`).
+  - Scenario A's first run failed at registration with HTTP 405. The UI called the internal API over `http://`, and with insecure connections disabled the port-80 redirect likely turned the POST into a GET. The UI now calls the internal name over HTTPS (`f26ad57`), and a mock test requires it.
+  - The secret role assignments were scoped to secret versions. They now use the versionless secret (`42b890f`).
+- Open: `make tf-check` has not passed on the final files. Formatting, validation, and the mock tests pass, but Checkov needs Docker, which was not running. Package 3.2 stays incomplete until `make tf-check` passes on the final commit.
 
 ## Maintaining the specification
 

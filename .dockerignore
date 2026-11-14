@@ -26,6 +26,6 @@ README.md
 **/.terraform/
 **/*.tfstate
 **/*.tfstate.*
-**/backend.hcl
-**/dev.local.tfvars
-**/*.plan
+**/*.auto.tfvars
+**/*.plan
+**/*.tfplan
