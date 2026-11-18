@@ -4,6 +4,8 @@ Status: Accepted (package 3.0). Created and accepted: 2026-10-27.
 
 This specification defines the first [Phase 3](roadmap.md#phase-3-optional-publicself-hosted-service) deliverable: one publicly reachable demonstration environment of ExpenseWise on Azure, provisioned with Terraform. It does not change product behavior defined in the [Phase 1 specification](README.md).
 
+The environment is operated on demand. When a demo is not in use, the complete `infra/azure` root is destroyed while its separate `infra/bootstrap` state backend remains protected. The hosting and networking architecture below is unchanged while deployed. [ADR 0012](../architecture/decisions/0012-on-demand-azure-demo-lifecycle.md) records this cost-control decision.
+
 ## Purpose and owner decisions
 
 ExpenseWise is deployed as a portfolio demonstration, not as a service for real financial data. The project owner decided on 2026-10-27:
@@ -186,6 +188,25 @@ Plan files contain Terraform's sensitive values and are ignored by Git. Keep the
 
 If both the application resources and their state backend were deleted, recreate the backend with `infra/bootstrap` and use `make tf-init`, which reconfigures the backend; do not migrate the old state or reuse saved plans. The monthly budget starts on the first day of the month in which it is first applied, recorded by a `time_static` resource, so no budget dates need editing.
 
+### On-demand teardown
+
+Routine teardown removes the entire application environment, not just individual managed resources. This is necessary because Container Apps owns the load balancer and public IP in the `me_expensewise_dev` infrastructure group.
+
+1. Back up any data that must survive. Full teardown deletes the active MySQL server, database, registry images, apps, jobs, network, and Container Apps managed ingress. Azure retains the deleted Key Vault in soft-deleted state for seven days. Demo data is otherwise considered disposable.
+2. Generate a destroy plan from the initialized environment:
+   ```sh
+   make azure-teardown-plan
+   terraform -chdir=infra/azure show -no-color dev-teardown.tfplan
+   ```
+3. Review that the plan deletes the application root only and does **not** contain the separately bootstrapped state resource group or storage account. The plan must show no additions or changes.
+4. Apply that exact reviewed plan with an explicit environment confirmation:
+   ```sh
+   make azure-teardown AZURE_TEARDOWN_CONFIRM=ExpenseWise-dev
+   ```
+5. Verify that the four application resource groups are gone and the `rg-expensewise-tfstate` group remains. Remove the private plan file after verification.
+
+To recreate the demo, keep the private bootstrap state and local inputs, run `make tf-init TF_STATE_ACCOUNT=<storage_account_name>`, and repeat the staged first-deployment sequence above from step 6: create the budget and registry, build images, create and run the database jobs, and then create the API and UI. Do not reuse the old destroy plan or assume the generated hostname, credentials, registry contents, or demo data survived. If the demo data must survive, restore the separate backup after the database is recreated and before user verification.
+
 ### Release sequence
 
 A single scripted release procedure is used both manually (package 3.2) and from GitHub Actions (package 3.3):
@@ -215,9 +236,9 @@ Only the owner applies Terraform. The pipeline identity in package 3.3 may build
 
 ## Estimated cost
 
-An unverified estimate of approximately USD 25–40 per month at pay-as-you-go `westus3` prices, dominated by the MySQL server, Container Registry Basic, and the two always-on replicas. The Container Apps monthly free grant is shared with other workloads in the subscription and is not assumed. Fixed replica counts bound compute cost, but log ingestion grows with traffic. Package 3.2 confirms the estimate with the Azure pricing calculator.
+Live Cost Management meters on 2026-11-18 measured the Container Apps platform-managed Standard Load Balancer at approximately USD 0.60 per day and its Standard static public IP at USD 0.12 per day: approximately USD 21.60 over 30 days. The rest of a continuously deployed environment adds MySQL, Container Registry Basic, Container Apps replicas, private DNS, Key Vault operations, logs, and small state-storage charges. Actual rates depend on region, usage, free-grant availability, and Azure pricing changes.
 
-Stopping the MySQL server when the demo is not needed saves compute cost, but storage and backups are still billed and Azure starts a stopped server automatically after 30 days.
+The operating cost control is therefore full on-demand teardown, not stopping only MySQL. Stopping MySQL leaves the Container Apps load balancer and other fixed resources running, storage and backups remain billed, and Azure starts a stopped Flexible Server automatically after 30 days. The teardown procedure above removes the application root's billable resources and retains only the protected, low-cost state backend.
 
 ## Accepted risks and limitations
 
