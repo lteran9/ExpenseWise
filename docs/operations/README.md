@@ -66,6 +66,27 @@ To apply newly added migrations, run `docker compose run --build --rm migrate` t
 
 The named `expensewise-mysql` volume keeps the database across container recreation and `docker compose down`. Do not use `docker compose down -v` if the data should be retained.
 
+## Azure demo lifecycle
+
+The Azure deployment is intentionally on demand. Keep the architecture deployed only while it is needed for a demo; full teardown removes the Container Apps platform-managed load balancer, its public IP, MySQL, Container Registry, Key Vault, and the supporting network and application resources. The separately bootstrapped Terraform state backend remains protected.
+
+Generate and review a destroy plan before every teardown:
+
+```bash
+make azure-teardown-plan
+terraform -chdir=infra/azure show -no-color dev-teardown.tfplan
+```
+
+After confirming that the plan contains no additions or changes and does not delete `rg-expensewise-tfstate`, apply the exact saved plan:
+
+```bash
+make azure-teardown AZURE_TEARDOWN_CONFIRM=ExpenseWise-dev
+```
+
+Full teardown deletes the active demo database and container images. Azure retains the Key Vault in soft-deleted state for seven days. Back up any data that must survive and remove the ignored `dev-teardown.tfplan` after verification. Recreate the environment with the staged process in the [Azure deployment runbook](../product/azure-deployment.md#manual-first-deployment); it may use new generated names, secrets, and a new public hostname.
+
+Do not delete `capp-svc-lb` or its public IP directly. They are Azure-managed Container Apps ingress resources and will be removed with the Terraform-owned Container Apps environment. [ADR 0012](../architecture/decisions/0012-on-demand-azure-demo-lifecycle.md) records the on-demand lifecycle decision.
+
 ### Restarting the stack
 
 Restart with `docker compose down` followed by `docker compose up -d`. Compose then waits for MySQL to be healthy, runs the migration service, and starts the API only after migration succeeds. Avoid `docker compose restart` for the whole stack: it does not honor `depends_on`, so the migration service can start before MySQL is ready, fail to connect, and stay running while the API starts against an unmigrated database. If that happens, run `docker compose down` and `docker compose up -d`.

@@ -237,6 +237,12 @@ Package 3.0 was accepted by the owner on 2026-10-27. Package 3.1's exit gate pas
   - The secret role assignments were scoped to secret versions. They now use the versionless secret (`42b890f`).
 - Open: `make tf-check` has not passed on the final files. Formatting, validation, and the mock tests pass, but Checkov needs Docker, which was not running. Package 3.2 stays incomplete until `make tf-check` passes on the final commit.
 
+### Package 3.4 on-demand lifecycle progress (2026-11-18)
+
+- The owner accepted [ADR 0012](../architecture/decisions/0012-on-demand-azure-demo-lifecycle.md): keep the Container Apps architecture unchanged while deployed, but destroy the complete application root when the CV demo is idle and retain only the protected Terraform state backend.
+- Added `make azure-teardown-plan` and `make azure-teardown` with a saved plan review and environment-specific confirmation. Updated the Azure deployment and operations guides with the data-loss and staged recreation requirements.
+- Generated a plan containing **0 additions, 0 changes, and 45 deletions**, confirmed it contained no state-backend resources, and applied it with owner approval. Terraform application state now has zero entries. The four application groups and the Azure-managed `me_expensewise_dev` group are absent, the managed load balancer and public IP are gone, and `rg-expensewise-tfstate` remains with its storage account.
+
 ## Maintaining the specification
 
 1. Keep [product scope](README.md) as the source of truth for intended behavior.

@@ -15,6 +15,7 @@ These ADRs capture decisions visible in the current repository so that contribut
 | [0009: Terraform bootstrap and environment roots](0009-terraform-bootstrap-and-environment-roots.md) | Bootstrap state with its own Terraform root, keep per-environment inputs in `infra/azure/environments`, and check Terraform in CI. | Accepted; amended by ADR 0010 |
 | [0010: Commit-SHA images and RBAC waits for the first deployment](0010-commit-sha-image-rollout.md) | Grant Terraform's identity Key Vault secret write access, wait for RBAC, and create workloads from commit-tagged images in targeted stages. | Accepted |
 | [0011: Use the latest Terraform CLI release](0011-latest-terraform-release.md) | Stop pinning the Terraform CLI version; keep provider pins and lock files. | Proposed; would amend ADR 0009 |
+| [0012: On-demand lifecycle for the Azure demo](0012-on-demand-azure-demo-lifecycle.md) | Destroy the disposable application infrastructure when idle while retaining the protected Terraform state backend. | Accepted |
 
 ## Writing or changing a decision
 
